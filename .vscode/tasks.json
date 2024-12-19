@@ -1,0 +1,16 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Arkanoid",
+            "type": "shell",
+            "command": "make && ./arkanoid",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "detail": "Compiling and running Arkanoid"
+        }
+    ]
+}
