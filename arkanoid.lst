@@ -378,195 +378,224 @@
    228                                  
    229 00000A74 2800000000000000        	ball_x_pos: dq 40
    230 00000A7C 1C00000000000000        	ball_y_pos: dq 28
-   231                                  
-   232                                  
-   233                                  section .text
-   234                                  
-   235                                  ;	Function: print_ball
-   236                                  ; This function displays the position of the ball
-   237                                  ; Arguments: none
-   238                                  ;
-   239                                  ; Return:
-   240                                  ;	Void
-   241                                  print_ball:
-   242 000001D3 4C8B05(740A0000)        	mov r8, [ball_x_pos]
-   243 000001DA 4C8B0D(7C0A0000)        	mov r9, [ball_y_pos]
-   244 000001E1 4981C0[00000000]        	add r8, board
-   245                                  
-   246 000001E8 4C89C9                  	mov rcx, r9
-   247 000001EB B852000000              	mov rax, column_cells + 2
-   248 000001F0 48F7E9                  	imul rcx
-   249                                  	
-   250 000001F3 4901C0                  	add r8, rax
-   251 000001F6 41C6004F                	mov byte [r8], char_O
-   252 000001FA C3                      	ret
-   253                                  
-   254                                  	
-   255                                  	;mov rax, board + r8 + r9 * (column_cells + 2)
-   256                                  	
+   231                                  ; Definir los límites de la pantalla o área de juego
+   232                                      board_top_left_x equ 1
+   233                                      board_top_left_y equ 1
+   234                                      board_bottom_right_x equ column_cells - 1
+   235                                      board_bottom_right_y equ row_cells
+   236                                  
+   237                                      ; Limites laterales
+   238                                      left_edge equ board_top_left_x               ; Límite izquierdo en la primera columna
+   239                                      right_edge equ board_bottom_right_x         ; Límite derecho en la última columna
+   240                                  
+   241                                      ; O también puedes hacerlo así si prefieres usando las coordenadas en memoria para obtener la ubicación exacta:
+   242 00000A84 [5200000000000000]          left_edge_position dq board + (board_top_left_y * (column_cells + 2)) ; Coordenada de la parte izquierda del marco
+   243 00000A8C [A000000000000000]          right_edge_position dq board + (board_top_left_y * (column_cells + 2) + board_bottom_right_x - 1) ; Coordenada de la parte derecha del marco
+   244                                  
+   245                                  section .text
+   246                                  
+   247                                  ;	Function: print_ball
+   248                                  ; This function displays the position of the ball
+   249                                  ; Arguments: none
+   250                                  ;
+   251                                  ; Return:
+   252                                  ;	Void
+   253                                  print_ball:
+   254 000001D3 4C8B05(740A0000)        	mov r8, [ball_x_pos]
+   255 000001DA 4C8B0D(7C0A0000)        	mov r9, [ball_y_pos]
+   256 000001E1 4981C0[00000000]        	add r8, board
    257                                  
-   258                                  
-   259                                  
-   260                                  ;	Function: print_pallet
-   261                                  ; This function moves the pallet in the game
-   262                                  ; Arguments: none
-   263                                  ;
-   264                                  ; Return;
-   265                                  ;	void
-   266                                  print_pallet:
-   267 000001FB 4C8B05(640A0000)        	mov r8, [pallet_position]
-   268 00000202 488B0D(6C0A0000)        	mov rcx, [pallet_size]
-   269                                  	.write_pallet:
-   270 00000209 41C6003D                		mov byte [r8], char_equal
-   271 0000020D 49FFC0                  		inc r8
-   272 00000210 48FFC9                  		dec rcx
-   273 00000213 75F4                    		jnz .write_pallet
-   274                                  
-   275 00000215 C3                      	ret
-   276                                  	
-   277                                  ;	Function: move_pallet
-   278                                  ; This function is in charge of moving the pallet in a given direction
-   279                                  ; Arguments:
-   280                                  ;	rdi: left direction or right direction
-   281                                  ;
-   282                                  ; Return:
-   283                                  ;	void
-   284                                  move_pallet:
-   285 00000216 4883FFFF                	cmp rdi, left_direction
-   286 0000021A 7520                    	jne .move_right
-   287                                  	.move_left:
-   288 0000021C 4C8B05(640A0000)        		mov r8, [pallet_position]
-   289 00000223 4C8B0D(6C0A0000)        		mov r9, [pallet_size]
-   290 0000022A 43C64408FF20            		mov byte [r8 + r9 - 1], char_space
-   291 00000230 49FFC8                  		dec r8
-   292 00000233 4C8905(640A0000)        		mov [pallet_position], r8
-   293 0000023A EB15                    		jmp .end
-   294                                  	.move_right:
-   295 0000023C 4C8B05(640A0000)        		mov r8, [pallet_position]
-   296 00000243 41C60020                		mov byte [r8], char_space
-   297 00000247 49FFC0                  		inc r8
-   298 0000024A 4C8905(640A0000)        		mov [pallet_position], r8
-   299                                  	.end:
-   300 00000251 C3                      	ret
-   301                                  
-   302                                  _start:
-   303 00000252 E8CAFEFFFF              	call canonical_off
-   304 00000257 E8CA000000              	call start_screen
-   305 0000025C EB00                    	jmp .main_loop
-   306                                  	
-   307                                  
-   308                                  	.main_loop:
-   309 0000025E E898FFFFFF              		call print_pallet
-   310 00000263 E86BFFFFFF              		call print_ball
-   311                                  		print board, board_size				
-    82 00000268 B801000000          <1>  mov eax, sys_write
-    83 0000026D BF01000000          <1>  mov edi, 1
-    84 00000272 48BE-               <1>  mov rsi, %1
-    84 00000274 [0000000000000000]  <1>
-    85 0000027C BA400A0000          <1>  mov edx, %2
-    86 00000281 0F05                <1>  syscall
-   312                                  		;setnonblocking	
-   313                                  	.read_more:	
-   314                                  		getchar	
-    90 00000283 B800000000          <1>  mov rax, sys_read
-    91 00000288 BF00000000          <1>  mov rdi, STDIN_FILENO
-    92 0000028D 48BE-               <1>  mov rsi, input_char
-    92 0000028F [0000000000000000]  <1>
-    93 00000297 BA01000000          <1>  mov rdx, 1
-    94 0000029C 0F05                <1>  syscall
-   315                                  		
-   316 0000029E 4883F801                		cmp rax, 1
-   317 000002A2 7532                        	jne .done
-   318                                  		
-   319 000002A4 8A05(00000000)          		mov al,[input_char]
-   320                                  
-   321 000002AA 3C61                    		cmp al, 'a'
-   322 000002AC 750E                    	    jne .not_left
-   323 000002AE 48C7C7FFFFFFFF          	    mov rdi, left_direction
-   324 000002B5 E85CFFFFFF              		call move_pallet
-   325 000002BA EB1A                    	    jmp .done
-   326                                  		
-   327                                  		.not_left:
-   328 000002BC 3C64                    		 	cmp al, 'd'
-   329 000002BE 750C                    	    	jne .not_right
-   330 000002C0 BF01000000              			mov rdi, right_direction
-   331 000002C5 E84CFFFFFF              	    	call move_pallet
-   332 000002CA EB0A                        		jmp .done		
-   333                                  
-   334                                  		.not_right:
-   335                                  
-   336 000002CC 3C71                        		cmp al, 'q'
-   337 000002CE 0F84C5000000                		je exit
-   338                                  
-   339 000002D4 EBAD                    			jmp .read_more
-   340                                  		
-   341                                  		.done:	
-   342                                  			;unsetnonblocking		
-   343                                  			sleeptime	
-    98 000002D6 B823000000          <1>  mov eax, sys_nanosleep
-    99 000002DB 48BF-               <1>  mov rdi, timespec
-    99 000002DD [0000000000000000]  <1>
-   100 000002E5 31F6                <1>  xor esi, esi
-   101 000002E7 0F05                <1>  syscall
-   344                                  			print clear, clear_length
-    82 000002E9 B801000000          <1>  mov eax, sys_write
-    83 000002EE BF01000000          <1>  mov edi, 1
-    84 000002F3 48BE-               <1>  mov rsi, %1
-    84 000002F5 [1000000000000000]  <1>
-    85 000002FD BA07000000          <1>  mov edx, %2
-    86 00000302 0F05                <1>  syscall
-   345 00000304 E955FFFFFF                  		jmp .main_loop
-   346                                  
-   347                                  		print clear, clear_length
-    82 00000309 B801000000          <1>  mov eax, sys_write
-    83 0000030E BF01000000          <1>  mov edi, 1
-    84 00000313 48BE-               <1>  mov rsi, %1
-    84 00000315 [1000000000000000]  <1>
-    85 0000031D BA07000000          <1>  mov edx, %2
-    86 00000322 0F05                <1>  syscall
-   348                                  		
-   349 00000324 EB73                    		jmp exit
-   350                                  
-   351                                  
-   352                                  start_screen:
-   353                                      print clear, clear_length    ; Limpiamos la pantalla primero
-    82 00000326 B801000000          <1>  mov eax, sys_write
-    83 0000032B BF01000000          <1>  mov edi, 1
-    84 00000330 48BE-               <1>  mov rsi, %1
-    84 00000332 [1000000000000000]  <1>
-    85 0000033A BA07000000          <1>  mov edx, %2
-    86 0000033F 0F05                <1>  syscall
-   354                                      print msg1, msg1_length
-    82 00000341 B801000000          <1>  mov eax, sys_write
-    83 00000346 BF01000000          <1>  mov edi, 1
-    84 0000034B 48BE-               <1>  mov rsi, %1
-    84 0000034D [1700000000000000]  <1>
-    85 00000355 BA0A010000          <1>  mov edx, %2
-    86 0000035A 0F05                <1>  syscall
-   355                                      
-   356                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
-   357                                          getchar                 ; Esperamos una tecla
-    90 0000035C B800000000          <1>  mov rax, sys_read
-    91 00000361 BF00000000          <1>  mov rdi, STDIN_FILENO
-    92 00000366 48BE-               <1>  mov rsi, input_char
-    92 00000368 [0000000000000000]  <1>
-    93 00000370 BA01000000          <1>  mov rdx, 1
-    94 00000375 0F05                <1>  syscall
-   358 00000377 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
-   359 0000037B 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
-   360                                          
-   361                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
-    82 0000037D B801000000          <1>  mov eax, sys_write
-    83 00000382 BF01000000          <1>  mov edi, 1
-    84 00000387 48BE-               <1>  mov rsi, %1
-    84 00000389 [1000000000000000]  <1>
-    85 00000391 BA07000000          <1>  mov edx, %2
-    86 00000396 0F05                <1>  syscall
-   362 00000398 C3                          ret
-   363                                  
-   364                                  exit: 
-   365 00000399 E8C5FDFFFF              	call canonical_on
-   366 0000039E B83C000000              	mov    rax, 60
-   367 000003A3 BF00000000                  mov    rdi, 0
-   368 000003A8 0F05                        syscall
-   369                                  
+   258 000001E8 4C89C9                  	mov rcx, r9
+   259 000001EB B852000000              	mov rax, column_cells + 2
+   260 000001F0 48F7E9                  	imul rcx
+   261                                  	
+   262 000001F3 4901C0                  	add r8, rax
+   263 000001F6 41C6004F                	mov byte [r8], char_O
+   264 000001FA C3                      	ret
+   265                                  
+   266                                  	
+   267                                  	;mov rax, board + r8 + r9 * (column_cells + 2)
+   268                                  	
+   269                                  
+   270                                  
+   271                                  
+   272                                  ;	Function: print_pallet
+   273                                  ; This function moves the pallet in the game
+   274                                  ; Arguments: none
+   275                                  ;
+   276                                  ; Return;
+   277                                  ;	void
+   278                                  print_pallet:
+   279 000001FB 4C8B05(640A0000)        	mov r8, [pallet_position]
+   280 00000202 488B0D(6C0A0000)        	mov rcx, [pallet_size]
+   281                                  	.write_pallet:
+   282 00000209 41C6003D                		mov byte [r8], char_equal
+   283 0000020D 49FFC0                  		inc r8
+   284 00000210 48FFC9                  		dec rcx
+   285 00000213 75F4                    		jnz .write_pallet
+   286                                  
+   287 00000215 C3                      	ret
+   288                                  	
+   289                                  ;	Function: move_pallet
+   290                                  ; This function is in charge of moving the pallet in a given direction
+   291                                  ; Arguments:
+   292                                  ;	rdi: left direction or right direction
+   293                                  ;
+   294                                  ; Return:
+   295                                  ;	void
+   296                                  move_pallet:
+   297 00000216 4883FFFF                    cmp rdi, left_direction
+   298 0000021A 7531                        jne .move_right
+   299                                      
+   300                                      .move_left:
+   301                                          ; Verificar si la siguiente posición sería una X (borde izquierdo)
+   302 0000021C 4C8B05(640A0000)                mov r8, [pallet_position]
+   303 00000223 49FFC8                          dec r8              ; Verificar la posición a la izquierda
+   304 00000226 418A00                          mov al, [r8]       ; Cargar el carácter en esa posición
+   305 00000229 3C58                            cmp al, 'X'        ; Comparar si es una X
+   306 0000022B 744D                            je .end            ; Si es X, no mover
+   307                                          
+   308 0000022D 4C8B05(640A0000)                mov r8, [pallet_position]
+   309 00000234 4C8B0D(6C0A0000)                mov r9, [pallet_size]
+   310 0000023B 43C64408FF20                    mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter de la paleta
+   311 00000241 49FFC8                          dec r8
+   312 00000244 4C8905(640A0000)                mov [pallet_position], r8
+   313 0000024B EB2D                            jmp .end
+   314                                          
+   315                                      .move_right:
+   316                                          ; Verificar si la siguiente posición después de la paleta sería una X
+   317 0000024D 4C8B05(640A0000)                mov r8, [pallet_position]
+   318 00000254 4C8B0D(6C0A0000)                mov r9, [pallet_size]
+   319 0000025B 4D01C8                          add r8, r9         ; Moverse al final de la paleta
+   320 0000025E 418A00                          mov al, [r8]       ; Cargar el carácter en esa posición
+   321 00000261 3C58                            cmp al, 'X'        ; Comparar si es una X
+   322 00000263 7415                            je .end            ; Si es X, no mover
+   323                                          
+   324 00000265 4C8B05(640A0000)                mov r8, [pallet_position]
+   325 0000026C 41C60020                        mov byte [r8], char_space
+   326 00000270 49FFC0                          inc r8
+   327 00000273 4C8905(640A0000)                mov [pallet_position], r8
+   328                                      .end:
+   329 0000027A C3                              ret
+   330                                  
+   331                                  _start:
+   332 0000027B E8A1FEFFFF              	call canonical_off
+   333 00000280 E8CA000000              	call start_screen
+   334 00000285 EB00                    	jmp .main_loop
+   335                                  	
+   336                                  
+   337                                  	.main_loop:
+   338 00000287 E86FFFFFFF              		call print_pallet
+   339 0000028C E842FFFFFF              		call print_ball
+   340                                  		print board, board_size				
+    82 00000291 B801000000          <1>  mov eax, sys_write
+    83 00000296 BF01000000          <1>  mov edi, 1
+    84 0000029B 48BE-               <1>  mov rsi, %1
+    84 0000029D [0000000000000000]  <1>
+    85 000002A5 BA400A0000          <1>  mov edx, %2
+    86 000002AA 0F05                <1>  syscall
+   341                                  		;setnonblocking	
+   342                                  	.read_more:	
+   343                                  		getchar	
+    90 000002AC B800000000          <1>  mov rax, sys_read
+    91 000002B1 BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 000002B6 48BE-               <1>  mov rsi, input_char
+    92 000002B8 [0000000000000000]  <1>
+    93 000002C0 BA01000000          <1>  mov rdx, 1
+    94 000002C5 0F05                <1>  syscall
+   344                                  		
+   345 000002C7 4883F801                		cmp rax, 1
+   346 000002CB 7532                        	jne .done
+   347                                  		
+   348 000002CD 8A05(00000000)          		mov al,[input_char]
+   349                                  
+   350 000002D3 3C61                    		cmp al, 'a'
+   351 000002D5 750E                    	    jne .not_left
+   352 000002D7 48C7C7FFFFFFFF          	    mov rdi, left_direction
+   353 000002DE E833FFFFFF              		call move_pallet
+   354 000002E3 EB1A                    	    jmp .done
+   355                                  		
+   356                                  		.not_left:
+   357 000002E5 3C64                    		 	cmp al, 'd'
+   358 000002E7 750C                    	    	jne .not_right
+   359 000002E9 BF01000000              			mov rdi, right_direction
+   360 000002EE E823FFFFFF              	    	call move_pallet
+   361 000002F3 EB0A                        		jmp .done		
+   362                                  
+   363                                  		.not_right:
+   364                                  
+   365 000002F5 3C71                        		cmp al, 'q'
+   366 000002F7 0F84C5000000                		je exit
+   367                                  
+   368 000002FD EBAD                    			jmp .read_more
+   369                                  		
+   370                                  		.done:	
+   371                                  			;unsetnonblocking		
+   372                                  			sleeptime	
+    98 000002FF B823000000          <1>  mov eax, sys_nanosleep
+    99 00000304 48BF-               <1>  mov rdi, timespec
+    99 00000306 [0000000000000000]  <1>
+   100 0000030E 31F6                <1>  xor esi, esi
+   101 00000310 0F05                <1>  syscall
+   373                                  			print clear, clear_length
+    82 00000312 B801000000          <1>  mov eax, sys_write
+    83 00000317 BF01000000          <1>  mov edi, 1
+    84 0000031C 48BE-               <1>  mov rsi, %1
+    84 0000031E [1000000000000000]  <1>
+    85 00000326 BA07000000          <1>  mov edx, %2
+    86 0000032B 0F05                <1>  syscall
+   374 0000032D E955FFFFFF                  		jmp .main_loop
+   375                                  
+   376                                  		print clear, clear_length
+    82 00000332 B801000000          <1>  mov eax, sys_write
+    83 00000337 BF01000000          <1>  mov edi, 1
+    84 0000033C 48BE-               <1>  mov rsi, %1
+    84 0000033E [1000000000000000]  <1>
+    85 00000346 BA07000000          <1>  mov edx, %2
+    86 0000034B 0F05                <1>  syscall
+   377                                  		
+   378 0000034D EB73                    		jmp exit
+   379                                  
+   380                                  
+   381                                  start_screen:
+   382                                      print clear, clear_length    ; Limpiamos la pantalla primero
+    82 0000034F B801000000          <1>  mov eax, sys_write
+    83 00000354 BF01000000          <1>  mov edi, 1
+    84 00000359 48BE-               <1>  mov rsi, %1
+    84 0000035B [1000000000000000]  <1>
+    85 00000363 BA07000000          <1>  mov edx, %2
+    86 00000368 0F05                <1>  syscall
+   383                                      print msg1, msg1_length
+    82 0000036A B801000000          <1>  mov eax, sys_write
+    83 0000036F BF01000000          <1>  mov edi, 1
+    84 00000374 48BE-               <1>  mov rsi, %1
+    84 00000376 [1700000000000000]  <1>
+    85 0000037E BA0A010000          <1>  mov edx, %2
+    86 00000383 0F05                <1>  syscall
+   384                                      
+   385                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
+   386                                          getchar                 ; Esperamos una tecla
+    90 00000385 B800000000          <1>  mov rax, sys_read
+    91 0000038A BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 0000038F 48BE-               <1>  mov rsi, input_char
+    92 00000391 [0000000000000000]  <1>
+    93 00000399 BA01000000          <1>  mov rdx, 1
+    94 0000039E 0F05                <1>  syscall
+   387 000003A0 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
+   388 000003A4 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
+   389                                          
+   390                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
+    82 000003A6 B801000000          <1>  mov eax, sys_write
+    83 000003AB BF01000000          <1>  mov edi, 1
+    84 000003B0 48BE-               <1>  mov rsi, %1
+    84 000003B2 [1000000000000000]  <1>
+    85 000003BA BA07000000          <1>  mov edx, %2
+    86 000003BF 0F05                <1>  syscall
+   391 000003C1 C3                          ret
+   392                                  
+   393                                  exit: 
+   394 000003C2 E89CFDFFFF              	call canonical_on
+   395 000003C7 B83C000000              	mov    rax, 60
+   396 000003CC BF00000000                  mov    rdi, 0
+   397 000003D1 0F05                        syscall
+   398                                  

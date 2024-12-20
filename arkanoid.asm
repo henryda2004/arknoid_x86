@@ -228,7 +228,19 @@ section .data
 
 	ball_x_pos: dq 40
 	ball_y_pos: dq 28
+; Definir los límites de la pantalla o área de juego
+    board_top_left_x equ 1
+    board_top_left_y equ 1
+    board_bottom_right_x equ column_cells - 1
+    board_bottom_right_y equ row_cells
 
+    ; Limites laterales
+    left_edge equ board_top_left_x               ; Límite izquierdo en la primera columna
+    right_edge equ board_bottom_right_x         ; Límite derecho en la última columna
+
+    ; O también puedes hacerlo así si prefieres usando las coordenadas en memoria para obtener la ubicación exacta:
+    left_edge_position dq board + (board_top_left_y * (column_cells + 2)) ; Coordenada de la parte izquierda del marco
+    right_edge_position dq board + (board_top_left_y * (column_cells + 2) + board_bottom_right_x - 1) ; Coordenada de la parte derecha del marco
 
 section .text
 
@@ -282,22 +294,39 @@ print_pallet:
 ; Return:
 ;	void
 move_pallet:
-	cmp rdi, left_direction
-	jne .move_right
-	.move_left:
-		mov r8, [pallet_position]
-		mov r9, [pallet_size]
-		mov byte [r8 + r9 - 1], char_space
-		dec r8
-		mov [pallet_position], r8
-		jmp .end
-	.move_right:
-		mov r8, [pallet_position]
-		mov byte [r8], char_space
-		inc r8
-		mov [pallet_position], r8
-	.end:
-	ret
+    cmp rdi, left_direction
+    jne .move_right
+    
+    .move_left:
+        ; Verificar si la siguiente posición sería una X (borde izquierdo)
+        mov r8, [pallet_position]
+        dec r8              ; Verificar la posición a la izquierda
+        mov al, [r8]       ; Cargar el carácter en esa posición
+        cmp al, 'X'        ; Comparar si es una X
+        je .end            ; Si es X, no mover
+        
+        mov r8, [pallet_position]
+        mov r9, [pallet_size]
+        mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter de la paleta
+        dec r8
+        mov [pallet_position], r8
+        jmp .end
+        
+    .move_right:
+        ; Verificar si la siguiente posición después de la paleta sería una X
+        mov r8, [pallet_position]
+        mov r9, [pallet_size]
+        add r8, r9         ; Moverse al final de la paleta
+        mov al, [r8]       ; Cargar el carácter en esa posición
+        cmp al, 'X'        ; Comparar si es una X
+        je .end            ; Si es X, no mover
+        
+        mov r8, [pallet_position]
+        mov byte [r8], char_space
+        inc r8
+        mov [pallet_position], r8
+    .end:
+        ret
 
 _start:
 	call canonical_off
