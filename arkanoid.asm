@@ -34,13 +34,17 @@ clear_length:	equ $-clear
 
 ; Start Message
 msg1: db "        TECNOLOGICO DE COSTA RICA        ", 0xA, 0xD
-msg2: db "        ERNESTO RIVERA ALVARADO        ", 0xA, 0xD
-msg3: db "        INTENTO DE ARKANOID CLONE        ", 0xA, 0xD
-msg4: db "        PRESIONE ENTER PARA INICIAR        ", 0xA, 0xD
-msg1_length:	equ $-msg1
-msg2_length:	equ $-msg2
-msg3_length:	equ $-msg3
-msg4_length:	equ $-msg4
+msg2: db "        ARQUITECTURA DE COMPUTADORAS I        ", 0xA, 0xD
+msg3: db "        ESTUDIANTE: HENRY NUNEZ PEREZ        ", 0xA, 0xD
+msg4: db "        PROFESOR: ERNESTO RIVERA ALVARADO        ", 0xA, 0xD
+msg5: db "        ARKANOID RETRO        ", 0xA, 0xD
+msg6: db "        PRESIONE ENTER PARA INICIAR        ", 0xA, 0xD
+msg1_length: equ $-msg1
+msg2_length: equ $-msg2
+msg3_length: equ $-msg3
+msg4_length: equ $-msg4
+msg5_length: equ $-msg5
+msg6_length: equ $-msg6
 
 ; Usefull macros
 
@@ -297,9 +301,10 @@ move_pallet:
 
 _start:
 	call canonical_off
-	print clear, clear_length	
-	call start_screen	
+	call start_screen
+	jmp .main_loop
 	
+
 	.main_loop:
 		call print_pallet
 		call print_ball
@@ -345,11 +350,16 @@ _start:
 
 
 start_screen:
-	
-	print msg1, msg1_length	
-	getchar
-	print clear, clear_length
-	ret
+    print clear, clear_length    ; Limpiamos la pantalla primero
+    print msg1, msg1_length
+    
+    .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
+        getchar                 ; Esperamos una tecla
+        cmp rax, 1             ; Verificamos si se leyó un carácter
+        jne .wait_for_key      ; Si no se leyó, seguimos esperando
+        
+    print clear, clear_length   ; Limpiamos la pantalla antes de salir
+    ret
 
 exit: 
 	call canonical_on

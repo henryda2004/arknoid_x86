@@ -38,515 +38,535 @@
     36 00000029 4F20444520434F5354-
     36 00000032 412052494341202020-
     36 0000003B 20202020200A0D     
-    37 00000042 202020202020202045-     msg2: db "        ERNESTO RIVERA ALVARADO        ", 0xA, 0xD
-    37 0000004B 524E4553544F205249-
-    37 00000054 5645524120414C5641-
-    37 0000005D 5241444F2020202020-
-    37 00000066 2020200A0D         
-    38 0000006B 202020202020202049-     msg3: db "        INTENTO DE ARKANOID CLONE        ", 0xA, 0xD
-    38 00000074 4E54454E544F204445-
-    38 0000007D 2041524B414E4F4944-
-    38 00000086 20434C4F4E45202020-
-    38 0000008F 20202020200A0D     
-    39 00000096 202020202020202050-     msg4: db "        PRESIONE ENTER PARA INICIAR        ", 0xA, 0xD
-    39 0000009F 524553494F4E452045-
-    39 000000A8 4E5445522050415241-
-    39 000000B1 20494E494349415220-
-    39 000000BA 202020202020200A0D 
-    40                                  msg1_length:	equ $-msg1
-    41                                  msg2_length:	equ $-msg2
-    42                                  msg3_length:	equ $-msg3
-    43                                  msg4_length:	equ $-msg4
-    44                                  
-    45                                  ; Usefull macros
-    46                                  
-    47                                  
+    37 00000042 202020202020202041-     msg2: db "        ARQUITECTURA DE COMPUTADORAS I        ", 0xA, 0xD
+    37 0000004B 525155495445435455-
+    37 00000054 524120444520434F4D-
+    37 0000005D 50555441444F524153-
+    37 00000066 204920202020202020-
+    37 0000006F 200A0D             
+    38 00000072 202020202020202045-     msg3: db "        ESTUDIANTE: HENRY NUNEZ PEREZ        ", 0xA, 0xD
+    38 0000007B 5354554449414E5445-
+    38 00000084 3A2048454E5259204E-
+    38 0000008D 554E455A2050455245-
+    38 00000096 5A2020202020202020-
+    38 0000009F 0A0D               
+    39 000000A1 202020202020202050-     msg4: db "        PROFESOR: ERNESTO RIVERA ALVARADO        ", 0xA, 0xD
+    39 000000AA 524F4645534F523A20-
+    39 000000B3 45524E4553544F2052-
+    39 000000BC 495645524120414C56-
+    39 000000C5 415241444F20202020-
+    39 000000CE 202020200A0D       
+    40 000000D4 202020202020202041-     msg5: db "        ARKANOID RETRO        ", 0xA, 0xD
+    40 000000DD 524B414E4F49442052-
+    40 000000E6 4554524F2020202020-
+    40 000000EF 2020200A0D         
+    41 000000F4 202020202020202050-     msg6: db "        PRESIONE ENTER PARA INICIAR        ", 0xA, 0xD
+    41 000000FD 524553494F4E452045-
+    41 00000106 4E5445522050415241-
+    41 0000010F 20494E494349415220-
+    41 00000118 202020202020200A0D 
+    42                                  msg1_length: equ $-msg1
+    43                                  msg2_length: equ $-msg2
+    44                                  msg3_length: equ $-msg3
+    45                                  msg4_length: equ $-msg4
+    46                                  msg5_length: equ $-msg5
+    47                                  msg6_length: equ $-msg6
     48                                  
-    49                                  %macro setnonblocking 0
-    50                                  	mov rax, sys_fcntl
-    51                                      mov rdi, STDIN_FILENO
-    52                                      mov rsi, F_SETFL
-    53                                      mov rdx, O_NONBLOCK
-    54                                      syscall
-    55                                  %endmacro
-    56                                  
-    57                                  %macro unsetnonblocking 0
-    58                                  	mov rax, sys_fcntl
-    59                                      mov rdi, STDIN_FILENO
-    60                                      mov rsi, F_SETFL
-    61                                      mov rdx, 0
-    62                                      syscall
-    63                                  %endmacro
-    64                                  
-    65                                  %macro full_line 0
-    66                                      times column_cells db "X"
-    67                                      db 0x0a, 0xD
-    68                                  %endmacro
-    69                                  
-    70                                  %macro hollow_line 0
-    71                                      db "X"
-    72                                      times column_cells-2 db " "
-    73                                      db "X", 0x0a, 0xD
-    74                                  %endmacro
-    75                                  
-    76                                  
-    77                                  %macro print 2
-    78                                  	mov eax, sys_write
-    79                                  	mov edi, 1 	; stdout
-    80                                  	mov rsi, %1
-    81                                  	mov edx, %2
-    82                                  	syscall
-    83                                  %endmacro
-    84                                  
-    85                                  %macro getchar 0
-    86                                  	mov     rax, sys_read
-    87                                      mov     rdi, STDIN_FILENO
-    88                                      mov     rsi, input_char
-    89                                      mov     rdx, 1 ; number of bytes
-    90                                      syscall         ;read text input from keyboard
-    91                                  %endmacro
-    92                                  
-    93                                  %macro sleeptime 0
-    94                                  	mov eax, sys_nanosleep
-    95                                  	mov rdi, timespec
-    96                                  	xor esi, esi		; ignore remaining time in case of call interruption
-    97                                  	syscall			; sleep for tv_sec seconds + tv_nsec nanoseconds
-    98                                  %endmacro
-    99                                  
-   100                                  
-   101                                  
-   102                                  global _start
+    49                                  ; Usefull macros
+    50                                  
+    51                                  
+    52                                  
+    53                                  %macro setnonblocking 0
+    54                                  	mov rax, sys_fcntl
+    55                                      mov rdi, STDIN_FILENO
+    56                                      mov rsi, F_SETFL
+    57                                      mov rdx, O_NONBLOCK
+    58                                      syscall
+    59                                  %endmacro
+    60                                  
+    61                                  %macro unsetnonblocking 0
+    62                                  	mov rax, sys_fcntl
+    63                                      mov rdi, STDIN_FILENO
+    64                                      mov rsi, F_SETFL
+    65                                      mov rdx, 0
+    66                                      syscall
+    67                                  %endmacro
+    68                                  
+    69                                  %macro full_line 0
+    70                                      times column_cells db "X"
+    71                                      db 0x0a, 0xD
+    72                                  %endmacro
+    73                                  
+    74                                  %macro hollow_line 0
+    75                                      db "X"
+    76                                      times column_cells-2 db " "
+    77                                      db "X", 0x0a, 0xD
+    78                                  %endmacro
+    79                                  
+    80                                  
+    81                                  %macro print 2
+    82                                  	mov eax, sys_write
+    83                                  	mov edi, 1 	; stdout
+    84                                  	mov rsi, %1
+    85                                  	mov edx, %2
+    86                                  	syscall
+    87                                  %endmacro
+    88                                  
+    89                                  %macro getchar 0
+    90                                  	mov     rax, sys_read
+    91                                      mov     rdi, STDIN_FILENO
+    92                                      mov     rsi, input_char
+    93                                      mov     rdx, 1 ; number of bytes
+    94                                      syscall         ;read text input from keyboard
+    95                                  %endmacro
+    96                                  
+    97                                  %macro sleeptime 0
+    98                                  	mov eax, sys_nanosleep
+    99                                  	mov rdi, timespec
+   100                                  	xor esi, esi		; ignore remaining time in case of call interruption
+   101                                  	syscall			; sleep for tv_sec seconds + tv_nsec nanoseconds
+   102                                  %endmacro
    103                                  
-   104                                  section .bss
+   104                                  
    105                                  
-   106 00000000 ??                      input_char: resb 1
+   106                                  global _start
    107                                  
-   108                                  section .data
+   108                                  section .bss
    109                                  
-   110                                  	board:
-   111                                  		full_line
-    66 00000000 58<rep 50h>         <1>  times column_cells db "X"
-    67 00000050 0A0D                <1>  db 0x0a, 0xD
-   112                                          %rep 30
-   113                                          hollow_line
-   114                                          %endrep
-   113                              <1>  hollow_line
-    71 00000052 58                  <2>  db "X"
-    72 00000053 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000000A1 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 000000A4 58                  <2>  db "X"
-    72 000000A5 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000000F3 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 000000F6 58                  <2>  db "X"
-    72 000000F7 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000145 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 00000148 58                  <2>  db "X"
-    72 00000149 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000197 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 0000019A 58                  <2>  db "X"
-    72 0000019B 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000001E9 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 000001EC 58                  <2>  db "X"
-    72 000001ED 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 0000023B 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 0000023E 58                  <2>  db "X"
-    72 0000023F 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 0000028D 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 00000290 58                  <2>  db "X"
-    72 00000291 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000002DF 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 000002E2 58                  <2>  db "X"
-    72 000002E3 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000331 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 00000334 58                  <2>  db "X"
-    72 00000335 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000383 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 00000386 58                  <2>  db "X"
-    72 00000387 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000003D5 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 000003D8 58                  <2>  db "X"
-    72 000003D9 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000427 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 0000042A 58                  <2>  db "X"
-    72 0000042B 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000479 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 0000047C 58                  <2>  db "X"
-    72 0000047D 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000004CB 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 000004CE 58                  <2>  db "X"
-    72 000004CF 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 0000051D 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 00000520 58                  <2>  db "X"
-    72 00000521 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 0000056F 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 00000572 58                  <2>  db "X"
-    72 00000573 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000005C1 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 000005C4 58                  <2>  db "X"
-    72 000005C5 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000613 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 00000616 58                  <2>  db "X"
-    72 00000617 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000665 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 00000668 58                  <2>  db "X"
-    72 00000669 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000006B7 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 000006BA 58                  <2>  db "X"
-    72 000006BB 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000709 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 0000070C 58                  <2>  db "X"
-    72 0000070D 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 0000075B 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 0000075E 58                  <2>  db "X"
-    72 0000075F 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000007AD 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 000007B0 58                  <2>  db "X"
-    72 000007B1 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000007FF 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 00000802 58                  <2>  db "X"
-    72 00000803 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000851 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 00000854 58                  <2>  db "X"
-    72 00000855 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000008A3 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 000008A6 58                  <2>  db "X"
-    72 000008A7 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000008F5 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 000008F8 58                  <2>  db "X"
-    72 000008F9 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000947 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 0000094A 58                  <2>  db "X"
-    72 0000094B 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 00000999 580A0D              <2>  db "X", 0x0a, 0xD
-   113                              <1>  hollow_line
-    71 0000099C 58                  <2>  db "X"
-    72 0000099D 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    73 000009EB 580A0D              <2>  db "X", 0x0a, 0xD
-   115                                          full_line
-    66 000009EE 58<rep 50h>         <1>  times column_cells db "X"
-    67 00000A3E 0A0D                <1>  db 0x0a, 0xD
-   116                                  	board_size:   equ   $ - board
-   117                                  
-   118                                  	; Added for the terminal issue
-   119 00000A40 00<rep 24h>             	termios:        times 36 db 0
-   120                                  	stdin:          equ 0
-   121                                  	ICANON:         equ 1<<1
-   122                                  	ECHO:           equ 1<<3
-   123                                  	VTIME: 			equ 5
-   124                                  	VMIN:			equ 6
-   125                                  	CC_C:			equ 18
-   126                                  
-   127                                  section .text
-   128                                  ;;;;;;;;;;;;;;;;;;;;for the working of the terminal;;;;;;;;;;;;;;;;;
-   129                                  canonical_off:
-   130 000000C3 E86F000000                      call read_stdin_termios
-   131                                  
-   132                                          ; clear canonical bit in local mode flags
-   133 000000C8 50                              push rax
-   134 000000C9 B802000000                      mov eax, ICANON
-   135 000000CE F7D0                            not eax
-   136 000000D0 2105(4C0A0000)                  and [termios+12], eax
-   137 000000D6 C605(570A0000)00        		mov byte[termios+CC_C+VTIME], 0
-   138 000000DD C605(580A0000)00        		mov byte[termios+CC_C+VMIN], 0
-   139 000000E4 58                              pop rax
-   140                                  
-   141 000000E5 E86C000000                      call write_stdin_termios
-   142 000000EA C3                              ret
-   143                                  
-   144                                  echo_off:
-   145 000000EB E847000000                      call read_stdin_termios
-   146                                  
-   147                                          ; clear echo bit in local mode flags
-   148 000000F0 50                              push rax
-   149 000000F1 B808000000                      mov eax, ECHO
-   150 000000F6 F7D0                            not eax
-   151 000000F8 2105(4C0A0000)                  and [termios+12], eax
-   152 000000FE 58                              pop rax
-   153                                  
-   154 000000FF E852000000                      call write_stdin_termios
-   155 00000104 C3                              ret
-   156                                  
-   157                                  canonical_on:
-   158 00000105 E82D000000                      call read_stdin_termios
-   159                                  
-   160                                          ; set canonical bit in local mode flags
-   161 0000010A 830D(4C0A0000)02                or dword [termios+12], ICANON
-   162 00000111 C605(570A0000)00        		mov byte[termios+CC_C+VTIME], 0
-   163 00000118 C605(580A0000)01        		mov byte[termios+CC_C+VMIN], 1
-   164 0000011F E832000000                      call write_stdin_termios
-   165 00000124 C3                              ret
-   166                                  
-   167                                  echo_on:
-   168 00000125 E80D000000                      call read_stdin_termios
-   169                                  
-   170                                          ; set echo bit in local mode flags
-   171 0000012A 830D(4C0A0000)08                or dword [termios+12], ECHO
-   172                                  
-   173 00000131 E820000000                      call write_stdin_termios
-   174 00000136 C3                              ret
-   175                                  
-   176                                  read_stdin_termios:
-   177 00000137 50                              push rax
-   178 00000138 53                              push rbx
-   179 00000139 51                              push rcx
-   180 0000013A 52                              push rdx
-   181                                  
-   182 0000013B B836000000                      mov eax, 36h
-   183 00000140 BB00000000                      mov ebx, stdin
-   184 00000145 B901540000                      mov ecx, 5401h
-   185 0000014A BA[400A0000]                    mov edx, termios
-   186 0000014F CD80                            int 80h
-   187                                  
-   188 00000151 5A                              pop rdx
-   189 00000152 59                              pop rcx
-   190 00000153 5B                              pop rbx
-   191 00000154 58                              pop rax
-   192 00000155 C3                              ret
-   193                                  
-   194                                  write_stdin_termios:
-   195 00000156 50                              push rax
-   196 00000157 53                              push rbx
-   197 00000158 51                              push rcx
-   198 00000159 52                              push rdx
-   199                                  
-   200 0000015A B836000000                      mov eax, 36h
-   201 0000015F BB00000000                      mov ebx, stdin
-   202 00000164 B902540000                      mov ecx, 5402h
-   203 00000169 BA[400A0000]                    mov edx, termios
-   204 0000016E CD80                            int 80h
-   205                                  
-   206 00000170 5A                              pop rdx
-   207 00000171 59                              pop rcx
-   208 00000172 5B                              pop rbx
-   209 00000173 58                              pop rax
-   210 00000174 C3                              ret
-   211                                  
-   212                                  ;;;;;;;;;;;;;;;;;;;;end for the working of the terminal;;;;;;;;;;;;
-   213                                  
-   214                                  char_equal: equ 61
-   215                                  char_space: equ 32
-   216                                  char_O: equ 79
-   217                                  left_direction: equ -1
-   218                                  right_direction: equ 1
-   219                                  
-   220                                  
-   221                                  section .data
-   222 00000A64 [7209000000000000]      	pallet_position dq board + 40 + 29 * (column_cells +2)
-   223 00000A6C 0300000000000000        	pallet_size dq 3
+   110 00000000 ??                      input_char: resb 1
+   111                                  
+   112                                  section .data
+   113                                  
+   114                                  	board:
+   115                                  		full_line
+    70 00000000 58<rep 50h>         <1>  times column_cells db "X"
+    71 00000050 0A0D                <1>  db 0x0a, 0xD
+   116                                          %rep 30
+   117                                          hollow_line
+   118                                          %endrep
+   117                              <1>  hollow_line
+    75 00000052 58                  <2>  db "X"
+    76 00000053 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000000A1 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 000000A4 58                  <2>  db "X"
+    76 000000A5 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000000F3 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 000000F6 58                  <2>  db "X"
+    76 000000F7 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000145 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 00000148 58                  <2>  db "X"
+    76 00000149 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000197 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 0000019A 58                  <2>  db "X"
+    76 0000019B 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000001E9 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 000001EC 58                  <2>  db "X"
+    76 000001ED 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 0000023B 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 0000023E 58                  <2>  db "X"
+    76 0000023F 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 0000028D 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 00000290 58                  <2>  db "X"
+    76 00000291 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000002DF 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 000002E2 58                  <2>  db "X"
+    76 000002E3 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000331 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 00000334 58                  <2>  db "X"
+    76 00000335 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000383 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 00000386 58                  <2>  db "X"
+    76 00000387 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000003D5 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 000003D8 58                  <2>  db "X"
+    76 000003D9 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000427 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 0000042A 58                  <2>  db "X"
+    76 0000042B 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000479 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 0000047C 58                  <2>  db "X"
+    76 0000047D 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000004CB 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 000004CE 58                  <2>  db "X"
+    76 000004CF 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 0000051D 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 00000520 58                  <2>  db "X"
+    76 00000521 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 0000056F 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 00000572 58                  <2>  db "X"
+    76 00000573 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000005C1 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 000005C4 58                  <2>  db "X"
+    76 000005C5 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000613 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 00000616 58                  <2>  db "X"
+    76 00000617 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000665 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 00000668 58                  <2>  db "X"
+    76 00000669 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000006B7 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 000006BA 58                  <2>  db "X"
+    76 000006BB 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000709 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 0000070C 58                  <2>  db "X"
+    76 0000070D 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 0000075B 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 0000075E 58                  <2>  db "X"
+    76 0000075F 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000007AD 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 000007B0 58                  <2>  db "X"
+    76 000007B1 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000007FF 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 00000802 58                  <2>  db "X"
+    76 00000803 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000851 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 00000854 58                  <2>  db "X"
+    76 00000855 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000008A3 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 000008A6 58                  <2>  db "X"
+    76 000008A7 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000008F5 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 000008F8 58                  <2>  db "X"
+    76 000008F9 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000947 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 0000094A 58                  <2>  db "X"
+    76 0000094B 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 00000999 580A0D              <2>  db "X", 0x0a, 0xD
+   117                              <1>  hollow_line
+    75 0000099C 58                  <2>  db "X"
+    76 0000099D 20<rep 4Eh>         <2>  times column_cells-2 db " "
+    77 000009EB 580A0D              <2>  db "X", 0x0a, 0xD
+   119                                          full_line
+    70 000009EE 58<rep 50h>         <1>  times column_cells db "X"
+    71 00000A3E 0A0D                <1>  db 0x0a, 0xD
+   120                                  	board_size:   equ   $ - board
+   121                                  
+   122                                  	; Added for the terminal issue
+   123 00000A40 00<rep 24h>             	termios:        times 36 db 0
+   124                                  	stdin:          equ 0
+   125                                  	ICANON:         equ 1<<1
+   126                                  	ECHO:           equ 1<<3
+   127                                  	VTIME: 			equ 5
+   128                                  	VMIN:			equ 6
+   129                                  	CC_C:			equ 18
+   130                                  
+   131                                  section .text
+   132                                  ;;;;;;;;;;;;;;;;;;;;for the working of the terminal;;;;;;;;;;;;;;;;;
+   133                                  canonical_off:
+   134 00000121 E86F000000                      call read_stdin_termios
+   135                                  
+   136                                          ; clear canonical bit in local mode flags
+   137 00000126 50                              push rax
+   138 00000127 B802000000                      mov eax, ICANON
+   139 0000012C F7D0                            not eax
+   140 0000012E 2105(4C0A0000)                  and [termios+12], eax
+   141 00000134 C605(570A0000)00        		mov byte[termios+CC_C+VTIME], 0
+   142 0000013B C605(580A0000)00        		mov byte[termios+CC_C+VMIN], 0
+   143 00000142 58                              pop rax
+   144                                  
+   145 00000143 E86C000000                      call write_stdin_termios
+   146 00000148 C3                              ret
+   147                                  
+   148                                  echo_off:
+   149 00000149 E847000000                      call read_stdin_termios
+   150                                  
+   151                                          ; clear echo bit in local mode flags
+   152 0000014E 50                              push rax
+   153 0000014F B808000000                      mov eax, ECHO
+   154 00000154 F7D0                            not eax
+   155 00000156 2105(4C0A0000)                  and [termios+12], eax
+   156 0000015C 58                              pop rax
+   157                                  
+   158 0000015D E852000000                      call write_stdin_termios
+   159 00000162 C3                              ret
+   160                                  
+   161                                  canonical_on:
+   162 00000163 E82D000000                      call read_stdin_termios
+   163                                  
+   164                                          ; set canonical bit in local mode flags
+   165 00000168 830D(4C0A0000)02                or dword [termios+12], ICANON
+   166 0000016F C605(570A0000)00        		mov byte[termios+CC_C+VTIME], 0
+   167 00000176 C605(580A0000)01        		mov byte[termios+CC_C+VMIN], 1
+   168 0000017D E832000000                      call write_stdin_termios
+   169 00000182 C3                              ret
+   170                                  
+   171                                  echo_on:
+   172 00000183 E80D000000                      call read_stdin_termios
+   173                                  
+   174                                          ; set echo bit in local mode flags
+   175 00000188 830D(4C0A0000)08                or dword [termios+12], ECHO
+   176                                  
+   177 0000018F E820000000                      call write_stdin_termios
+   178 00000194 C3                              ret
+   179                                  
+   180                                  read_stdin_termios:
+   181 00000195 50                              push rax
+   182 00000196 53                              push rbx
+   183 00000197 51                              push rcx
+   184 00000198 52                              push rdx
+   185                                  
+   186 00000199 B836000000                      mov eax, 36h
+   187 0000019E BB00000000                      mov ebx, stdin
+   188 000001A3 B901540000                      mov ecx, 5401h
+   189 000001A8 BA[400A0000]                    mov edx, termios
+   190 000001AD CD80                            int 80h
+   191                                  
+   192 000001AF 5A                              pop rdx
+   193 000001B0 59                              pop rcx
+   194 000001B1 5B                              pop rbx
+   195 000001B2 58                              pop rax
+   196 000001B3 C3                              ret
+   197                                  
+   198                                  write_stdin_termios:
+   199 000001B4 50                              push rax
+   200 000001B5 53                              push rbx
+   201 000001B6 51                              push rcx
+   202 000001B7 52                              push rdx
+   203                                  
+   204 000001B8 B836000000                      mov eax, 36h
+   205 000001BD BB00000000                      mov ebx, stdin
+   206 000001C2 B902540000                      mov ecx, 5402h
+   207 000001C7 BA[400A0000]                    mov edx, termios
+   208 000001CC CD80                            int 80h
+   209                                  
+   210 000001CE 5A                              pop rdx
+   211 000001CF 59                              pop rcx
+   212 000001D0 5B                              pop rbx
+   213 000001D1 58                              pop rax
+   214 000001D2 C3                              ret
+   215                                  
+   216                                  ;;;;;;;;;;;;;;;;;;;;end for the working of the terminal;;;;;;;;;;;;
+   217                                  
+   218                                  char_equal: equ 61
+   219                                  char_space: equ 32
+   220                                  char_O: equ 79
+   221                                  left_direction: equ -1
+   222                                  right_direction: equ 1
+   223                                  
    224                                  
-   225 00000A74 2800000000000000        	ball_x_pos: dq 40
-   226 00000A7C 1C00000000000000        	ball_y_pos: dq 28
-   227                                  
+   225                                  section .data
+   226 00000A64 [7209000000000000]      	pallet_position dq board + 40 + 29 * (column_cells +2)
+   227 00000A6C 0300000000000000        	pallet_size dq 3
    228                                  
-   229                                  section .text
-   230                                  
-   231                                  ;	Function: print_ball
-   232                                  ; This function displays the position of the ball
-   233                                  ; Arguments: none
-   234                                  ;
-   235                                  ; Return:
-   236                                  ;	Void
-   237                                  print_ball:
-   238 00000175 4C8B05(740A0000)        	mov r8, [ball_x_pos]
-   239 0000017C 4C8B0D(7C0A0000)        	mov r9, [ball_y_pos]
-   240 00000183 4981C0[00000000]        	add r8, board
-   241                                  
-   242 0000018A 4C89C9                  	mov rcx, r9
-   243 0000018D B852000000              	mov rax, column_cells + 2
-   244 00000192 48F7E9                  	imul rcx
-   245                                  	
-   246 00000195 4901C0                  	add r8, rax
-   247 00000198 41C6004F                	mov byte [r8], char_O
-   248 0000019C C3                      	ret
-   249                                  
-   250                                  	
-   251                                  	;mov rax, board + r8 + r9 * (column_cells + 2)
-   252                                  	
+   229 00000A74 2800000000000000        	ball_x_pos: dq 40
+   230 00000A7C 1C00000000000000        	ball_y_pos: dq 28
+   231                                  
+   232                                  
+   233                                  section .text
+   234                                  
+   235                                  ;	Function: print_ball
+   236                                  ; This function displays the position of the ball
+   237                                  ; Arguments: none
+   238                                  ;
+   239                                  ; Return:
+   240                                  ;	Void
+   241                                  print_ball:
+   242 000001D3 4C8B05(740A0000)        	mov r8, [ball_x_pos]
+   243 000001DA 4C8B0D(7C0A0000)        	mov r9, [ball_y_pos]
+   244 000001E1 4981C0[00000000]        	add r8, board
+   245                                  
+   246 000001E8 4C89C9                  	mov rcx, r9
+   247 000001EB B852000000              	mov rax, column_cells + 2
+   248 000001F0 48F7E9                  	imul rcx
+   249                                  	
+   250 000001F3 4901C0                  	add r8, rax
+   251 000001F6 41C6004F                	mov byte [r8], char_O
+   252 000001FA C3                      	ret
    253                                  
-   254                                  
-   255                                  
-   256                                  ;	Function: print_pallet
-   257                                  ; This function moves the pallet in the game
-   258                                  ; Arguments: none
-   259                                  ;
-   260                                  ; Return;
-   261                                  ;	void
-   262                                  print_pallet:
-   263 0000019D 4C8B05(640A0000)        	mov r8, [pallet_position]
-   264 000001A4 488B0D(6C0A0000)        	mov rcx, [pallet_size]
-   265                                  	.write_pallet:
-   266 000001AB 41C6003D                		mov byte [r8], char_equal
-   267 000001AF 49FFC0                  		inc r8
-   268 000001B2 48FFC9                  		dec rcx
-   269 000001B5 75F4                    		jnz .write_pallet
-   270                                  
-   271 000001B7 C3                      	ret
-   272                                  	
-   273                                  ;	Function: move_pallet
-   274                                  ; This function is in charge of moving the pallet in a given direction
-   275                                  ; Arguments:
-   276                                  ;	rdi: left direction or right direction
-   277                                  ;
-   278                                  ; Return:
-   279                                  ;	void
-   280                                  move_pallet:
-   281 000001B8 4883FFFF                	cmp rdi, left_direction
-   282 000001BC 7520                    	jne .move_right
-   283                                  	.move_left:
-   284 000001BE 4C8B05(640A0000)        		mov r8, [pallet_position]
-   285 000001C5 4C8B0D(6C0A0000)        		mov r9, [pallet_size]
-   286 000001CC 43C64408FF20            		mov byte [r8 + r9 - 1], char_space
-   287 000001D2 49FFC8                  		dec r8
-   288 000001D5 4C8905(640A0000)        		mov [pallet_position], r8
-   289 000001DC EB15                    		jmp .end
-   290                                  	.move_right:
-   291 000001DE 4C8B05(640A0000)        		mov r8, [pallet_position]
-   292 000001E5 41C60020                		mov byte [r8], char_space
-   293 000001E9 49FFC0                  		inc r8
-   294 000001EC 4C8905(640A0000)        		mov [pallet_position], r8
-   295                                  	.end:
-   296 000001F3 C3                      	ret
-   297                                  
-   298                                  _start:
-   299 000001F4 E8CAFEFFFF              	call canonical_off
-   300                                  	print clear, clear_length	
-    78 000001F9 B801000000          <1>  mov eax, sys_write
-    79 000001FE BF01000000          <1>  mov edi, 1
-    80 00000203 48BE-               <1>  mov rsi, %1
-    80 00000205 [1000000000000000]  <1>
-    81 0000020D BA07000000          <1>  mov edx, %2
-    82 00000212 0F05                <1>  syscall
-   301 00000214 E8C8000000              	call start_screen	
-   302                                  	
-   303                                  	.main_loop:
-   304 00000219 E87FFFFFFF              		call print_pallet
-   305 0000021E E852FFFFFF              		call print_ball
-   306                                  		print board, board_size				
-    78 00000223 B801000000          <1>  mov eax, sys_write
-    79 00000228 BF01000000          <1>  mov edi, 1
-    80 0000022D 48BE-               <1>  mov rsi, %1
-    80 0000022F [0000000000000000]  <1>
-    81 00000237 BA400A0000          <1>  mov edx, %2
-    82 0000023C 0F05                <1>  syscall
-   307                                  		;setnonblocking	
-   308                                  	.read_more:	
-   309                                  		getchar	
-    86 0000023E B800000000          <1>  mov rax, sys_read
-    87 00000243 BF00000000          <1>  mov rdi, STDIN_FILENO
-    88 00000248 48BE-               <1>  mov rsi, input_char
-    88 0000024A [0000000000000000]  <1>
-    89 00000252 BA01000000          <1>  mov rdx, 1
-    90 00000257 0F05                <1>  syscall
-   310                                  		
-   311 00000259 4883F801                		cmp rax, 1
-   312 0000025D 7532                        	jne .done
-   313                                  		
-   314 0000025F 8A05(00000000)          		mov al,[input_char]
-   315                                  
-   316 00000265 3C61                    		cmp al, 'a'
-   317 00000267 750E                    	    jne .not_left
-   318 00000269 48C7C7FFFFFFFF          	    mov rdi, left_direction
-   319 00000270 E843FFFFFF              		call move_pallet
-   320 00000275 EB1A                    	    jmp .done
-   321                                  		
-   322                                  		.not_left:
-   323 00000277 3C64                    		 	cmp al, 'd'
-   324 00000279 750C                    	    	jne .not_right
-   325 0000027B BF01000000              			mov rdi, right_direction
-   326 00000280 E833FFFFFF              	    	call move_pallet
-   327 00000285 EB0A                        		jmp .done		
-   328                                  
-   329                                  		.not_right:
-   330                                  
-   331 00000287 3C71                        		cmp al, 'q'
-   332 00000289 0F84A4000000                		je exit
+   254                                  	
+   255                                  	;mov rax, board + r8 + r9 * (column_cells + 2)
+   256                                  	
+   257                                  
+   258                                  
+   259                                  
+   260                                  ;	Function: print_pallet
+   261                                  ; This function moves the pallet in the game
+   262                                  ; Arguments: none
+   263                                  ;
+   264                                  ; Return;
+   265                                  ;	void
+   266                                  print_pallet:
+   267 000001FB 4C8B05(640A0000)        	mov r8, [pallet_position]
+   268 00000202 488B0D(6C0A0000)        	mov rcx, [pallet_size]
+   269                                  	.write_pallet:
+   270 00000209 41C6003D                		mov byte [r8], char_equal
+   271 0000020D 49FFC0                  		inc r8
+   272 00000210 48FFC9                  		dec rcx
+   273 00000213 75F4                    		jnz .write_pallet
+   274                                  
+   275 00000215 C3                      	ret
+   276                                  	
+   277                                  ;	Function: move_pallet
+   278                                  ; This function is in charge of moving the pallet in a given direction
+   279                                  ; Arguments:
+   280                                  ;	rdi: left direction or right direction
+   281                                  ;
+   282                                  ; Return:
+   283                                  ;	void
+   284                                  move_pallet:
+   285 00000216 4883FFFF                	cmp rdi, left_direction
+   286 0000021A 7520                    	jne .move_right
+   287                                  	.move_left:
+   288 0000021C 4C8B05(640A0000)        		mov r8, [pallet_position]
+   289 00000223 4C8B0D(6C0A0000)        		mov r9, [pallet_size]
+   290 0000022A 43C64408FF20            		mov byte [r8 + r9 - 1], char_space
+   291 00000230 49FFC8                  		dec r8
+   292 00000233 4C8905(640A0000)        		mov [pallet_position], r8
+   293 0000023A EB15                    		jmp .end
+   294                                  	.move_right:
+   295 0000023C 4C8B05(640A0000)        		mov r8, [pallet_position]
+   296 00000243 41C60020                		mov byte [r8], char_space
+   297 00000247 49FFC0                  		inc r8
+   298 0000024A 4C8905(640A0000)        		mov [pallet_position], r8
+   299                                  	.end:
+   300 00000251 C3                      	ret
+   301                                  
+   302                                  _start:
+   303 00000252 E8CAFEFFFF              	call canonical_off
+   304 00000257 E8CA000000              	call start_screen
+   305 0000025C EB00                    	jmp .main_loop
+   306                                  	
+   307                                  
+   308                                  	.main_loop:
+   309 0000025E E898FFFFFF              		call print_pallet
+   310 00000263 E86BFFFFFF              		call print_ball
+   311                                  		print board, board_size				
+    82 00000268 B801000000          <1>  mov eax, sys_write
+    83 0000026D BF01000000          <1>  mov edi, 1
+    84 00000272 48BE-               <1>  mov rsi, %1
+    84 00000274 [0000000000000000]  <1>
+    85 0000027C BA400A0000          <1>  mov edx, %2
+    86 00000281 0F05                <1>  syscall
+   312                                  		;setnonblocking	
+   313                                  	.read_more:	
+   314                                  		getchar	
+    90 00000283 B800000000          <1>  mov rax, sys_read
+    91 00000288 BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 0000028D 48BE-               <1>  mov rsi, input_char
+    92 0000028F [0000000000000000]  <1>
+    93 00000297 BA01000000          <1>  mov rdx, 1
+    94 0000029C 0F05                <1>  syscall
+   315                                  		
+   316 0000029E 4883F801                		cmp rax, 1
+   317 000002A2 7532                        	jne .done
+   318                                  		
+   319 000002A4 8A05(00000000)          		mov al,[input_char]
+   320                                  
+   321 000002AA 3C61                    		cmp al, 'a'
+   322 000002AC 750E                    	    jne .not_left
+   323 000002AE 48C7C7FFFFFFFF          	    mov rdi, left_direction
+   324 000002B5 E85CFFFFFF              		call move_pallet
+   325 000002BA EB1A                    	    jmp .done
+   326                                  		
+   327                                  		.not_left:
+   328 000002BC 3C64                    		 	cmp al, 'd'
+   329 000002BE 750C                    	    	jne .not_right
+   330 000002C0 BF01000000              			mov rdi, right_direction
+   331 000002C5 E84CFFFFFF              	    	call move_pallet
+   332 000002CA EB0A                        		jmp .done		
    333                                  
-   334 0000028F EBAD                    			jmp .read_more
-   335                                  		
-   336                                  		.done:	
-   337                                  			;unsetnonblocking		
-   338                                  			sleeptime	
-    94 00000291 B823000000          <1>  mov eax, sys_nanosleep
-    95 00000296 48BF-               <1>  mov rdi, timespec
-    95 00000298 [0000000000000000]  <1>
-    96 000002A0 31F6                <1>  xor esi, esi
-    97 000002A2 0F05                <1>  syscall
-   339                                  			print clear, clear_length
-    78 000002A4 B801000000          <1>  mov eax, sys_write
-    79 000002A9 BF01000000          <1>  mov edi, 1
-    80 000002AE 48BE-               <1>  mov rsi, %1
-    80 000002B0 [1000000000000000]  <1>
-    81 000002B8 BA07000000          <1>  mov edx, %2
-    82 000002BD 0F05                <1>  syscall
-   340 000002BF E955FFFFFF                  		jmp .main_loop
-   341                                  
-   342                                  		print clear, clear_length
-    78 000002C4 B801000000          <1>  mov eax, sys_write
-    79 000002C9 BF01000000          <1>  mov edi, 1
-    80 000002CE 48BE-               <1>  mov rsi, %1
-    80 000002D0 [1000000000000000]  <1>
-    81 000002D8 BA07000000          <1>  mov edx, %2
-    82 000002DD 0F05                <1>  syscall
-   343                                  		
-   344 000002DF EB52                    		jmp exit
-   345                                  
+   334                                  		.not_right:
+   335                                  
+   336 000002CC 3C71                        		cmp al, 'q'
+   337 000002CE 0F84C5000000                		je exit
+   338                                  
+   339 000002D4 EBAD                    			jmp .read_more
+   340                                  		
+   341                                  		.done:	
+   342                                  			;unsetnonblocking		
+   343                                  			sleeptime	
+    98 000002D6 B823000000          <1>  mov eax, sys_nanosleep
+    99 000002DB 48BF-               <1>  mov rdi, timespec
+    99 000002DD [0000000000000000]  <1>
+   100 000002E5 31F6                <1>  xor esi, esi
+   101 000002E7 0F05                <1>  syscall
+   344                                  			print clear, clear_length
+    82 000002E9 B801000000          <1>  mov eax, sys_write
+    83 000002EE BF01000000          <1>  mov edi, 1
+    84 000002F3 48BE-               <1>  mov rsi, %1
+    84 000002F5 [1000000000000000]  <1>
+    85 000002FD BA07000000          <1>  mov edx, %2
+    86 00000302 0F05                <1>  syscall
+   345 00000304 E955FFFFFF                  		jmp .main_loop
    346                                  
-   347                                  start_screen:
-   348                                  	
-   349                                  	print msg1, msg1_length	
-    78 000002E1 B801000000          <1>  mov eax, sys_write
-    79 000002E6 BF01000000          <1>  mov edi, 1
-    80 000002EB 48BE-               <1>  mov rsi, %1
-    80 000002ED [1700000000000000]  <1>
-    81 000002F5 BAAC000000          <1>  mov edx, %2
-    82 000002FA 0F05                <1>  syscall
-   350                                  	getchar
-    86 000002FC B800000000          <1>  mov rax, sys_read
-    87 00000301 BF00000000          <1>  mov rdi, STDIN_FILENO
-    88 00000306 48BE-               <1>  mov rsi, input_char
-    88 00000308 [0000000000000000]  <1>
-    89 00000310 BA01000000          <1>  mov rdx, 1
-    90 00000315 0F05                <1>  syscall
-   351                                  	print clear, clear_length
-    78 00000317 B801000000          <1>  mov eax, sys_write
-    79 0000031C BF01000000          <1>  mov edi, 1
-    80 00000321 48BE-               <1>  mov rsi, %1
-    80 00000323 [1000000000000000]  <1>
-    81 0000032B BA07000000          <1>  mov edx, %2
-    82 00000330 0F05                <1>  syscall
-   352 00000332 C3                      	ret
-   353                                  
-   354                                  exit: 
-   355 00000333 E8CDFDFFFF              	call canonical_on
-   356 00000338 B83C000000              	mov    rax, 60
-   357 0000033D BF00000000                  mov    rdi, 0
-   358 00000342 0F05                        syscall
-   359                                  
+   347                                  		print clear, clear_length
+    82 00000309 B801000000          <1>  mov eax, sys_write
+    83 0000030E BF01000000          <1>  mov edi, 1
+    84 00000313 48BE-               <1>  mov rsi, %1
+    84 00000315 [1000000000000000]  <1>
+    85 0000031D BA07000000          <1>  mov edx, %2
+    86 00000322 0F05                <1>  syscall
+   348                                  		
+   349 00000324 EB73                    		jmp exit
+   350                                  
+   351                                  
+   352                                  start_screen:
+   353                                      print clear, clear_length    ; Limpiamos la pantalla primero
+    82 00000326 B801000000          <1>  mov eax, sys_write
+    83 0000032B BF01000000          <1>  mov edi, 1
+    84 00000330 48BE-               <1>  mov rsi, %1
+    84 00000332 [1000000000000000]  <1>
+    85 0000033A BA07000000          <1>  mov edx, %2
+    86 0000033F 0F05                <1>  syscall
+   354                                      print msg1, msg1_length
+    82 00000341 B801000000          <1>  mov eax, sys_write
+    83 00000346 BF01000000          <1>  mov edi, 1
+    84 0000034B 48BE-               <1>  mov rsi, %1
+    84 0000034D [1700000000000000]  <1>
+    85 00000355 BA0A010000          <1>  mov edx, %2
+    86 0000035A 0F05                <1>  syscall
+   355                                      
+   356                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
+   357                                          getchar                 ; Esperamos una tecla
+    90 0000035C B800000000          <1>  mov rax, sys_read
+    91 00000361 BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 00000366 48BE-               <1>  mov rsi, input_char
+    92 00000368 [0000000000000000]  <1>
+    93 00000370 BA01000000          <1>  mov rdx, 1
+    94 00000375 0F05                <1>  syscall
+   358 00000377 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
+   359 0000037B 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
+   360                                          
+   361                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
+    82 0000037D B801000000          <1>  mov eax, sys_write
+    83 00000382 BF01000000          <1>  mov edi, 1
+    84 00000387 48BE-               <1>  mov rsi, %1
+    84 00000389 [1000000000000000]  <1>
+    85 00000391 BA07000000          <1>  mov edx, %2
+    86 00000396 0F05                <1>  syscall
+   362 00000398 C3                          ret
+   363                                  
+   364                                  exit: 
+   365 00000399 E8C5FDFFFF              	call canonical_on
+   366 0000039E B83C000000              	mov    rax, 60
+   367 000003A3 BF00000000                  mov    rdi, 0
+   368 000003A8 0F05                        syscall
+   369                                  
