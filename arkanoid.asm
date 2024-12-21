@@ -370,8 +370,15 @@ move_ball:
     ; Verificar si hay una X en la siguiente posición X
     mov al, [r10]
     cmp al, 'X'
-    jne .check_y_movement
+    jne .check_paddle_x
     neg qword [ball_direction_x]  ; Cambiar dirección X si hay una X
+    jmp .end
+
+    .check_paddle_x:
+    ; Verificar si hay una paleta (=) en la siguiente posición X
+    cmp al, char_equal
+    jne .check_y_movement
+    neg qword [ball_direction_x]  ; Cambiar dirección X si hay una paleta
     jmp .end
 
     .check_y_movement:
@@ -390,9 +397,17 @@ move_ball:
         ; Verificar si hay una X en la siguiente posición Y
         mov al, [r10]
         cmp al, 'X'
-        jne .update_position
+        jne .check_paddle_y
         neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una X
         jmp .end
+
+    .check_paddle_y:
+    ; Verificar si hay una paleta (=) en la siguiente posición Y
+    cmp al, char_equal
+    jne .update_position
+    neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una paleta
+    jmp .end
+
 
     .update_position:
         mov [ball_x_pos], r8
