@@ -38,7 +38,7 @@ msg2: db "        ARQUITECTURA DE COMPUTADORAS I        ", 0xA, 0xD
 msg3: db "        ESTUDIANTE: HENRY NUNEZ PEREZ        ", 0xA, 0xD
 msg4: db "        PROFESOR: ERNESTO RIVERA ALVARADO        ", 0xA, 0xD
 msg5: db "        ARKANOID RETRO        ", 0xA, 0xD
-msg6: db "        PRESIONE ENTER PARA INICIAR        ", 0xA, 0xD
+msg6: db "        PRESIONE CUALQUIER TECLA PARA INICIAR        ", 0xA, 0xD
 msg1_length: equ $-msg1
 msg2_length: equ $-msg2
 msg3_length: equ $-msg3
@@ -246,6 +246,26 @@ section .data
     left_edge_position dq board + (board_top_left_y * (column_cells + 2)) ; Coordenada de la parte izquierda del marco
     right_edge_position dq board + (board_top_left_y * (column_cells + 2) + board_bottom_right_x - 1) ; Coordenada de la parte derecha del marco
 
+    ; Caracteres para los bloques
+    char_block equ 'U'
+    
+    ; Estructura para el nivel actual
+    current_level db 1          ; Nivel actual
+    blocks_remaining db 0       ; Bloques restantes por destruir
+    
+    ; Definición del nivel 1 (ejemplo con un bloque de 4 'U's)
+    level1_blocks:
+        ; Formato: x_pos, y_pos, durability
+        db 38, 5, 1  ; Primer bloque - posición x
+        db 39, 5, 1  ; Segundo bloque
+        db 40, 5, 1  ; Tercer bloque
+        db 41, 5, 1  ; Cuarto bloque
+    level1_blocks_count equ 4   ; Cantidad de bloques en nivel 1
+
+    ; Array para mantener el estado de los bloques
+    block_states: times 100 db 1  ; Máximo 100 bloques, 1=activo, 0=destruido
+
+
 section .text
 
 ;	Function: print_ball
@@ -370,16 +390,30 @@ move_ball:
     ; Verificar si hay una X en la siguiente posición X
     mov al, [r10]
     cmp al, 'X'
-    jne .check_paddle_x
+    jne .check_block_x
     neg qword [ball_direction_x]  ; Cambiar dirección X si hay una X
     jmp .end
 
+    .check_block_x:
+        ; Verificar colisión con bloques en X
+        push r8     ; Guardar registros que usa check_block_collision
+        push r9
+        push r10
+        call check_block_collision
+        pop r10
+        pop r9
+        pop r8
+        test rax, rax
+        jz .check_paddle_x      ; Si no hay colisión, verificar paleta
+        neg qword [ball_direction_x]  ; Si hay colisión, rebotar
+        jmp .end
+
     .check_paddle_x:
-    ; Verificar si hay una paleta (=) en la siguiente posición X
-    cmp al, char_equal
-    jne .check_y_movement
-    neg qword [ball_direction_x]  ; Cambiar dirección X si hay una paleta
-    jmp .end
+        ; Verificar si hay una paleta (=) en la siguiente posición X
+        cmp byte [r10], char_equal
+        jne .check_y_movement
+        neg qword [ball_direction_x]  ; Cambiar dirección X si hay una paleta
+        jmp .end
 
     .check_y_movement:
         ; Calcular siguiente posición Y
@@ -397,13 +431,27 @@ move_ball:
         ; Verificar si hay una X en la siguiente posición Y
         mov al, [r10]
         cmp al, 'X'
-        jne .check_paddle_y
+        jne .check_block_y
         neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una X
+        jmp .end
+
+    .check_block_y:
+        ; Verificar colisión con bloques en Y
+        push r8     ; Guardar registros que usa check_block_collision
+        push r9
+        push r10
+        call check_block_collision
+        pop r10
+        pop r9
+        pop r8
+        test rax, rax
+        jz .check_paddle_y      ; Si no hay colisión, verificar paleta
+        neg qword [ball_direction_y]  ; Si hay colisión, rebotar
         jmp .end
 
     .check_paddle_y:
     ; Verificar si hay una paleta (=) en la siguiente posición Y
-    cmp al, char_equal
+    cmp byte [r10], char_equal
     jne .update_position
     neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una paleta
     jmp .end
@@ -416,15 +464,104 @@ move_ball:
     .end:
         ret
 
+; Función para inicializar el nivel
+init_level:
+    ; Establecer la cantidad de bloques restantes
+    mov al, level1_blocks_count
+    mov [blocks_remaining], al
+    
+    ; Inicializar estados de los bloques
+    mov rcx, level1_blocks_count
+    mov rdi, block_states
+    mov al, 1
+    rep stosb                   ; Establecer todos los bloques como activos
+    ret
+
+; Función para imprimir los bloques
+print_blocks:
+    xor r12, r12               ; Índice del bloque actual
+    
+.print_loop:
+    cmp r12, level1_blocks_count
+    jge .end
+    
+    ; Verificar si el bloque está activo
+    mov al, [block_states + r12]
+    test al, al
+    jz .next_block             ; Si está destruido, saltar al siguiente
+    
+    ; Calcular posición en el tablero
+    mov r8b, [level1_blocks + r12 * 3]     ; X position
+    mov r9b, [level1_blocks + r12 * 3 + 1] ; Y position
+    
+    ; Convertir posición a dirección de memoria
+    movzx r8, r8b
+    movzx r9, r9b
+    add r8, board
+    mov rax, column_cells + 2
+    mul r9
+    add r8, rax
+    
+    ; Imprimir el bloque
+    mov byte [r8], char_block
+    
+.next_block:
+    inc r12
+    jmp .print_loop
+    
+.end:
+    ret
+
+; Función para detectar colisión con bloques
+check_block_collision:
+    ; r8 = x_pos de la bola
+    ; r9 = y_pos de la bola
+    
+    xor r12, r12               ; Índice del bloque actual
+    
+.check_loop:
+    cmp r12, level1_blocks_count
+    jge .no_collision
+    
+    ; Verificar si el bloque está activo
+    mov al, [block_states + r12]
+    test al, al
+    jz .next_block             ; Si está destruido, saltar al siguiente
+    
+    ; Verificar colisión
+    mov al, [level1_blocks + r12 * 3]     ; X position del bloque
+    cmp r8b, al
+    jne .next_block
+    
+    mov al, [level1_blocks + r12 * 3 + 1] ; Y position del bloque
+    cmp r9b, al
+    jne .next_block
+    
+    ; Colisión detectada
+    mov byte [block_states + r12], 0  ; Destruir el bloque
+    dec byte [blocks_remaining]       ; Decrementar contador de bloques
+    mov rax, 1                        ; Retornar 1 indicando colisión
+    ret
+    
+.next_block:
+    inc r12
+    jmp .check_loop
+    
+.no_collision:
+    xor rax, rax                      ; Retornar 0 indicando no colisión
+    ret
+
 _start:
 	call canonical_off
 	call start_screen
+    call init_level
 	jmp .main_loop
 	
 
 	.main_loop:
 		call print_pallet
         call move_ball
+        call print_blocks
 		call print_ball
 		print board, board_size				
 		;setnonblocking	
