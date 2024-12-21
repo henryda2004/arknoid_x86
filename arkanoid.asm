@@ -228,6 +228,10 @@ section .data
 
 	ball_x_pos: dq 40
 	ball_y_pos: dq 28
+    ball_direction_x dq 1    ; 1 = derecha, -1 = izquierda
+    ball_direction_y dq -1   ; -1 = arriba, 1 = abajo
+    ball_moving db 0         ; 0 = estática, 1 = en movimiento
+
 ; Definir los límites de la pantalla o área de juego
     board_top_left_x equ 1
     board_top_left_y equ 1
@@ -294,37 +298,106 @@ print_pallet:
 ; Return:
 ;	void
 move_pallet:
-    cmp rdi, left_direction
-    jne .move_right
     
-    .move_left:
-        ; Verificar si la siguiente posición sería una X (borde izquierdo)
-        mov r8, [pallet_position]
-        dec r8              ; Verificar la posición a la izquierda
-        mov al, [r8]       ; Cargar el carácter en esa posición
-        cmp al, 'X'        ; Comparar si es una X
-        je .end            ; Si es X, no mover
-        
-        mov r8, [pallet_position]
-        mov r9, [pallet_size]
-        mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter de la paleta
-        dec r8
-        mov [pallet_position], r8
+    cmp byte [ball_moving], 0
+    jne .continue_movement
+    mov byte [ball_moving], 1
+
+    .continue_movement:
+        cmp rdi, left_direction
+        jne .move_right
+
+        .move_left:
+            ; Verificar si la siguiente posición sería una X (borde izquierdo)
+            mov r8, [pallet_position]
+            dec r8              ; Verificar la posición a la izquierda
+            mov al, [r8]       ; Cargar el carácter en esa posición
+            cmp al, 'X'        ; Comparar si es una X
+            je .end            ; Si es X, no mover
+            
+            mov r8, [pallet_position]
+            mov r9, [pallet_size]
+            mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter de la paleta
+            dec r8
+            mov [pallet_position], r8
+            jmp .end
+            
+        .move_right:
+            ; Verificar si la siguiente posición después de la paleta sería una X
+            mov r8, [pallet_position]
+            mov r9, [pallet_size]
+            add r8, r9         ; Moverse al final de la paleta
+            mov al, [r8]       ; Cargar el carácter en esa posición
+            cmp al, 'X'        ; Comparar si es una X
+            je .end            ; Si es X, no mover
+            
+            mov r8, [pallet_position]
+            mov byte [r8], char_space
+            inc r8
+            mov [pallet_position], r8
+        .end:
+            ret
+
+move_ball:
+    ; Si la bola no está en movimiento, no hacer nada
+    cmp byte [ball_moving], 0
+    je .end
+
+    ; Borrar la posición actual de la bola
+    mov r8, [ball_x_pos]
+    mov r9, [ball_y_pos]
+    add r8, board
+    mov rcx, r9
+    mov rax, column_cells + 2
+    imul rcx
+    add r8, rax
+    mov byte [r8], char_space    ; Borrar la bola actual
+
+    ; Calcular siguiente posición X
+    mov r8, [ball_x_pos]
+    mov r9, [ball_y_pos]
+    mov rax, [ball_direction_x]
+    add r8, rax                  ; Nueva posición X
+
+    ; Calcular la dirección de memoria para la siguiente posición
+    mov r10, r8
+    add r10, board
+    mov rcx, r9
+    mov rax, column_cells + 2
+    imul rcx
+    add r10, rax
+
+    ; Verificar si hay una X en la siguiente posición X
+    mov al, [r10]
+    cmp al, 'X'
+    jne .check_y_movement
+    neg qword [ball_direction_x]  ; Cambiar dirección X si hay una X
+    jmp .end
+
+    .check_y_movement:
+        ; Calcular siguiente posición Y
+        mov rax, [ball_direction_y]
+        add r9, rax                  ; Nueva posición Y
+
+        ; Calcular la dirección de memoria para la siguiente posición Y
+        mov r10, r8
+        add r10, board
+        mov rcx, r9
+        mov rax, column_cells + 2
+        imul rcx
+        add r10, rax
+
+        ; Verificar si hay una X en la siguiente posición Y
+        mov al, [r10]
+        cmp al, 'X'
+        jne .update_position
+        neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una X
         jmp .end
-        
-    .move_right:
-        ; Verificar si la siguiente posición después de la paleta sería una X
-        mov r8, [pallet_position]
-        mov r9, [pallet_size]
-        add r8, r9         ; Moverse al final de la paleta
-        mov al, [r8]       ; Cargar el carácter en esa posición
-        cmp al, 'X'        ; Comparar si es una X
-        je .end            ; Si es X, no mover
-        
-        mov r8, [pallet_position]
-        mov byte [r8], char_space
-        inc r8
-        mov [pallet_position], r8
+
+    .update_position:
+        mov [ball_x_pos], r8
+        mov [ball_y_pos], r9
+
     .end:
         ret
 
@@ -336,6 +409,7 @@ _start:
 
 	.main_loop:
 		call print_pallet
+        call move_ball
 		call print_ball
 		print board, board_size				
 		;setnonblocking	
