@@ -246,25 +246,40 @@ section .data
     left_edge_position dq board + (board_top_left_y * (column_cells + 2)) ; Coordenada de la parte izquierda del marco
     right_edge_position dq board + (board_top_left_y * (column_cells + 2) + board_bottom_right_x - 1) ; Coordenada de la parte derecha del marco
 
-    ; Caracteres para los bloques
-    char_block equ 'U'
-    
+    ; Definición de tipos de bloques
+    block_type_1: db "UUUU"    ; Durabilidad 1
+    block_type_2: db "OOOO"    ; Durabilidad 2
+    block_type_3: db "DDDD"    ; Durabilidad 3
+    block_type_4: db "LLLL"    ; Durabilidad 4
+    block_type_5: db "VVVV"    ; Durabilidad 5
+    block_type_6: db "8888"    ; Durabilidad 6
+    block_length: equ 4        ; Longitud de cada bloque
+
     ; Estructura para el nivel actual
-    current_level db 1          ; Nivel actual
-    blocks_remaining db 0       ; Bloques restantes por destruir
-    
-    ; Definición del nivel 1 (ejemplo con un bloque de 4 'U's)
+    current_level db 1
+    blocks_remaining db 0
+
+    ; Definición del nivel 1 (ejemplo con múltiples bloques)
+    ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
-        ; Formato: x_pos, y_pos, durability
-        db 38, 5, 1  ; Primer bloque - posición x
-        db 39, 5, 1  ; Segundo bloque
-        db 40, 5, 1  ; Tercer bloque
-        db 41, 5, 1  ; Cuarto bloque
-    level1_blocks_count equ 4   ; Cantidad de bloques en nivel 1
+        ; Primera fila (tipo 1)
+        db 220, 3, 1, 1    ; Bloque 1
+        db 225, 3, 1, 1    ; Bloque 2
+        db 230, 3, 1, 1    ; Bloque 3
+        
+        ; Segunda fila (tipo 2)
+        db 220, 5, 2, 1    ; Bloque 4
+        db 225, 5, 2, 1    ; Bloque 5
+        db 230, 5, 2, 1    ; Bloque 6
+        
+        ; Tercera fila (tipo 3)
+        db 220, 7, 3, 1    ; Bloque 7
+        db 225, 7, 3, 1    ; Bloque 8
+        db 230, 7, 3, 1    ; Bloque 9
+    level1_blocks_count equ 9   ; Cantidad total de bloques
 
     ; Array para mantener el estado de los bloques
-    block_states: times 100 db 1  ; Máximo 100 bloques, 1=activo, 0=destruido
-
+    block_states: times 100 db 0  ; Durabilidad actual de cada bloque
 
 section .text
 
@@ -478,78 +493,90 @@ init_level:
     ret
 
 ; Función para imprimir los bloques
+; Función modificada para imprimir bloques
 print_blocks:
     xor r12, r12               ; Índice del bloque actual
     
-.print_loop:
-    cmp r12, level1_blocks_count
-    jge .end
-    
-    ; Verificar si el bloque está activo
-    mov al, [block_states + r12]
-    test al, al
-    jz .next_block             ; Si está destruido, saltar al siguiente
-    
-    ; Calcular posición en el tablero
-    mov r8b, [level1_blocks + r12 * 3]     ; X position
-    mov r9b, [level1_blocks + r12 * 3 + 1] ; Y position
-    
-    ; Convertir posición a dirección de memoria
-    movzx r8, r8b
-    movzx r9, r9b
-    add r8, board
-    mov rax, column_cells + 2
-    mul r9
-    add r8, rax
-    
-    ; Imprimir el bloque
-    mov byte [r8], char_block
-    
-.next_block:
-    inc r12
-    jmp .print_loop
-    
-.end:
-    ret
+    .print_loop:
+        cmp r12, level1_blocks_count
+        jge .end
+        
+        ; Verificar si el bloque está activo
+        movzx rax, byte [block_states + r12]
+        test rax, rax
+        jz .next_block             ; Si durabilidad es 0, bloque destruido
+        
+        ; Obtener posición y tipo del bloque
+        mov r8b, [level1_blocks + r12 * 4]     ; X position
+        mov r9b, [level1_blocks + r12 * 4 + 1] ; Y position
+        mov r10b, [level1_blocks + r12 * 4 + 2]; Tipo de bloque
+        
+        ; Calcular posición en el tablero
+        movzx r8, r8b
+        movzx r9, r9b
+        add r8, board
+        mov rax, column_cells + 2
+        mul r9
+        add r8, rax
+        
+        ; Imprimir el bloque según su tipo
+        mov rcx, block_length      ; Longitud del bloque (4 caracteres)
+        mov rsi, block_type_1      ; Dirección base de los tipos de bloques
+        movzx rax, r10b
+        dec rax                    ; Ajustar índice (tipos empiezan en 1)
+        imul rax, block_length     ; Calcular offset al tipo correcto
+        add rsi, rax               ; rsi apunta al tipo de bloque correcto
+        
+    .print_block_chars:
+        mov al, [rsi]             ; Obtener carácter del bloque
+        mov [r8], al              ; Colocarlo en el tablero
+        inc rsi
+        inc r8
+        dec rcx
+        jnz .print_block_chars
+        
+    .next_block:
+        inc r12
+        jmp .print_loop
+        
+    .end:
+        ret
 
-; Función para detectar colisión con bloques
+; Función modificada para detectar colisión
+; Función mejorada para detectar colisión y manejar la física
+; Función corregida para manejar colisiones con bloques completos
 check_block_collision:
-    ; r8 = x_pos de la bola
-    ; r9 = y_pos de la bola
+    ; Guardar registros que vamos a usar
+    push rbp
+    mov rbp, rsp
     
-    xor r12, r12               ; Índice del bloque actual
+    ; Verificar si la posición actual contiene un bloque
+    mov al, [r10]              ; r10 ya contiene la dirección a verificar
     
-.check_loop:
-    cmp r12, level1_blocks_count
-    jge .no_collision
+    ; Verificar cada tipo de bloque
+    cmp al, 'U'
+    je .collision_detected
+    cmp al, 'O'
+    je .collision_detected
+    cmp al, 'D'
+    je .collision_detected
+    cmp al, 'L'
+    je .collision_detected
+    cmp al, 'V'
+    je .collision_detected
+    cmp al, '8'
+    je .collision_detected
     
-    ; Verificar si el bloque está activo
-    mov al, [block_states + r12]
-    test al, al
-    jz .next_block             ; Si está destruido, saltar al siguiente
-    
-    ; Verificar colisión
-    mov al, [level1_blocks + r12 * 3]     ; X position del bloque
-    cmp r8b, al
-    jne .next_block
-    
-    mov al, [level1_blocks + r12 * 3 + 1] ; Y position del bloque
-    cmp r9b, al
-    jne .next_block
-    
-    ; Colisión detectada
-    mov byte [block_states + r12], 0  ; Destruir el bloque
-    dec byte [blocks_remaining]       ; Decrementar contador de bloques
-    mov rax, 1                        ; Retornar 1 indicando colisión
+    ; Si no hay colisión
+    mov rax, 0
+    pop rbp
     ret
     
-.next_block:
-    inc r12
-    jmp .check_loop
-    
-.no_collision:
-    xor rax, rax                      ; Retornar 0 indicando no colisión
-    ret
+    .collision_detected:
+        ; Hay colisión con un bloque
+        mov rax, 1
+        pop rbp
+        ret
 
 _start:
 	call canonical_off
