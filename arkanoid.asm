@@ -263,14 +263,14 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Primera fila (tipo 1)
-        db 60, 3, 1, 1    ; Bloque 1
-        db 65, 3, 1, 1    ; Bloque 2
-        db 70, 3, 1, 1    ; Bloque 3
+        db 60, 3, 1, 2    ; Bloque 1s
+        db 65, 3, 1, 2    ; Bloque 2
+        db 70, 3, 1, 2    ; Bloque 3
         
         ; Segunda fila (tipo 2)
-        db 60, 5, 2, 1    ; Bloque 4
-        db 65, 5, 2, 1    ; Bloque 5
-        db 70, 5, 2, 1    ; Bloque 6
+        db 60, 5, 2, 2    ; Bloque 4
+        db 65, 5, 2, 2    ; Bloque 5
+        db 70, 5, 2, 2    ; Bloque 6
         
         ; Tercera fila (tipo 3)
         db 60, 7, 3, 2    ; Bloque 7
@@ -481,16 +481,31 @@ move_ball:
 
 ; Función para inicializar el nivel
 init_level:
-    ; Establecer la cantidad de bloques restantes
+    ; 1) blocks_remaining = cantidad de bloques
     mov al, level1_blocks_count
     mov [blocks_remaining], al
-    
-    ; Inicializar estados de los bloques
-    mov rcx, level1_blocks_count
-    mov rdi, block_states
-    mov al, 1
-    rep stosb                   ; Establecer todos los bloques como activos
-    ret
+
+    ; 2) Llenar block_states con la durabilidad de cada bloque
+    xor rcx, rcx                       ; índice
+    .init_loop:
+        cmp rcx, level1_blocks_count
+        jge .done_init
+
+        ; Leer durab (4to byte) de level1_blocks[rcx]
+        ; cada bloque = x, y, tipo, durab
+        mov rax, level1_blocks
+        imul rcx, 4
+        add rax, rcx
+        mov al, [rax+3]    ; durab
+        ; Guardar en block_states[rcx]
+        mov [block_states + rcx], al
+
+        inc rcx
+        jmp .init_loop
+
+    .done_init:
+        ret
+
 
 ; Función para imprimir los bloques
 ; Función modificada para imprimir bloques
@@ -553,130 +568,102 @@ print_blocks:
 ;   retorna 1 para indicar colisión. Si no encuentra bloque,
 ;   retorna 0.
 ;---------------------------------------------------------
+;--------------------------------------
+; check_block_collision
+;--------------------------------------
 check_block_collision:
     push rbp
     mov rbp, rsp
 
-    ;--------------------------------------
-    ; 1. Leer el carácter en r10
-    ;--------------------------------------
-    mov al, [r10]
+    mov al, [r10] ; leer caracter de board[r10]
 
-    ;--------------------------------------
-    ; 2. Comprobar si es uno de U,O,D,L,V,8
-    ;   (cualquiera de los caracteres de los
-    ;   bloques que dibujas)
-    ;--------------------------------------
-    cmp al, 'U'
+    ; Checar si es 'U','O','D','L','V','8'
+    cmp al, 'U'  
     je .possible
-    cmp al, 'O'
+    cmp al, 'O'  
     je .possible
-    cmp al, 'D'
+    cmp al, 'D'  
     je .possible
-    cmp al, 'L'
+    cmp al, 'L'  
     je .possible
-    cmp al, 'V'
+    cmp al, 'V'  
     je .possible
-    cmp al, '8'
+    cmp al, '8'  
     je .possible
 
-    ;--------------------------------------
-    ; No es un bloque
-    ;--------------------------------------
+    ; Si no coincide
     xor rax, rax
     pop rbp
     ret
 
     .possible:
-        ;--------------------------------------
-        ; 3. Si es un carácter de bloque, hay
-        ;    que buscar cuál de los 9 (o n)
-        ;    es, para borrarlo.
-        ;--------------------------------------
+        ; Buscar cuál de los blocks del level1_blocks coincide
         push rbx
         push rdi
         push rsi
         push r12
 
-        xor r12, r12          ; r12 = índice en level1_blocks
+        xor r12, r12
     .find_block_loop:
         cmp r12, level1_blocks_count
-        jge .not_found_block   ; no hallamos un bloque que coincida
+        jge .no_block_found
 
-        ;--------------------------------------
-        ; Ver si block_states[r12] está activo
-        ; (es 1). Si es 0, está destruido
-        ;--------------------------------------
+        ; Ver si el block_states[r12] > 0
         mov bl, [block_states + r12]
         test bl, bl
-        jz .next_block
+        jz .next_block ; si 0 => bloque destruido
 
-        ;--------------------------------------
-        ; Leer x_pos, y_pos de level1_blocks[r12].
-        ; Cada bloque = 4 bytes: x, y, tipo, durab
-        ;--------------------------------------
+        ; leer x,y
         mov rax, level1_blocks
         imul r12, 4
         add rax, r12
-        ; rax apunta al primer byte del bloque
-        ; x_pos  -> [rax + 0]
-        ; y_pos  -> [rax + 1]
-        ; tipo   -> [rax + 2]
-        ; durab  -> [rax + 3] (no lo usas,
-        ;                    pues block_states[] ya controla la "vida")
-        mov dl, [rax]      ; dl = x_pos
-        mov cl, [rax+1]    ; cl = y_pos
+        mov dl, [rax]       ; x
+        mov cl, [rax+1]     ; y
 
-        ; Regresar r12 a su valor (deshacer imul).
-        ; O si prefieres, hazlo con un registro
-        ; auxiliar, p.e. no modifiques r12. 
-        ; Pero si tu asm ya funciona así, lo dejamos:
+        ; revertir r12
         mov r12, r12
         shr r12, 2
 
-        ;--------------------------------------
-        ; Calcular la dirección base del bloque
-        ;   base_dir = board + y_pos*(column_cells+2) + x_pos
-        ;--------------------------------------
-        xor rdi, rdi
-        lea rdi, [board]    ; rdi = dirección base de board
-
-        mov rax, column_cells+2
-        movzx rcx, cl   ; rcx = y_pos
+        ; base_dir = board + y*(col+2) + x
+        lea rdi, [board]
+        xor rax, rax
+        mov rax, column_cells + 2
+        movzx rcx, cl
         imul rax, rcx
         add rdi, rax
-        movzx rax, dl   ; rax = x_pos
-        add rdi, rax    ; rdi = base_dir
+        movzx rax, dl
+        add rdi, rax
 
-        ;--------------------------------------
-        ; Saber si r10 está en [rdi..rdi+3]
-        ;--------------------------------------
+        ; checar si r10 esta en [rdi..rdi+3]
         cmp r10, rdi
         jb .next_block
-        lea rbx, [rdi+4]
+        lea rbx, [rdi + 4]
         cmp r10, rbx
         jae .next_block
 
-        ;--------------------------------------
-        ; Si llegamos aquí, r10 está dentro de
-        ; las 4 letras del bloque r12
-        ; => destruirlo
-        ;--------------------------------------
+        ; Si llegamos aqui => colisión con el bloque r12
+        ; 1) Decrementar su durabilidad
+        dec byte [block_states + r12]
 
-        ; 1) Poner block_states[r12] = 0
-        mov byte [block_states + r12], 0
+        ; 2) Leer valor actualizado
+        mov bl, [block_states + r12]
+        test bl, bl
+        jnz .still_alive   ; si no es 0, no se borra todavía
 
-        ; 2) Borrar los 4 caracteres en board
+        ; si llegó a 0 => borrar (poner 4 espacios)
         mov rcx, 4
     .erase_block_chars:
-        mov byte [rdi], char_space   ; ' '
+        mov byte [rdi], char_space
         inc rdi
         loop .erase_block_chars
 
-        ; 3) Retornar 1 => colisión detectada
+        ; blocks_remaining--
+        dec byte [blocks_remaining]
+
+    .still_alive:
+        ; Retornar 1 => colisión
         mov rax, 1
 
-        ; Limpieza de stack
         pop r12
         pop rsi
         pop rdi
@@ -688,18 +675,15 @@ check_block_collision:
         inc r12
         jmp .find_block_loop
 
-    .not_found_block:
-        ; En teoría no debería pasar, si
-        ; se detectó un 'U','O','...' 
-        ; pero por seguridad:
+    .no_block_found:
         xor rax, rax
-
         pop r12
         pop rsi
         pop rdi
         pop rbx
         pop rbp
         ret
+
 
 
 _start:

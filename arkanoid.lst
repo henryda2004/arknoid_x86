@@ -415,14 +415,14 @@
    263                                      ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
    264                                      level1_blocks:
    265                                          ; Primera fila (tipo 1)
-   266 00000ABF 3C030101                        db 60, 3, 1, 1    ; Bloque 1
-   267 00000AC3 41030101                        db 65, 3, 1, 1    ; Bloque 2
-   268 00000AC7 46030101                        db 70, 3, 1, 1    ; Bloque 3
+   266 00000ABF 3C030102                        db 60, 3, 1, 2    ; Bloque 1s
+   267 00000AC3 41030102                        db 65, 3, 1, 2    ; Bloque 2
+   268 00000AC7 46030102                        db 70, 3, 1, 2    ; Bloque 3
    269                                          
    270                                          ; Segunda fila (tipo 2)
-   271 00000ACB 3C050201                        db 60, 5, 2, 1    ; Bloque 4
-   272 00000ACF 41050201                        db 65, 5, 2, 1    ; Bloque 5
-   273 00000AD3 46050201                        db 70, 5, 2, 1    ; Bloque 6
+   271 00000ACB 3C050202                        db 60, 5, 2, 2    ; Bloque 4
+   272 00000ACF 41050202                        db 65, 5, 2, 2    ; Bloque 5
+   273 00000AD3 46050202                        db 70, 5, 2, 2    ; Bloque 6
    274                                          
    275                                          ; Tercera fila (tipo 3)
    276 00000AD7 3C070302                        db 60, 7, 3, 2    ; Bloque 7
@@ -566,7 +566,7 @@
    414 0000030C 4150                            push r8     ; Guardar registros que usa check_block_collision
    415 0000030E 4151                            push r9
    416 00000310 4152                            push r10
-   417 00000312 E82A010000                      call check_block_collision
+   417 00000312 E83F010000                      call check_block_collision
    418 00000317 415A                            pop r10
    419 00000319 4159                            pop r9
    420 0000031B 4158                            pop r8
@@ -607,7 +607,7 @@
    455 0000036C 4150                            push r8     ; Guardar registros que usa check_block_collision
    456 0000036E 4151                            push r9
    457 00000370 4152                            push r10
-   458 00000372 E8CA000000                      call check_block_collision
+   458 00000372 E8DF000000                      call check_block_collision
    459 00000377 415A                            pop r10
    460 00000379 4159                            pop r9
    461 0000037B 4158                            pop r8
@@ -633,353 +633,336 @@
    481                                  
    482                                  ; Función para inicializar el nivel
    483                                  init_level:
-   484                                      ; Establecer la cantidad de bloques restantes
+   484                                      ; 1) blocks_remaining = cantidad de bloques
    485 000003A9 B009                        mov al, level1_blocks_count
    486 000003AB 8805(BE0A0000)              mov [blocks_remaining], al
-   487                                      
-   488                                      ; Inicializar estados de los bloques
-   489 000003B1 B909000000                  mov rcx, level1_blocks_count
-   490 000003B6 48BF-                       mov rdi, block_states
-   490 000003B8 [E30A000000000000] 
-   491 000003C0 B001                        mov al, 1
-   492 000003C2 F3AA                        rep stosb                   ; Establecer todos los bloques como activos
-   493 000003C4 C3                          ret
-   494                                  
-   495                                  ; Función para imprimir los bloques
-   496                                  ; Función modificada para imprimir bloques
-   497                                  print_blocks:
-   498 000003C5 4D31E4                      xor r12, r12               ; Índice del bloque actual
-   499                                      
-   500                                      .print_loop:
-   501 000003C8 4983FC09                        cmp r12, level1_blocks_count
-   502 000003CC 7D72                            jge .end
-   503                                          
-   504                                          ; Verificar si el bloque está activo
-   505 000003CE 490FB68424-                     movzx rax, byte [block_states + r12]
-   505 000003D3 [E30A0000]         
-   506 000003D7 4885C0                          test rax, rax
-   507 000003DA 745F                            jz .next_block             ; Si durabilidad es 0, bloque destruido
-   508                                          
-   509                                          ; Obtener posición y tipo del bloque
-   510 000003DC 468A04A5[BF0A0000]              mov r8b, [level1_blocks + r12 * 4]     ; X position
-   511 000003E4 468A0CA5[C00A0000]              mov r9b, [level1_blocks + r12 * 4 + 1] ; Y position
-   512 000003EC 468A14A5[C10A0000]              mov r10b, [level1_blocks + r12 * 4 + 2]; Tipo de bloque
-   513                                          
-   514                                          ; Calcular posición en el tablero
-   515 000003F4 4D0FB6C0                        movzx r8, r8b
-   516 000003F8 4D0FB6C9                        movzx r9, r9b
-   517 000003FC 4981C0[00000000]                add r8, board
-   518 00000403 B852000000                      mov rax, column_cells + 2
-   519 00000408 49F7E1                          mul r9
-   520 0000040B 4901C0                          add r8, rax
-   521                                          
-   522                                          ; Imprimir el bloque según su tipo
-   523 0000040E B904000000                      mov rcx, block_length      ; Longitud del bloque (4 caracteres)
-   524 00000413 48BE-                           mov rsi, block_type_1      ; Dirección base de los tipos de bloques
-   524 00000415 [A50A000000000000] 
-   525 0000041D 490FB6C2                        movzx rax, r10b
-   526 00000421 48FFC8                          dec rax                    ; Ajustar índice (tipos empiezan en 1)
-   527 00000424 486BC004                        imul rax, block_length     ; Calcular offset al tipo correcto
-   528 00000428 4801C6                          add rsi, rax               ; rsi apunta al tipo de bloque correcto
-   529                                          
-   530                                      .print_block_chars:
-   531 0000042B 8A06                            mov al, [rsi]             ; Obtener carácter del bloque
-   532 0000042D 418800                          mov [r8], al              ; Colocarlo en el tablero
-   533 00000430 48FFC6                          inc rsi
-   534 00000433 49FFC0                          inc r8
-   535 00000436 48FFC9                          dec rcx
-   536 00000439 75F0                            jnz .print_block_chars
-   537                                          
-   538                                      .next_block:
-   539 0000043B 49FFC4                          inc r12
-   540 0000043E EB88                            jmp .print_loop
-   541                                          
-   542                                      .end:
-   543 00000440 C3                              ret
-   544                                  
-   545                                  ; Función modificada para detectar colisión
-   546                                  ; Función mejorada para detectar colisión y manejar la física
-   547                                  ; Función corregida para manejar colisiones con bloques completos
-   548                                  ;---------------------------------------------------------
-   549                                  ; check_block_collision:
-   550                                  ;   Detecta si en la posición r10 (que apunta a board[])
-   551                                  ;   hay un bloque ("UUUU","OOOO","DDDD","LLLL","VVVV","8888").
-   552                                  ;   De ser así, localiza qué bloque es, lo "destruye" y
-   553                                  ;   retorna 1 para indicar colisión. Si no encuentra bloque,
-   554                                  ;   retorna 0.
-   555                                  ;---------------------------------------------------------
-   556                                  check_block_collision:
-   557 00000441 55                          push rbp
-   558 00000442 4889E5                      mov rbp, rsp
+   487                                  
+   488                                      ; 2) Llenar block_states con la durabilidad de cada bloque
+   489 000003B1 4831C9                      xor rcx, rcx                       ; índice
+   490                                      .init_loop:
+   491 000003B4 4883F909                        cmp rcx, level1_blocks_count
+   492 000003B8 7D1F                            jge .done_init
+   493                                  
+   494                                          ; Leer durab (4to byte) de level1_blocks[rcx]
+   495                                          ; cada bloque = x, y, tipo, durab
+   496 000003BA 48B8-                           mov rax, level1_blocks
+   496 000003BC [BF0A000000000000] 
+   497 000003C4 486BC904                        imul rcx, 4
+   498 000003C8 4801C8                          add rax, rcx
+   499 000003CB 8A4003                          mov al, [rax+3]    ; durab
+   500                                          ; Guardar en block_states[rcx]
+   501 000003CE 8881[E30A0000]                  mov [block_states + rcx], al
+   502                                  
+   503 000003D4 48FFC1                          inc rcx
+   504 000003D7 EBDB                            jmp .init_loop
+   505                                  
+   506                                      .done_init:
+   507 000003D9 C3                              ret
+   508                                  
+   509                                  
+   510                                  ; Función para imprimir los bloques
+   511                                  ; Función modificada para imprimir bloques
+   512                                  print_blocks:
+   513 000003DA 4D31E4                      xor r12, r12               ; Índice del bloque actual
+   514                                      
+   515                                      .print_loop:
+   516 000003DD 4983FC09                        cmp r12, level1_blocks_count
+   517 000003E1 7D72                            jge .end
+   518                                          
+   519                                          ; Verificar si el bloque está activo
+   520 000003E3 490FB68424-                     movzx rax, byte [block_states + r12]
+   520 000003E8 [E30A0000]         
+   521 000003EC 4885C0                          test rax, rax
+   522 000003EF 745F                            jz .next_block             ; Si durabilidad es 0, bloque destruido
+   523                                          
+   524                                          ; Obtener posición y tipo del bloque
+   525 000003F1 468A04A5[BF0A0000]              mov r8b, [level1_blocks + r12 * 4]     ; X position
+   526 000003F9 468A0CA5[C00A0000]              mov r9b, [level1_blocks + r12 * 4 + 1] ; Y position
+   527 00000401 468A14A5[C10A0000]              mov r10b, [level1_blocks + r12 * 4 + 2]; Tipo de bloque
+   528                                          
+   529                                          ; Calcular posición en el tablero
+   530 00000409 4D0FB6C0                        movzx r8, r8b
+   531 0000040D 4D0FB6C9                        movzx r9, r9b
+   532 00000411 4981C0[00000000]                add r8, board
+   533 00000418 B852000000                      mov rax, column_cells + 2
+   534 0000041D 49F7E1                          mul r9
+   535 00000420 4901C0                          add r8, rax
+   536                                          
+   537                                          ; Imprimir el bloque según su tipo
+   538 00000423 B904000000                      mov rcx, block_length      ; Longitud del bloque (4 caracteres)
+   539 00000428 48BE-                           mov rsi, block_type_1      ; Dirección base de los tipos de bloques
+   539 0000042A [A50A000000000000] 
+   540 00000432 490FB6C2                        movzx rax, r10b
+   541 00000436 48FFC8                          dec rax                    ; Ajustar índice (tipos empiezan en 1)
+   542 00000439 486BC004                        imul rax, block_length     ; Calcular offset al tipo correcto
+   543 0000043D 4801C6                          add rsi, rax               ; rsi apunta al tipo de bloque correcto
+   544                                          
+   545                                      .print_block_chars:
+   546 00000440 8A06                            mov al, [rsi]             ; Obtener carácter del bloque
+   547 00000442 418800                          mov [r8], al              ; Colocarlo en el tablero
+   548 00000445 48FFC6                          inc rsi
+   549 00000448 49FFC0                          inc r8
+   550 0000044B 48FFC9                          dec rcx
+   551 0000044E 75F0                            jnz .print_block_chars
+   552                                          
+   553                                      .next_block:
+   554 00000450 49FFC4                          inc r12
+   555 00000453 EB88                            jmp .print_loop
+   556                                          
+   557                                      .end:
+   558 00000455 C3                              ret
    559                                  
-   560                                      ;--------------------------------------
-   561                                      ; 1. Leer el carácter en r10
-   562                                      ;--------------------------------------
-   563 00000445 418A02                      mov al, [r10]
-   564                                  
-   565                                      ;--------------------------------------
-   566                                      ; 2. Comprobar si es uno de U,O,D,L,V,8
-   567                                      ;   (cualquiera de los caracteres de los
-   568                                      ;   bloques que dibujas)
-   569                                      ;--------------------------------------
-   570 00000448 3C55                        cmp al, 'U'
-   571 0000044A 7419                        je .possible
-   572 0000044C 3C4F                        cmp al, 'O'
-   573 0000044E 7415                        je .possible
-   574 00000450 3C44                        cmp al, 'D'
-   575 00000452 7411                        je .possible
-   576 00000454 3C4C                        cmp al, 'L'
-   577 00000456 740D                        je .possible
-   578 00000458 3C56                        cmp al, 'V'
-   579 0000045A 7409                        je .possible
-   580 0000045C 3C38                        cmp al, '8'
-   581 0000045E 7405                        je .possible
-   582                                  
-   583                                      ;--------------------------------------
-   584                                      ; No es un bloque
-   585                                      ;--------------------------------------
-   586 00000460 4831C0                      xor rax, rax
-   587 00000463 5D                          pop rbp
-   588 00000464 C3                          ret
-   589                                  
-   590                                      .possible:
-   591                                          ;--------------------------------------
-   592                                          ; 3. Si es un carácter de bloque, hay
-   593                                          ;    que buscar cuál de los 9 (o n)
-   594                                          ;    es, para borrarlo.
-   595                                          ;--------------------------------------
-   596 00000465 53                              push rbx
-   597 00000466 57                              push rdi
-   598 00000467 56                              push rsi
-   599 00000468 4154                            push r12
-   600                                  
-   601 0000046A 4D31E4                          xor r12, r12          ; r12 = índice en level1_blocks
-   602                                      .find_block_loop:
-   603 0000046D 4983FC09                        cmp r12, level1_blocks_count
-   604 00000471 0F8D82000000                    jge .not_found_block   ; no hallamos un bloque que coincida
+   560                                  ; Función modificada para detectar colisión
+   561                                  ; Función mejorada para detectar colisión y manejar la física
+   562                                  ; Función corregida para manejar colisiones con bloques completos
+   563                                  ;---------------------------------------------------------
+   564                                  ; check_block_collision:
+   565                                  ;   Detecta si en la posición r10 (que apunta a board[])
+   566                                  ;   hay un bloque ("UUUU","OOOO","DDDD","LLLL","VVVV","8888").
+   567                                  ;   De ser así, localiza qué bloque es, lo "destruye" y
+   568                                  ;   retorna 1 para indicar colisión. Si no encuentra bloque,
+   569                                  ;   retorna 0.
+   570                                  ;---------------------------------------------------------
+   571                                  ;--------------------------------------
+   572                                  ; check_block_collision
+   573                                  ;--------------------------------------
+   574                                  check_block_collision:
+   575 00000456 55                          push rbp
+   576 00000457 4889E5                      mov rbp, rsp
+   577                                  
+   578 0000045A 418A02                      mov al, [r10] ; leer caracter de board[r10]
+   579                                  
+   580                                      ; Checar si es 'U','O','D','L','V','8'
+   581 0000045D 3C55                        cmp al, 'U'  
+   582 0000045F 7419                        je .possible
+   583 00000461 3C4F                        cmp al, 'O'  
+   584 00000463 7415                        je .possible
+   585 00000465 3C44                        cmp al, 'D'  
+   586 00000467 7411                        je .possible
+   587 00000469 3C4C                        cmp al, 'L'  
+   588 0000046B 740D                        je .possible
+   589 0000046D 3C56                        cmp al, 'V'  
+   590 0000046F 7409                        je .possible
+   591 00000471 3C38                        cmp al, '8'  
+   592 00000473 7405                        je .possible
+   593                                  
+   594                                      ; Si no coincide
+   595 00000475 4831C0                      xor rax, rax
+   596 00000478 5D                          pop rbp
+   597 00000479 C3                          ret
+   598                                  
+   599                                      .possible:
+   600                                          ; Buscar cuál de los blocks del level1_blocks coincide
+   601 0000047A 53                              push rbx
+   602 0000047B 57                              push rdi
+   603 0000047C 56                              push rsi
+   604 0000047D 4154                            push r12
    605                                  
-   606                                          ;--------------------------------------
-   607                                          ; Ver si block_states[r12] está activo
-   608                                          ; (es 1). Si es 0, está destruido
-   609                                          ;--------------------------------------
-   610 00000477 418A9C24[E30A0000]              mov bl, [block_states + r12]
-   611 0000047F 84DB                            test bl, bl
-   612 00000481 746E                            jz .next_block
-   613                                  
-   614                                          ;--------------------------------------
-   615                                          ; Leer x_pos, y_pos de level1_blocks[r12].
-   616                                          ; Cada bloque = 4 bytes: x, y, tipo, durab
-   617                                          ;--------------------------------------
-   618 00000483 48B8-                           mov rax, level1_blocks
-   618 00000485 [BF0A000000000000] 
-   619 0000048D 4D6BE404                        imul r12, 4
-   620 00000491 4C01E0                          add rax, r12
-   621                                          ; rax apunta al primer byte del bloque
-   622                                          ; x_pos  -> [rax + 0]
-   623                                          ; y_pos  -> [rax + 1]
-   624                                          ; tipo   -> [rax + 2]
-   625                                          ; durab  -> [rax + 3] (no lo usas,
-   626                                          ;                    pues block_states[] ya controla la "vida")
-   627 00000494 8A10                            mov dl, [rax]      ; dl = x_pos
-   628 00000496 8A4801                          mov cl, [rax+1]    ; cl = y_pos
-   629                                  
-   630                                          ; Regresar r12 a su valor (deshacer imul).
-   631                                          ; O si prefieres, hazlo con un registro
-   632                                          ; auxiliar, p.e. no modifiques r12. 
-   633                                          ; Pero si tu asm ya funciona así, lo dejamos:
-   634 00000499 4D89E4                          mov r12, r12
-   635 0000049C 49C1EC02                        shr r12, 2
+   606 0000047F 4D31E4                          xor r12, r12
+   607                                      .find_block_loop:
+   608 00000482 4983FC09                        cmp r12, level1_blocks_count
+   609 00000486 0F8D93000000                    jge .no_block_found
+   610                                  
+   611                                          ; Ver si el block_states[r12] > 0
+   612 0000048C 418A9C24[E30A0000]              mov bl, [block_states + r12]
+   613 00000494 84DB                            test bl, bl
+   614 00000496 747F                            jz .next_block ; si 0 => bloque destruido
+   615                                  
+   616                                          ; leer x,y
+   617 00000498 48B8-                           mov rax, level1_blocks
+   617 0000049A [BF0A000000000000] 
+   618 000004A2 4D6BE404                        imul r12, 4
+   619 000004A6 4C01E0                          add rax, r12
+   620 000004A9 8A10                            mov dl, [rax]       ; x
+   621 000004AB 8A4801                          mov cl, [rax+1]     ; y
+   622                                  
+   623                                          ; revertir r12
+   624 000004AE 4D89E4                          mov r12, r12
+   625 000004B1 49C1EC02                        shr r12, 2
+   626                                  
+   627                                          ; base_dir = board + y*(col+2) + x
+   628 000004B5 488D3D(00000000)                lea rdi, [board]
+   629 000004BC 4831C0                          xor rax, rax
+   630 000004BF B852000000                      mov rax, column_cells + 2
+   631 000004C4 480FB6C9                        movzx rcx, cl
+   632 000004C8 480FAFC1                        imul rax, rcx
+   633 000004CC 4801C7                          add rdi, rax
+   634 000004CF 480FB6C2                        movzx rax, dl
+   635 000004D3 4801C7                          add rdi, rax
    636                                  
-   637                                          ;--------------------------------------
-   638                                          ; Calcular la dirección base del bloque
-   639                                          ;   base_dir = board + y_pos*(column_cells+2) + x_pos
-   640                                          ;--------------------------------------
-   641 000004A0 4831FF                          xor rdi, rdi
-   642 000004A3 488D3D(00000000)                lea rdi, [board]    ; rdi = dirección base de board
+   637                                          ; checar si r10 esta en [rdi..rdi+3]
+   638 000004D6 4939FA                          cmp r10, rdi
+   639 000004D9 723C                            jb .next_block
+   640 000004DB 488D5F04                        lea rbx, [rdi + 4]
+   641 000004DF 4939DA                          cmp r10, rbx
+   642 000004E2 7333                            jae .next_block
    643                                  
-   644 000004AA B852000000                      mov rax, column_cells+2
-   645 000004AF 480FB6C9                        movzx rcx, cl   ; rcx = y_pos
-   646 000004B3 480FAFC1                        imul rax, rcx
-   647 000004B7 4801C7                          add rdi, rax
-   648 000004BA 480FB6C2                        movzx rax, dl   ; rax = x_pos
-   649 000004BE 4801C7                          add rdi, rax    ; rdi = base_dir
-   650                                  
-   651                                          ;--------------------------------------
-   652                                          ; Saber si r10 está en [rdi..rdi+3]
-   653                                          ;--------------------------------------
-   654 000004C1 4939FA                          cmp r10, rdi
-   655 000004C4 722B                            jb .next_block
-   656 000004C6 488D5F04                        lea rbx, [rdi+4]
-   657 000004CA 4939DA                          cmp r10, rbx
-   658 000004CD 7322                            jae .next_block
+   644                                          ; Si llegamos aqui => colisión con el bloque r12
+   645                                          ; 1) Decrementar su durabilidad
+   646 000004E4 41FE8C24[E30A0000]              dec byte [block_states + r12]
+   647                                  
+   648                                          ; 2) Leer valor actualizado
+   649 000004EC 418A9C24[E30A0000]              mov bl, [block_states + r12]
+   650 000004F4 84DB                            test bl, bl
+   651 000004F6 7513                            jnz .still_alive   ; si no es 0, no se borra todavía
+   652                                  
+   653                                          ; si llegó a 0 => borrar (poner 4 espacios)
+   654 000004F8 B904000000                      mov rcx, 4
+   655                                      .erase_block_chars:
+   656 000004FD C60720                          mov byte [rdi], char_space
+   657 00000500 48FFC7                          inc rdi
+   658 00000503 E2F8                            loop .erase_block_chars
    659                                  
-   660                                          ;--------------------------------------
-   661                                          ; Si llegamos aquí, r10 está dentro de
-   662                                          ; las 4 letras del bloque r12
-   663                                          ; => destruirlo
-   664                                          ;--------------------------------------
-   665                                  
-   666                                          ; 1) Poner block_states[r12] = 0
-   667 000004CF 41C68424[E30A0000]-             mov byte [block_states + r12], 0
-   667 000004D7 00                 
-   668                                  
-   669                                          ; 2) Borrar los 4 caracteres en board
-   670 000004D8 B904000000                      mov rcx, 4
-   671                                      .erase_block_chars:
-   672 000004DD C60720                          mov byte [rdi], char_space   ; ' '
-   673 000004E0 48FFC7                          inc rdi
-   674 000004E3 E2F8                            loop .erase_block_chars
-   675                                  
-   676                                          ; 3) Retornar 1 => colisión detectada
-   677 000004E5 B801000000                      mov rax, 1
-   678                                  
-   679                                          ; Limpieza de stack
-   680 000004EA 415C                            pop r12
-   681 000004EC 5E                              pop rsi
-   682 000004ED 5F                              pop rdi
-   683 000004EE 5B                              pop rbx
-   684 000004EF 5D                              pop rbp
-   685 000004F0 C3                              ret
+   660                                          ; blocks_remaining--
+   661 00000505 FE0D(BE0A0000)                  dec byte [blocks_remaining]
+   662                                  
+   663                                      .still_alive:
+   664                                          ; Retornar 1 => colisión
+   665 0000050B B801000000                      mov rax, 1
+   666                                  
+   667 00000510 415C                            pop r12
+   668 00000512 5E                              pop rsi
+   669 00000513 5F                              pop rdi
+   670 00000514 5B                              pop rbx
+   671 00000515 5D                              pop rbp
+   672 00000516 C3                              ret
+   673                                  
+   674                                      .next_block:
+   675 00000517 49FFC4                          inc r12
+   676 0000051A E963FFFFFF                      jmp .find_block_loop
+   677                                  
+   678                                      .no_block_found:
+   679 0000051F 4831C0                          xor rax, rax
+   680 00000522 415C                            pop r12
+   681 00000524 5E                              pop rsi
+   682 00000525 5F                              pop rdi
+   683 00000526 5B                              pop rbx
+   684 00000527 5D                              pop rbp
+   685 00000528 C3                              ret
    686                                  
-   687                                      .next_block:
-   688 000004F1 49FFC4                          inc r12
-   689 000004F4 E974FFFFFF                      jmp .find_block_loop
-   690                                  
-   691                                      .not_found_block:
-   692                                          ; En teoría no debería pasar, si
-   693                                          ; se detectó un 'U','O','...' 
-   694                                          ; pero por seguridad:
-   695 000004F9 4831C0                          xor rax, rax
-   696                                  
-   697 000004FC 415C                            pop r12
-   698 000004FE 5E                              pop rsi
-   699 000004FF 5F                              pop rdi
-   700 00000500 5B                              pop rbx
-   701 00000501 5D                              pop rbp
-   702 00000502 C3                              ret
-   703                                  
-   704                                  
-   705                                  _start:
-   706 00000503 E823FCFFFF              	call canonical_off
-   707 00000508 E8D9000000              	call start_screen
-   708 0000050D E897FEFFFF                  call init_level
-   709 00000512 EB00                    	jmp .main_loop
-   710                                  	
-   711                                  
-   712                                  	.main_loop:
-   713 00000514 E8ECFCFFFF              		call print_pallet
-   714 00000519 E877FDFFFF                      call move_ball
-   715 0000051E E8A2FEFFFF                      call print_blocks
-   716 00000523 E8B5FCFFFF              		call print_ball
-   717                                  		print board, board_size				
-    82 00000528 B801000000          <1>  mov eax, sys_write
-    83 0000052D BF01000000          <1>  mov edi, 1
-    84 00000532 48BE-               <1>  mov rsi, %1
-    84 00000534 [0000000000000000]  <1>
-    85 0000053C BA400A0000          <1>  mov edx, %2
-    86 00000541 0F05                <1>  syscall
-   718                                  		;setnonblocking	
-   719                                  	.read_more:	
-   720                                  		getchar	
-    90 00000543 B800000000          <1>  mov rax, sys_read
-    91 00000548 BF00000000          <1>  mov rdi, STDIN_FILENO
-    92 0000054D 48BE-               <1>  mov rsi, input_char
-    92 0000054F [0000000000000000]  <1>
-    93 00000557 BA01000000          <1>  mov rdx, 1
-    94 0000055C 0F05                <1>  syscall
-   721                                  		
-   722 0000055E 4883F801                		cmp rax, 1
-   723 00000562 7532                        	jne .done
-   724                                  		
-   725 00000564 8A05(00000000)          		mov al,[input_char]
-   726                                  
-   727 0000056A 3C61                    		cmp al, 'a'
-   728 0000056C 750E                    	    jne .not_left
-   729 0000056E 48C7C7FFFFFFFF          	    mov rdi, left_direction
-   730 00000575 E8A6FCFFFF              		call move_pallet
-   731 0000057A EB1A                    	    jmp .done
-   732                                  		
-   733                                  		.not_left:
-   734 0000057C 3C64                    		 	cmp al, 'd'
-   735 0000057E 750C                    	    	jne .not_right
-   736 00000580 BF01000000              			mov rdi, right_direction
-   737 00000585 E896FCFFFF              	    	call move_pallet
-   738 0000058A EB0A                        		jmp .done		
-   739                                  
-   740                                  		.not_right:
+   687                                  
+   688                                  
+   689                                  _start:
+   690 00000529 E8FDFBFFFF              	call canonical_off
+   691 0000052E E8D9000000              	call start_screen
+   692 00000533 E871FEFFFF                  call init_level
+   693 00000538 EB00                    	jmp .main_loop
+   694                                  	
+   695                                  
+   696                                  	.main_loop:
+   697 0000053A E8C6FCFFFF              		call print_pallet
+   698 0000053F E851FDFFFF                      call move_ball
+   699 00000544 E891FEFFFF                      call print_blocks
+   700 00000549 E88FFCFFFF              		call print_ball
+   701                                  		print board, board_size				
+    82 0000054E B801000000          <1>  mov eax, sys_write
+    83 00000553 BF01000000          <1>  mov edi, 1
+    84 00000558 48BE-               <1>  mov rsi, %1
+    84 0000055A [0000000000000000]  <1>
+    85 00000562 BA400A0000          <1>  mov edx, %2
+    86 00000567 0F05                <1>  syscall
+   702                                  		;setnonblocking	
+   703                                  	.read_more:	
+   704                                  		getchar	
+    90 00000569 B800000000          <1>  mov rax, sys_read
+    91 0000056E BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 00000573 48BE-               <1>  mov rsi, input_char
+    92 00000575 [0000000000000000]  <1>
+    93 0000057D BA01000000          <1>  mov rdx, 1
+    94 00000582 0F05                <1>  syscall
+   705                                  		
+   706 00000584 4883F801                		cmp rax, 1
+   707 00000588 7532                        	jne .done
+   708                                  		
+   709 0000058A 8A05(00000000)          		mov al,[input_char]
+   710                                  
+   711 00000590 3C61                    		cmp al, 'a'
+   712 00000592 750E                    	    jne .not_left
+   713 00000594 48C7C7FFFFFFFF          	    mov rdi, left_direction
+   714 0000059B E880FCFFFF              		call move_pallet
+   715 000005A0 EB1A                    	    jmp .done
+   716                                  		
+   717                                  		.not_left:
+   718 000005A2 3C64                    		 	cmp al, 'd'
+   719 000005A4 750C                    	    	jne .not_right
+   720 000005A6 BF01000000              			mov rdi, right_direction
+   721 000005AB E870FCFFFF              	    	call move_pallet
+   722 000005B0 EB0A                        		jmp .done		
+   723                                  
+   724                                  		.not_right:
+   725                                  
+   726 000005B2 3C71                        		cmp al, 'q'
+   727 000005B4 0F84C5000000                		je exit
+   728                                  
+   729 000005BA EBAD                    			jmp .read_more
+   730                                  		
+   731                                  		.done:	
+   732                                  			;unsetnonblocking		
+   733                                  			sleeptime	
+    98 000005BC B823000000          <1>  mov eax, sys_nanosleep
+    99 000005C1 48BF-               <1>  mov rdi, timespec
+    99 000005C3 [0000000000000000]  <1>
+   100 000005CB 31F6                <1>  xor esi, esi
+   101 000005CD 0F05                <1>  syscall
+   734                                  			print clear, clear_length
+    82 000005CF B801000000          <1>  mov eax, sys_write
+    83 000005D4 BF01000000          <1>  mov edi, 1
+    84 000005D9 48BE-               <1>  mov rsi, %1
+    84 000005DB [1000000000000000]  <1>
+    85 000005E3 BA07000000          <1>  mov edx, %2
+    86 000005E8 0F05                <1>  syscall
+   735 000005EA E94BFFFFFF                  		jmp .main_loop
+   736                                  
+   737                                  		print clear, clear_length
+    82 000005EF B801000000          <1>  mov eax, sys_write
+    83 000005F4 BF01000000          <1>  mov edi, 1
+    84 000005F9 48BE-               <1>  mov rsi, %1
+    84 000005FB [1000000000000000]  <1>
+    85 00000603 BA07000000          <1>  mov edx, %2
+    86 00000608 0F05                <1>  syscall
+   738                                  		
+   739 0000060A EB73                    		jmp exit
+   740                                  
    741                                  
-   742 0000058C 3C71                        		cmp al, 'q'
-   743 0000058E 0F84C5000000                		je exit
-   744                                  
-   745 00000594 EBAD                    			jmp .read_more
-   746                                  		
-   747                                  		.done:	
-   748                                  			;unsetnonblocking		
-   749                                  			sleeptime	
-    98 00000596 B823000000          <1>  mov eax, sys_nanosleep
-    99 0000059B 48BF-               <1>  mov rdi, timespec
-    99 0000059D [0000000000000000]  <1>
-   100 000005A5 31F6                <1>  xor esi, esi
-   101 000005A7 0F05                <1>  syscall
-   750                                  			print clear, clear_length
-    82 000005A9 B801000000          <1>  mov eax, sys_write
-    83 000005AE BF01000000          <1>  mov edi, 1
-    84 000005B3 48BE-               <1>  mov rsi, %1
-    84 000005B5 [1000000000000000]  <1>
-    85 000005BD BA07000000          <1>  mov edx, %2
-    86 000005C2 0F05                <1>  syscall
-   751 000005C4 E94BFFFFFF                  		jmp .main_loop
-   752                                  
-   753                                  		print clear, clear_length
-    82 000005C9 B801000000          <1>  mov eax, sys_write
-    83 000005CE BF01000000          <1>  mov edi, 1
-    84 000005D3 48BE-               <1>  mov rsi, %1
-    84 000005D5 [1000000000000000]  <1>
-    85 000005DD BA07000000          <1>  mov edx, %2
-    86 000005E2 0F05                <1>  syscall
-   754                                  		
-   755 000005E4 EB73                    		jmp exit
-   756                                  
-   757                                  
-   758                                  start_screen:
-   759                                      print clear, clear_length    ; Limpiamos la pantalla primero
-    82 000005E6 B801000000          <1>  mov eax, sys_write
-    83 000005EB BF01000000          <1>  mov edi, 1
-    84 000005F0 48BE-               <1>  mov rsi, %1
-    84 000005F2 [1000000000000000]  <1>
-    85 000005FA BA07000000          <1>  mov edx, %2
-    86 000005FF 0F05                <1>  syscall
-   760                                      print msg1, msg1_length
-    82 00000601 B801000000          <1>  mov eax, sys_write
-    83 00000606 BF01000000          <1>  mov edi, 1
-    84 0000060B 48BE-               <1>  mov rsi, %1
-    84 0000060D [1700000000000000]  <1>
-    85 00000615 BA14010000          <1>  mov edx, %2
-    86 0000061A 0F05                <1>  syscall
-   761                                      
-   762                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
-   763                                          getchar                 ; Esperamos una tecla
-    90 0000061C B800000000          <1>  mov rax, sys_read
-    91 00000621 BF00000000          <1>  mov rdi, STDIN_FILENO
-    92 00000626 48BE-               <1>  mov rsi, input_char
-    92 00000628 [0000000000000000]  <1>
-    93 00000630 BA01000000          <1>  mov rdx, 1
-    94 00000635 0F05                <1>  syscall
-   764 00000637 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
-   765 0000063B 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
-   766                                          
-   767                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
-    82 0000063D B801000000          <1>  mov eax, sys_write
-    83 00000642 BF01000000          <1>  mov edi, 1
-    84 00000647 48BE-               <1>  mov rsi, %1
-    84 00000649 [1000000000000000]  <1>
-    85 00000651 BA07000000          <1>  mov edx, %2
-    86 00000656 0F05                <1>  syscall
-   768 00000658 C3                          ret
-   769                                  
-   770                                  exit: 
-   771 00000659 E80FFBFFFF              	call canonical_on
-   772 0000065E B83C000000              	mov    rax, 60
-   773 00000663 BF00000000                  mov    rdi, 0
-   774 00000668 0F05                        syscall
-   775                                  
+   742                                  start_screen:
+   743                                      print clear, clear_length    ; Limpiamos la pantalla primero
+    82 0000060C B801000000          <1>  mov eax, sys_write
+    83 00000611 BF01000000          <1>  mov edi, 1
+    84 00000616 48BE-               <1>  mov rsi, %1
+    84 00000618 [1000000000000000]  <1>
+    85 00000620 BA07000000          <1>  mov edx, %2
+    86 00000625 0F05                <1>  syscall
+   744                                      print msg1, msg1_length
+    82 00000627 B801000000          <1>  mov eax, sys_write
+    83 0000062C BF01000000          <1>  mov edi, 1
+    84 00000631 48BE-               <1>  mov rsi, %1
+    84 00000633 [1700000000000000]  <1>
+    85 0000063B BA14010000          <1>  mov edx, %2
+    86 00000640 0F05                <1>  syscall
+   745                                      
+   746                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
+   747                                          getchar                 ; Esperamos una tecla
+    90 00000642 B800000000          <1>  mov rax, sys_read
+    91 00000647 BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 0000064C 48BE-               <1>  mov rsi, input_char
+    92 0000064E [0000000000000000]  <1>
+    93 00000656 BA01000000          <1>  mov rdx, 1
+    94 0000065B 0F05                <1>  syscall
+   748 0000065D 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
+   749 00000661 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
+   750                                          
+   751                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
+    82 00000663 B801000000          <1>  mov eax, sys_write
+    83 00000668 BF01000000          <1>  mov edi, 1
+    84 0000066D 48BE-               <1>  mov rsi, %1
+    84 0000066F [1000000000000000]  <1>
+    85 00000677 BA07000000          <1>  mov edx, %2
+    86 0000067C 0F05                <1>  syscall
+   752 0000067E C3                          ret
+   753                                  
+   754                                  exit: 
+   755 0000067F E8E9FAFFFF              	call canonical_on
+   756 00000684 B83C000000              	mov    rax, 60
+   757 00000689 BF00000000                  mov    rdi, 0
+   758 0000068E 0F05                        syscall
+   759                                  
