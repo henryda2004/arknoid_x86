@@ -111,13 +111,18 @@ input_char: resb 1
 
 section .data
 
-	board:
-		full_line
+	; Guardamos la plantilla del tablero (32 filas)
+    board_template:
+        full_line
         %rep 30
         hollow_line
         %endrep
         full_line
-	board_size:   equ   $ - board
+    board_template_size: equ $ - board_template
+
+    ; Espacio real que se usará en la ejecución
+    board: times board_template_size db 0
+    board_size: equ board_template_size
 
 	; Added for the terminal issue
 	termios:        times 36 db 0
@@ -263,14 +268,14 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Primera fila (tipo 1)
-        db 60, 3, 1, 2    ; Bloque 1s
-        db 65, 3, 1, 2    ; Bloque 2
-        db 70, 3, 1, 2    ; Bloque 3
+        db 60, 3, 1, 1    ; Bloque 1s
+        db 65, 3, 1, 1    ; Bloque 2
+        db 70, 3, 1, 1    ; Bloque 3
         
         ; Segunda fila (tipo 2)
-        db 60, 5, 2, 2    ; Bloque 4
-        db 65, 5, 2, 2    ; Bloque 5
-        db 70, 5, 2, 2    ; Bloque 6
+        db 60, 5, 2, 1    ; Bloque 4
+        db 65, 5, 2, 1    ; Bloque 5
+        db 70, 5, 2, 1    ; Bloque 6
         
         ; Tercera fila (tipo 3)
         db 60, 7, 3, 2    ; Bloque 7
@@ -480,31 +485,50 @@ move_ball:
         ret
 
 ; Función para inicializar el nivel
+; Función para inicializar el nivel
 init_level:
-    ; 1) blocks_remaining = cantidad de bloques
-    mov al, level1_blocks_count
-    mov [blocks_remaining], al
+    ; 1) Copiamos board_template en board para que quede "virgen"
+    push rsi
+    push rdi
+    push rcx
+    push rax
 
-    ; 2) Llenar block_states con la durabilidad de cada bloque
-    xor rcx, rcx                       ; índice
+    lea rsi, [board_template]
+    lea rdi, [board]
+    mov rcx, board_template_size
+    rep movsb                 ; Copiamos la plantilla a board
+
+    pop rax
+    pop rcx
+    pop rdi
+    pop rsi
+
+    ; 2) blocks_remaining = 9
+    mov byte [blocks_remaining], level1_blocks_count
+
+    ; 3) Rellenar block_states con la durabilidad inicial
+    xor rcx, rcx             ; Contador para el loop
     .init_loop:
         cmp rcx, level1_blocks_count
-        jge .done_init
+        jge .done
 
-        ; Leer durab (4to byte) de level1_blocks[rcx]
-        ; cada bloque = x, y, tipo, durab
-        mov rax, level1_blocks
-        imul rcx, 4
-        add rax, rcx
-        mov al, [rax+3]    ; durab
-        ; Guardar en block_states[rcx]
-        mov [block_states + rcx], al
+        ; Calcular el offset correcto para level1_blocks
+        mov rax, rcx         ; Preservar el contador
+        shl rax, 2          ; Multiplicar por 4 (cada bloque tiene 4 bytes)
+        
+        ; Obtener la durabilidad del bloque desde level1_blocks
+        mov dl, byte [level1_blocks + rax + 3]  ; Obtener durabilidad
+        
+        ; Guardar la durabilidad en block_states
+        mov byte [block_states + rcx], dl
 
         inc rcx
         jmp .init_loop
 
-    .done_init:
+    .done:
         ret
+
+
 
 
 ; Función para imprimir los bloques
@@ -556,6 +580,7 @@ print_blocks:
         
     .end:
         ret
+
 
 ; Función modificada para detectar colisión
 ; Función mejorada para detectar colisión y manejar la física

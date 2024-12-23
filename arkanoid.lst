@@ -139,830 +139,854 @@
    111                                  
    112                                  section .data
    113                                  
-   114                                  	board:
-   115                                  		full_line
+   114                                  	; Guardamos la plantilla del tablero (32 filas)
+   115                                      board_template:
+   116                                          full_line
     70 00000000 58<rep 50h>         <1>  times column_cells db "X"
     71 00000050 0A0D                <1>  db 0x0a, 0xD
-   116                                          %rep 30
-   117                                          hollow_line
-   118                                          %endrep
-   117                              <1>  hollow_line
+   117                                          %rep 30
+   118                                          hollow_line
+   119                                          %endrep
+   118                              <1>  hollow_line
     75 00000052 58                  <2>  db "X"
     76 00000053 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000000A1 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 000000A4 58                  <2>  db "X"
     76 000000A5 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000000F3 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 000000F6 58                  <2>  db "X"
     76 000000F7 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000145 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 00000148 58                  <2>  db "X"
     76 00000149 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000197 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 0000019A 58                  <2>  db "X"
     76 0000019B 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000001E9 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 000001EC 58                  <2>  db "X"
     76 000001ED 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 0000023B 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 0000023E 58                  <2>  db "X"
     76 0000023F 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 0000028D 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 00000290 58                  <2>  db "X"
     76 00000291 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000002DF 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 000002E2 58                  <2>  db "X"
     76 000002E3 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000331 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 00000334 58                  <2>  db "X"
     76 00000335 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000383 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 00000386 58                  <2>  db "X"
     76 00000387 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000003D5 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 000003D8 58                  <2>  db "X"
     76 000003D9 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000427 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 0000042A 58                  <2>  db "X"
     76 0000042B 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000479 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 0000047C 58                  <2>  db "X"
     76 0000047D 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000004CB 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 000004CE 58                  <2>  db "X"
     76 000004CF 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 0000051D 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 00000520 58                  <2>  db "X"
     76 00000521 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 0000056F 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 00000572 58                  <2>  db "X"
     76 00000573 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000005C1 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 000005C4 58                  <2>  db "X"
     76 000005C5 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000613 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 00000616 58                  <2>  db "X"
     76 00000617 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000665 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 00000668 58                  <2>  db "X"
     76 00000669 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000006B7 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 000006BA 58                  <2>  db "X"
     76 000006BB 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000709 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 0000070C 58                  <2>  db "X"
     76 0000070D 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 0000075B 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 0000075E 58                  <2>  db "X"
     76 0000075F 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000007AD 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 000007B0 58                  <2>  db "X"
     76 000007B1 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000007FF 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 00000802 58                  <2>  db "X"
     76 00000803 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000851 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 00000854 58                  <2>  db "X"
     76 00000855 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000008A3 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 000008A6 58                  <2>  db "X"
     76 000008A7 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000008F5 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 000008F8 58                  <2>  db "X"
     76 000008F9 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000947 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 0000094A 58                  <2>  db "X"
     76 0000094B 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 00000999 580A0D              <2>  db "X", 0x0a, 0xD
-   117                              <1>  hollow_line
+   118                              <1>  hollow_line
     75 0000099C 58                  <2>  db "X"
     76 0000099D 20<rep 4Eh>         <2>  times column_cells-2 db " "
     77 000009EB 580A0D              <2>  db "X", 0x0a, 0xD
-   119                                          full_line
+   120                                          full_line
     70 000009EE 58<rep 50h>         <1>  times column_cells db "X"
     71 00000A3E 0A0D                <1>  db 0x0a, 0xD
-   120                                  	board_size:   equ   $ - board
-   121                                  
-   122                                  	; Added for the terminal issue
-   123 00000A40 00<rep 24h>             	termios:        times 36 db 0
-   124                                  	stdin:          equ 0
-   125                                  	ICANON:         equ 1<<1
-   126                                  	ECHO:           equ 1<<3
-   127                                  	VTIME: 			equ 5
-   128                                  	VMIN:			equ 6
-   129                                  	CC_C:			equ 18
-   130                                  
-   131                                  section .text
-   132                                  ;;;;;;;;;;;;;;;;;;;;for the working of the terminal;;;;;;;;;;;;;;;;;
-   133                                  canonical_off:
-   134 0000012B E86F000000                      call read_stdin_termios
+   121                                      board_template_size: equ $ - board_template
+   122                                  
+   123                                      ; Espacio real que se usará en la ejecución
+   124 00000A40 00<rep A40h>                board: times board_template_size db 0
+   125                                      board_size: equ board_template_size
+   126                                  
+   127                                  	; Added for the terminal issue
+   128 00001480 00<rep 24h>             	termios:        times 36 db 0
+   129                                  	stdin:          equ 0
+   130                                  	ICANON:         equ 1<<1
+   131                                  	ECHO:           equ 1<<3
+   132                                  	VTIME: 			equ 5
+   133                                  	VMIN:			equ 6
+   134                                  	CC_C:			equ 18
    135                                  
-   136                                          ; clear canonical bit in local mode flags
-   137 00000130 50                              push rax
-   138 00000131 B802000000                      mov eax, ICANON
-   139 00000136 F7D0                            not eax
-   140 00000138 2105(4C0A0000)                  and [termios+12], eax
-   141 0000013E C605(570A0000)00        		mov byte[termios+CC_C+VTIME], 0
-   142 00000145 C605(580A0000)00        		mov byte[termios+CC_C+VMIN], 0
-   143 0000014C 58                              pop rax
-   144                                  
-   145 0000014D E86C000000                      call write_stdin_termios
-   146 00000152 C3                              ret
-   147                                  
-   148                                  echo_off:
-   149 00000153 E847000000                      call read_stdin_termios
-   150                                  
-   151                                          ; clear echo bit in local mode flags
-   152 00000158 50                              push rax
-   153 00000159 B808000000                      mov eax, ECHO
-   154 0000015E F7D0                            not eax
-   155 00000160 2105(4C0A0000)                  and [termios+12], eax
-   156 00000166 58                              pop rax
-   157                                  
-   158 00000167 E852000000                      call write_stdin_termios
-   159 0000016C C3                              ret
-   160                                  
-   161                                  canonical_on:
-   162 0000016D E82D000000                      call read_stdin_termios
-   163                                  
-   164                                          ; set canonical bit in local mode flags
-   165 00000172 830D(4C0A0000)02                or dword [termios+12], ICANON
-   166 00000179 C605(570A0000)00        		mov byte[termios+CC_C+VTIME], 0
-   167 00000180 C605(580A0000)01        		mov byte[termios+CC_C+VMIN], 1
-   168 00000187 E832000000                      call write_stdin_termios
-   169 0000018C C3                              ret
-   170                                  
-   171                                  echo_on:
-   172 0000018D E80D000000                      call read_stdin_termios
-   173                                  
-   174                                          ; set echo bit in local mode flags
-   175 00000192 830D(4C0A0000)08                or dword [termios+12], ECHO
-   176                                  
-   177 00000199 E820000000                      call write_stdin_termios
-   178 0000019E C3                              ret
-   179                                  
-   180                                  read_stdin_termios:
-   181 0000019F 50                              push rax
-   182 000001A0 53                              push rbx
-   183 000001A1 51                              push rcx
-   184 000001A2 52                              push rdx
-   185                                  
-   186 000001A3 B836000000                      mov eax, 36h
-   187 000001A8 BB00000000                      mov ebx, stdin
-   188 000001AD B901540000                      mov ecx, 5401h
-   189 000001B2 BA[400A0000]                    mov edx, termios
-   190 000001B7 CD80                            int 80h
-   191                                  
-   192 000001B9 5A                              pop rdx
-   193 000001BA 59                              pop rcx
-   194 000001BB 5B                              pop rbx
-   195 000001BC 58                              pop rax
-   196 000001BD C3                              ret
-   197                                  
-   198                                  write_stdin_termios:
-   199 000001BE 50                              push rax
-   200 000001BF 53                              push rbx
-   201 000001C0 51                              push rcx
-   202 000001C1 52                              push rdx
-   203                                  
-   204 000001C2 B836000000                      mov eax, 36h
-   205 000001C7 BB00000000                      mov ebx, stdin
-   206 000001CC B902540000                      mov ecx, 5402h
-   207 000001D1 BA[400A0000]                    mov edx, termios
-   208 000001D6 CD80                            int 80h
-   209                                  
-   210 000001D8 5A                              pop rdx
-   211 000001D9 59                              pop rcx
-   212 000001DA 5B                              pop rbx
-   213 000001DB 58                              pop rax
-   214 000001DC C3                              ret
-   215                                  
-   216                                  ;;;;;;;;;;;;;;;;;;;;end for the working of the terminal;;;;;;;;;;;;
-   217                                  
-   218                                  char_equal: equ 61
-   219                                  char_space: equ 32
-   220                                  char_O: equ 79
-   221                                  left_direction: equ -1
-   222                                  right_direction: equ 1
-   223                                  
-   224                                  
-   225                                  section .data
-   226 00000A64 [7209000000000000]      	pallet_position dq board + 40 + 29 * (column_cells +2)
-   227 00000A6C 0300000000000000        	pallet_size dq 3
+   136                                  section .text
+   137                                  ;;;;;;;;;;;;;;;;;;;;for the working of the terminal;;;;;;;;;;;;;;;;;
+   138                                  canonical_off:
+   139 0000012B E86F000000                      call read_stdin_termios
+   140                                  
+   141                                          ; clear canonical bit in local mode flags
+   142 00000130 50                              push rax
+   143 00000131 B802000000                      mov eax, ICANON
+   144 00000136 F7D0                            not eax
+   145 00000138 2105(8C140000)                  and [termios+12], eax
+   146 0000013E C605(97140000)00        		mov byte[termios+CC_C+VTIME], 0
+   147 00000145 C605(98140000)00        		mov byte[termios+CC_C+VMIN], 0
+   148 0000014C 58                              pop rax
+   149                                  
+   150 0000014D E86C000000                      call write_stdin_termios
+   151 00000152 C3                              ret
+   152                                  
+   153                                  echo_off:
+   154 00000153 E847000000                      call read_stdin_termios
+   155                                  
+   156                                          ; clear echo bit in local mode flags
+   157 00000158 50                              push rax
+   158 00000159 B808000000                      mov eax, ECHO
+   159 0000015E F7D0                            not eax
+   160 00000160 2105(8C140000)                  and [termios+12], eax
+   161 00000166 58                              pop rax
+   162                                  
+   163 00000167 E852000000                      call write_stdin_termios
+   164 0000016C C3                              ret
+   165                                  
+   166                                  canonical_on:
+   167 0000016D E82D000000                      call read_stdin_termios
+   168                                  
+   169                                          ; set canonical bit in local mode flags
+   170 00000172 830D(8C140000)02                or dword [termios+12], ICANON
+   171 00000179 C605(97140000)00        		mov byte[termios+CC_C+VTIME], 0
+   172 00000180 C605(98140000)01        		mov byte[termios+CC_C+VMIN], 1
+   173 00000187 E832000000                      call write_stdin_termios
+   174 0000018C C3                              ret
+   175                                  
+   176                                  echo_on:
+   177 0000018D E80D000000                      call read_stdin_termios
+   178                                  
+   179                                          ; set echo bit in local mode flags
+   180 00000192 830D(8C140000)08                or dword [termios+12], ECHO
+   181                                  
+   182 00000199 E820000000                      call write_stdin_termios
+   183 0000019E C3                              ret
+   184                                  
+   185                                  read_stdin_termios:
+   186 0000019F 50                              push rax
+   187 000001A0 53                              push rbx
+   188 000001A1 51                              push rcx
+   189 000001A2 52                              push rdx
+   190                                  
+   191 000001A3 B836000000                      mov eax, 36h
+   192 000001A8 BB00000000                      mov ebx, stdin
+   193 000001AD B901540000                      mov ecx, 5401h
+   194 000001B2 BA[80140000]                    mov edx, termios
+   195 000001B7 CD80                            int 80h
+   196                                  
+   197 000001B9 5A                              pop rdx
+   198 000001BA 59                              pop rcx
+   199 000001BB 5B                              pop rbx
+   200 000001BC 58                              pop rax
+   201 000001BD C3                              ret
+   202                                  
+   203                                  write_stdin_termios:
+   204 000001BE 50                              push rax
+   205 000001BF 53                              push rbx
+   206 000001C0 51                              push rcx
+   207 000001C1 52                              push rdx
+   208                                  
+   209 000001C2 B836000000                      mov eax, 36h
+   210 000001C7 BB00000000                      mov ebx, stdin
+   211 000001CC B902540000                      mov ecx, 5402h
+   212 000001D1 BA[80140000]                    mov edx, termios
+   213 000001D6 CD80                            int 80h
+   214                                  
+   215 000001D8 5A                              pop rdx
+   216 000001D9 59                              pop rcx
+   217 000001DA 5B                              pop rbx
+   218 000001DB 58                              pop rax
+   219 000001DC C3                              ret
+   220                                  
+   221                                  ;;;;;;;;;;;;;;;;;;;;end for the working of the terminal;;;;;;;;;;;;
+   222                                  
+   223                                  char_equal: equ 61
+   224                                  char_space: equ 32
+   225                                  char_O: equ 79
+   226                                  left_direction: equ -1
+   227                                  right_direction: equ 1
    228                                  
-   229 00000A74 2800000000000000        	ball_x_pos: dq 40
-   230 00000A7C 1C00000000000000        	ball_y_pos: dq 28
-   231 00000A84 0100000000000000            ball_direction_x dq 1    ; 1 = derecha, -1 = izquierda
-   232 00000A8C FFFFFFFFFFFFFFFF            ball_direction_y dq -1   ; -1 = arriba, 1 = abajo
-   233 00000A94 00                          ball_moving db 0         ; 0 = estática, 1 = en movimiento
-   234                                  
-   235                                  ; Definir los límites de la pantalla o área de juego
-   236                                      board_top_left_x equ 1
-   237                                      board_top_left_y equ 1
-   238                                      board_bottom_right_x equ column_cells - 1
-   239                                      board_bottom_right_y equ row_cells
-   240                                  
-   241                                      ; Limites laterales
-   242                                      left_edge equ board_top_left_x               ; Límite izquierdo en la primera columna
-   243                                      right_edge equ board_bottom_right_x         ; Límite derecho en la última columna
-   244                                  
-   245                                      ; O también puedes hacerlo así si prefieres usando las coordenadas en memoria para obtener la ubicación exacta:
-   246 00000A95 [5200000000000000]          left_edge_position dq board + (board_top_left_y * (column_cells + 2)) ; Coordenada de la parte izquierda del marco
-   247 00000A9D [A000000000000000]          right_edge_position dq board + (board_top_left_y * (column_cells + 2) + board_bottom_right_x - 1) ; Coordenada de la parte derecha del marco
-   248                                  
-   249                                      ; Definición de tipos de bloques
-   250 00000AA5 55555555                    block_type_1: db "UUUU"    ; Durabilidad 1
-   251 00000AA9 4F4F4F4F                    block_type_2: db "OOOO"    ; Durabilidad 2
-   252 00000AAD 44444444                    block_type_3: db "DDDD"    ; Durabilidad 3
-   253 00000AB1 4C4C4C4C                    block_type_4: db "LLLL"    ; Durabilidad 4
-   254 00000AB5 56565656                    block_type_5: db "VVVV"    ; Durabilidad 5
-   255 00000AB9 38383838                    block_type_6: db "8888"    ; Durabilidad 6
-   256                                      block_length: equ 4        ; Longitud de cada bloque
-   257                                  
-   258                                      ; Estructura para el nivel actual
-   259 00000ABD 01                          current_level db 1
-   260 00000ABE 00                          blocks_remaining db 0
-   261                                  
-   262                                      ; Definición del nivel 1 (ejemplo con múltiples bloques)
-   263                                      ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
-   264                                      level1_blocks:
-   265                                          ; Primera fila (tipo 1)
-   266 00000ABF 3C030102                        db 60, 3, 1, 2    ; Bloque 1s
-   267 00000AC3 41030102                        db 65, 3, 1, 2    ; Bloque 2
-   268 00000AC7 46030102                        db 70, 3, 1, 2    ; Bloque 3
-   269                                          
-   270                                          ; Segunda fila (tipo 2)
-   271 00000ACB 3C050202                        db 60, 5, 2, 2    ; Bloque 4
-   272 00000ACF 41050202                        db 65, 5, 2, 2    ; Bloque 5
-   273 00000AD3 46050202                        db 70, 5, 2, 2    ; Bloque 6
+   229                                  
+   230                                  section .data
+   231 000014A4 [B213000000000000]      	pallet_position dq board + 40 + 29 * (column_cells +2)
+   232 000014AC 0300000000000000        	pallet_size dq 3
+   233                                  
+   234 000014B4 2800000000000000        	ball_x_pos: dq 40
+   235 000014BC 1C00000000000000        	ball_y_pos: dq 28
+   236 000014C4 0100000000000000            ball_direction_x dq 1    ; 1 = derecha, -1 = izquierda
+   237 000014CC FFFFFFFFFFFFFFFF            ball_direction_y dq -1   ; -1 = arriba, 1 = abajo
+   238 000014D4 00                          ball_moving db 0         ; 0 = estática, 1 = en movimiento
+   239                                  
+   240                                  ; Definir los límites de la pantalla o área de juego
+   241                                      board_top_left_x equ 1
+   242                                      board_top_left_y equ 1
+   243                                      board_bottom_right_x equ column_cells - 1
+   244                                      board_bottom_right_y equ row_cells
+   245                                  
+   246                                      ; Limites laterales
+   247                                      left_edge equ board_top_left_x               ; Límite izquierdo en la primera columna
+   248                                      right_edge equ board_bottom_right_x         ; Límite derecho en la última columna
+   249                                  
+   250                                      ; O también puedes hacerlo así si prefieres usando las coordenadas en memoria para obtener la ubicación exacta:
+   251 000014D5 [920A000000000000]          left_edge_position dq board + (board_top_left_y * (column_cells + 2)) ; Coordenada de la parte izquierda del marco
+   252 000014DD [E00A000000000000]          right_edge_position dq board + (board_top_left_y * (column_cells + 2) + board_bottom_right_x - 1) ; Coordenada de la parte derecha del marco
+   253                                  
+   254                                      ; Definición de tipos de bloques
+   255 000014E5 55555555                    block_type_1: db "UUUU"    ; Durabilidad 1
+   256 000014E9 4F4F4F4F                    block_type_2: db "OOOO"    ; Durabilidad 2
+   257 000014ED 44444444                    block_type_3: db "DDDD"    ; Durabilidad 3
+   258 000014F1 4C4C4C4C                    block_type_4: db "LLLL"    ; Durabilidad 4
+   259 000014F5 56565656                    block_type_5: db "VVVV"    ; Durabilidad 5
+   260 000014F9 38383838                    block_type_6: db "8888"    ; Durabilidad 6
+   261                                      block_length: equ 4        ; Longitud de cada bloque
+   262                                  
+   263                                      ; Estructura para el nivel actual
+   264 000014FD 01                          current_level db 1
+   265 000014FE 00                          blocks_remaining db 0
+   266                                  
+   267                                      ; Definición del nivel 1 (ejemplo con múltiples bloques)
+   268                                      ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
+   269                                      level1_blocks:
+   270                                          ; Primera fila (tipo 1)
+   271 000014FF 3C030101                        db 60, 3, 1, 1    ; Bloque 1s
+   272 00001503 41030101                        db 65, 3, 1, 1    ; Bloque 2
+   273 00001507 46030101                        db 70, 3, 1, 1    ; Bloque 3
    274                                          
-   275                                          ; Tercera fila (tipo 3)
-   276 00000AD7 3C070302                        db 60, 7, 3, 2    ; Bloque 7
-   277 00000ADB 41070302                        db 65, 7, 3, 2    ; Bloque 8
-   278 00000ADF 46070302                        db 70, 7, 3, 2    ; Bloque 9
-   279                                      level1_blocks_count equ 9   ; Cantidad total de bloques
-   280                                  
-   281                                      ; Array para mantener el estado de los bloques
-   282 00000AE3 00<rep 64h>                 block_states: times 100 db 0  ; Durabilidad actual de cada bloque
-   283                                  
-   284                                  section .text
+   275                                          ; Segunda fila (tipo 2)
+   276 0000150B 3C050201                        db 60, 5, 2, 1    ; Bloque 4
+   277 0000150F 41050201                        db 65, 5, 2, 1    ; Bloque 5
+   278 00001513 46050201                        db 70, 5, 2, 1    ; Bloque 6
+   279                                          
+   280                                          ; Tercera fila (tipo 3)
+   281 00001517 3C070302                        db 60, 7, 3, 2    ; Bloque 7
+   282 0000151B 41070302                        db 65, 7, 3, 2    ; Bloque 8
+   283 0000151F 46070302                        db 70, 7, 3, 2    ; Bloque 9
+   284                                      level1_blocks_count equ 9   ; Cantidad total de bloques
    285                                  
-   286                                  ;	Function: print_ball
-   287                                  ; This function displays the position of the ball
-   288                                  ; Arguments: none
-   289                                  ;
-   290                                  ; Return:
-   291                                  ;	Void
-   292                                  print_ball:
-   293 000001DD 4C8B05(740A0000)        	mov r8, [ball_x_pos]
-   294 000001E4 4C8B0D(7C0A0000)        	mov r9, [ball_y_pos]
-   295 000001EB 4981C0[00000000]        	add r8, board
-   296                                  
-   297 000001F2 4C89C9                  	mov rcx, r9
-   298 000001F5 B852000000              	mov rax, column_cells + 2
-   299 000001FA 48F7E9                  	imul rcx
-   300                                  	
-   301 000001FD 4901C0                  	add r8, rax
-   302 00000200 41C6004F                	mov byte [r8], char_O
-   303 00000204 C3                      	ret
-   304                                  
+   286                                      ; Array para mantener el estado de los bloques
+   287 00001523 00<rep 64h>                 block_states: times 100 db 0  ; Durabilidad actual de cada bloque
+   288                                  
+   289                                  section .text
+   290                                  
+   291                                  ;	Function: print_ball
+   292                                  ; This function displays the position of the ball
+   293                                  ; Arguments: none
+   294                                  ;
+   295                                  ; Return:
+   296                                  ;	Void
+   297                                  print_ball:
+   298 000001DD 4C8B05(B4140000)        	mov r8, [ball_x_pos]
+   299 000001E4 4C8B0D(BC140000)        	mov r9, [ball_y_pos]
+   300 000001EB 4981C0[400A0000]        	add r8, board
+   301                                  
+   302 000001F2 4C89C9                  	mov rcx, r9
+   303 000001F5 B852000000              	mov rax, column_cells + 2
+   304 000001FA 48F7E9                  	imul rcx
    305                                  	
-   306                                  	;mov rax, board + r8 + r9 * (column_cells + 2)
-   307                                  	
-   308                                  
+   306 000001FD 4901C0                  	add r8, rax
+   307 00000200 41C6004F                	mov byte [r8], char_O
+   308 00000204 C3                      	ret
    309                                  
-   310                                  
-   311                                  ;	Function: print_pallet
-   312                                  ; This function moves the pallet in the game
-   313                                  ; Arguments: none
-   314                                  ;
-   315                                  ; Return;
-   316                                  ;	void
-   317                                  print_pallet:
-   318 00000205 4C8B05(640A0000)        	mov r8, [pallet_position]
-   319 0000020C 488B0D(6C0A0000)        	mov rcx, [pallet_size]
-   320                                  	.write_pallet:
-   321 00000213 41C6003D                		mov byte [r8], char_equal
-   322 00000217 49FFC0                  		inc r8
-   323 0000021A 48FFC9                  		dec rcx
-   324 0000021D 75F4                    		jnz .write_pallet
-   325                                  
-   326 0000021F C3                      	ret
-   327                                  	
-   328                                  ;	Function: move_pallet
-   329                                  ; This function is in charge of moving the pallet in a given direction
-   330                                  ; Arguments:
-   331                                  ;	rdi: left direction or right direction
-   332                                  ;
-   333                                  ; Return:
-   334                                  ;	void
-   335                                  move_pallet:
-   336                                      
-   337 00000220 803D(940A0000)00            cmp byte [ball_moving], 0
-   338 00000227 7507                        jne .continue_movement
-   339 00000229 C605(940A0000)01            mov byte [ball_moving], 1
-   340                                  
-   341                                      .continue_movement:
-   342 00000230 4883FFFF                        cmp rdi, left_direction
-   343 00000234 7531                            jne .move_right
-   344                                  
-   345                                          .move_left:
-   346                                              ; Verificar si la siguiente posición sería una X (borde izquierdo)
-   347 00000236 4C8B05(640A0000)                    mov r8, [pallet_position]
-   348 0000023D 49FFC8                              dec r8              ; Verificar la posición a la izquierda
-   349 00000240 418A00                              mov al, [r8]       ; Cargar el carácter en esa posición
-   350 00000243 3C58                                cmp al, 'X'        ; Comparar si es una X
-   351 00000245 744D                                je .end            ; Si es X, no mover
-   352                                              
-   353 00000247 4C8B05(640A0000)                    mov r8, [pallet_position]
-   354 0000024E 4C8B0D(6C0A0000)                    mov r9, [pallet_size]
-   355 00000255 43C64408FF20                        mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter de la paleta
-   356 0000025B 49FFC8                              dec r8
-   357 0000025E 4C8905(640A0000)                    mov [pallet_position], r8
-   358 00000265 EB2D                                jmp .end
-   359                                              
-   360                                          .move_right:
-   361                                              ; Verificar si la siguiente posición después de la paleta sería una X
-   362 00000267 4C8B05(640A0000)                    mov r8, [pallet_position]
-   363 0000026E 4C8B0D(6C0A0000)                    mov r9, [pallet_size]
-   364 00000275 4D01C8                              add r8, r9         ; Moverse al final de la paleta
-   365 00000278 418A00                              mov al, [r8]       ; Cargar el carácter en esa posición
-   366 0000027B 3C58                                cmp al, 'X'        ; Comparar si es una X
-   367 0000027D 7415                                je .end            ; Si es X, no mover
-   368                                              
-   369 0000027F 4C8B05(640A0000)                    mov r8, [pallet_position]
-   370 00000286 41C60020                            mov byte [r8], char_space
-   371 0000028A 49FFC0                              inc r8
-   372 0000028D 4C8905(640A0000)                    mov [pallet_position], r8
-   373                                          .end:
-   374 00000294 C3                                  ret
-   375                                  
-   376                                  move_ball:
-   377                                      ; Si la bola no está en movimiento, no hacer nada
-   378 00000295 803D(940A0000)00            cmp byte [ball_moving], 0
-   379 0000029C 0F8406010000                je .end
+   310                                  	
+   311                                  	;mov rax, board + r8 + r9 * (column_cells + 2)
+   312                                  	
+   313                                  
+   314                                  
+   315                                  
+   316                                  ;	Function: print_pallet
+   317                                  ; This function moves the pallet in the game
+   318                                  ; Arguments: none
+   319                                  ;
+   320                                  ; Return;
+   321                                  ;	void
+   322                                  print_pallet:
+   323 00000205 4C8B05(A4140000)        	mov r8, [pallet_position]
+   324 0000020C 488B0D(AC140000)        	mov rcx, [pallet_size]
+   325                                  	.write_pallet:
+   326 00000213 41C6003D                		mov byte [r8], char_equal
+   327 00000217 49FFC0                  		inc r8
+   328 0000021A 48FFC9                  		dec rcx
+   329 0000021D 75F4                    		jnz .write_pallet
+   330                                  
+   331 0000021F C3                      	ret
+   332                                  	
+   333                                  ;	Function: move_pallet
+   334                                  ; This function is in charge of moving the pallet in a given direction
+   335                                  ; Arguments:
+   336                                  ;	rdi: left direction or right direction
+   337                                  ;
+   338                                  ; Return:
+   339                                  ;	void
+   340                                  move_pallet:
+   341                                      
+   342 00000220 803D(D4140000)00            cmp byte [ball_moving], 0
+   343 00000227 7507                        jne .continue_movement
+   344 00000229 C605(D4140000)01            mov byte [ball_moving], 1
+   345                                  
+   346                                      .continue_movement:
+   347 00000230 4883FFFF                        cmp rdi, left_direction
+   348 00000234 7531                            jne .move_right
+   349                                  
+   350                                          .move_left:
+   351                                              ; Verificar si la siguiente posición sería una X (borde izquierdo)
+   352 00000236 4C8B05(A4140000)                    mov r8, [pallet_position]
+   353 0000023D 49FFC8                              dec r8              ; Verificar la posición a la izquierda
+   354 00000240 418A00                              mov al, [r8]       ; Cargar el carácter en esa posición
+   355 00000243 3C58                                cmp al, 'X'        ; Comparar si es una X
+   356 00000245 744D                                je .end            ; Si es X, no mover
+   357                                              
+   358 00000247 4C8B05(A4140000)                    mov r8, [pallet_position]
+   359 0000024E 4C8B0D(AC140000)                    mov r9, [pallet_size]
+   360 00000255 43C64408FF20                        mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter de la paleta
+   361 0000025B 49FFC8                              dec r8
+   362 0000025E 4C8905(A4140000)                    mov [pallet_position], r8
+   363 00000265 EB2D                                jmp .end
+   364                                              
+   365                                          .move_right:
+   366                                              ; Verificar si la siguiente posición después de la paleta sería una X
+   367 00000267 4C8B05(A4140000)                    mov r8, [pallet_position]
+   368 0000026E 4C8B0D(AC140000)                    mov r9, [pallet_size]
+   369 00000275 4D01C8                              add r8, r9         ; Moverse al final de la paleta
+   370 00000278 418A00                              mov al, [r8]       ; Cargar el carácter en esa posición
+   371 0000027B 3C58                                cmp al, 'X'        ; Comparar si es una X
+   372 0000027D 7415                                je .end            ; Si es X, no mover
+   373                                              
+   374 0000027F 4C8B05(A4140000)                    mov r8, [pallet_position]
+   375 00000286 41C60020                            mov byte [r8], char_space
+   376 0000028A 49FFC0                              inc r8
+   377 0000028D 4C8905(A4140000)                    mov [pallet_position], r8
+   378                                          .end:
+   379 00000294 C3                                  ret
    380                                  
-   381                                      ; Borrar la posición actual de la bola
-   382 000002A2 4C8B05(740A0000)            mov r8, [ball_x_pos]
-   383 000002A9 4C8B0D(7C0A0000)            mov r9, [ball_y_pos]
-   384 000002B0 4981C0[00000000]            add r8, board
-   385 000002B7 4C89C9                      mov rcx, r9
-   386 000002BA B852000000                  mov rax, column_cells + 2
-   387 000002BF 48F7E9                      imul rcx
-   388 000002C2 4901C0                      add r8, rax
-   389 000002C5 41C60020                    mov byte [r8], char_space    ; Borrar la bola actual
-   390                                  
-   391                                      ; Calcular siguiente posición X
-   392 000002C9 4C8B05(740A0000)            mov r8, [ball_x_pos]
-   393 000002D0 4C8B0D(7C0A0000)            mov r9, [ball_y_pos]
-   394 000002D7 488B05(840A0000)            mov rax, [ball_direction_x]
-   395 000002DE 4901C0                      add r8, rax                  ; Nueva posición X
-   396                                  
-   397                                      ; Calcular la dirección de memoria para la siguiente posición
-   398 000002E1 4D89C2                      mov r10, r8
-   399 000002E4 4981C2[00000000]            add r10, board
-   400 000002EB 4C89C9                      mov rcx, r9
-   401 000002EE B852000000                  mov rax, column_cells + 2
-   402 000002F3 48F7E9                      imul rcx
-   403 000002F6 4901C2                      add r10, rax
-   404                                  
-   405                                      ; Verificar si hay una X en la siguiente posición X
-   406 000002F9 418A02                      mov al, [r10]
-   407 000002FC 3C58                        cmp al, 'X'
-   408 000002FE 750C                        jne .check_block_x
-   409 00000300 48F71D(840A0000)            neg qword [ball_direction_x]  ; Cambiar dirección X si hay una X
-   410 00000307 E99C000000                  jmp .end
-   411                                  
-   412                                      .check_block_x:
-   413                                          ; Verificar colisión con bloques en X
-   414 0000030C 4150                            push r8     ; Guardar registros que usa check_block_collision
-   415 0000030E 4151                            push r9
-   416 00000310 4152                            push r10
-   417 00000312 E83F010000                      call check_block_collision
-   418 00000317 415A                            pop r10
-   419 00000319 4159                            pop r9
-   420 0000031B 4158                            pop r8
-   421 0000031D 4885C0                          test rax, rax
-   422 00000320 7409                            jz .check_paddle_x      ; Si no hay colisión, verificar paleta
-   423 00000322 48F71D(840A0000)                neg qword [ball_direction_x]  ; Si hay colisión, rebotar
-   424 00000329 EB7D                            jmp .end
-   425                                  
-   426                                      .check_paddle_x:
-   427                                          ; Verificar si hay una paleta (=) en la siguiente posición X
-   428 0000032B 41803A3D                        cmp byte [r10], char_equal
-   429 0000032F 7509                            jne .check_y_movement
-   430 00000331 48F71D(840A0000)                neg qword [ball_direction_x]  ; Cambiar dirección X si hay una paleta
-   431 00000338 EB6E                            jmp .end
-   432                                  
-   433                                      .check_y_movement:
-   434                                          ; Calcular siguiente posición Y
-   435 0000033A 488B05(8C0A0000)                mov rax, [ball_direction_y]
-   436 00000341 4901C1                          add r9, rax                  ; Nueva posición Y
+   381                                  move_ball:
+   382                                      ; Si la bola no está en movimiento, no hacer nada
+   383 00000295 803D(D4140000)00            cmp byte [ball_moving], 0
+   384 0000029C 0F8406010000                je .end
+   385                                  
+   386                                      ; Borrar la posición actual de la bola
+   387 000002A2 4C8B05(B4140000)            mov r8, [ball_x_pos]
+   388 000002A9 4C8B0D(BC140000)            mov r9, [ball_y_pos]
+   389 000002B0 4981C0[400A0000]            add r8, board
+   390 000002B7 4C89C9                      mov rcx, r9
+   391 000002BA B852000000                  mov rax, column_cells + 2
+   392 000002BF 48F7E9                      imul rcx
+   393 000002C2 4901C0                      add r8, rax
+   394 000002C5 41C60020                    mov byte [r8], char_space    ; Borrar la bola actual
+   395                                  
+   396                                      ; Calcular siguiente posición X
+   397 000002C9 4C8B05(B4140000)            mov r8, [ball_x_pos]
+   398 000002D0 4C8B0D(BC140000)            mov r9, [ball_y_pos]
+   399 000002D7 488B05(C4140000)            mov rax, [ball_direction_x]
+   400 000002DE 4901C0                      add r8, rax                  ; Nueva posición X
+   401                                  
+   402                                      ; Calcular la dirección de memoria para la siguiente posición
+   403 000002E1 4D89C2                      mov r10, r8
+   404 000002E4 4981C2[400A0000]            add r10, board
+   405 000002EB 4C89C9                      mov rcx, r9
+   406 000002EE B852000000                  mov rax, column_cells + 2
+   407 000002F3 48F7E9                      imul rcx
+   408 000002F6 4901C2                      add r10, rax
+   409                                  
+   410                                      ; Verificar si hay una X en la siguiente posición X
+   411 000002F9 418A02                      mov al, [r10]
+   412 000002FC 3C58                        cmp al, 'X'
+   413 000002FE 750C                        jne .check_block_x
+   414 00000300 48F71D(C4140000)            neg qword [ball_direction_x]  ; Cambiar dirección X si hay una X
+   415 00000307 E99C000000                  jmp .end
+   416                                  
+   417                                      .check_block_x:
+   418                                          ; Verificar colisión con bloques en X
+   419 0000030C 4150                            push r8     ; Guardar registros que usa check_block_collision
+   420 0000030E 4151                            push r9
+   421 00000310 4152                            push r10
+   422 00000312 E854010000                      call check_block_collision
+   423 00000317 415A                            pop r10
+   424 00000319 4159                            pop r9
+   425 0000031B 4158                            pop r8
+   426 0000031D 4885C0                          test rax, rax
+   427 00000320 7409                            jz .check_paddle_x      ; Si no hay colisión, verificar paleta
+   428 00000322 48F71D(C4140000)                neg qword [ball_direction_x]  ; Si hay colisión, rebotar
+   429 00000329 EB7D                            jmp .end
+   430                                  
+   431                                      .check_paddle_x:
+   432                                          ; Verificar si hay una paleta (=) en la siguiente posición X
+   433 0000032B 41803A3D                        cmp byte [r10], char_equal
+   434 0000032F 7509                            jne .check_y_movement
+   435 00000331 48F71D(C4140000)                neg qword [ball_direction_x]  ; Cambiar dirección X si hay una paleta
+   436 00000338 EB6E                            jmp .end
    437                                  
-   438                                          ; Calcular la dirección de memoria para la siguiente posición Y
-   439 00000344 4D89C2                          mov r10, r8
-   440 00000347 4981C2[00000000]                add r10, board
-   441 0000034E 4C89C9                          mov rcx, r9
-   442 00000351 B852000000                      mov rax, column_cells + 2
-   443 00000356 48F7E9                          imul rcx
-   444 00000359 4901C2                          add r10, rax
-   445                                  
-   446                                          ; Verificar si hay una X en la siguiente posición Y
-   447 0000035C 418A02                          mov al, [r10]
-   448 0000035F 3C58                            cmp al, 'X'
-   449 00000361 7509                            jne .check_block_y
-   450 00000363 48F71D(8C0A0000)                neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una X
-   451 0000036A EB3C                            jmp .end
-   452                                  
-   453                                      .check_block_y:
-   454                                          ; Verificar colisión con bloques en Y
-   455 0000036C 4150                            push r8     ; Guardar registros que usa check_block_collision
-   456 0000036E 4151                            push r9
-   457 00000370 4152                            push r10
-   458 00000372 E8DF000000                      call check_block_collision
-   459 00000377 415A                            pop r10
-   460 00000379 4159                            pop r9
-   461 0000037B 4158                            pop r8
-   462 0000037D 4885C0                          test rax, rax
-   463 00000380 7409                            jz .check_paddle_y      ; Si no hay colisión, verificar paleta
-   464 00000382 48F71D(8C0A0000)                neg qword [ball_direction_y]  ; Si hay colisión, rebotar
-   465 00000389 EB1D                            jmp .end
-   466                                  
-   467                                      .check_paddle_y:
-   468                                      ; Verificar si hay una paleta (=) en la siguiente posición Y
-   469 0000038B 41803A3D                    cmp byte [r10], char_equal
-   470 0000038F 7509                        jne .update_position
-   471 00000391 48F71D(8C0A0000)            neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una paleta
-   472 00000398 EB0E                        jmp .end
-   473                                  
-   474                                  
-   475                                      .update_position:
-   476 0000039A 4C8905(740A0000)                mov [ball_x_pos], r8
-   477 000003A1 4C890D(7C0A0000)                mov [ball_y_pos], r9
+   438                                      .check_y_movement:
+   439                                          ; Calcular siguiente posición Y
+   440 0000033A 488B05(CC140000)                mov rax, [ball_direction_y]
+   441 00000341 4901C1                          add r9, rax                  ; Nueva posición Y
+   442                                  
+   443                                          ; Calcular la dirección de memoria para la siguiente posición Y
+   444 00000344 4D89C2                          mov r10, r8
+   445 00000347 4981C2[400A0000]                add r10, board
+   446 0000034E 4C89C9                          mov rcx, r9
+   447 00000351 B852000000                      mov rax, column_cells + 2
+   448 00000356 48F7E9                          imul rcx
+   449 00000359 4901C2                          add r10, rax
+   450                                  
+   451                                          ; Verificar si hay una X en la siguiente posición Y
+   452 0000035C 418A02                          mov al, [r10]
+   453 0000035F 3C58                            cmp al, 'X'
+   454 00000361 7509                            jne .check_block_y
+   455 00000363 48F71D(CC140000)                neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una X
+   456 0000036A EB3C                            jmp .end
+   457                                  
+   458                                      .check_block_y:
+   459                                          ; Verificar colisión con bloques en Y
+   460 0000036C 4150                            push r8     ; Guardar registros que usa check_block_collision
+   461 0000036E 4151                            push r9
+   462 00000370 4152                            push r10
+   463 00000372 E8F4000000                      call check_block_collision
+   464 00000377 415A                            pop r10
+   465 00000379 4159                            pop r9
+   466 0000037B 4158                            pop r8
+   467 0000037D 4885C0                          test rax, rax
+   468 00000380 7409                            jz .check_paddle_y      ; Si no hay colisión, verificar paleta
+   469 00000382 48F71D(CC140000)                neg qword [ball_direction_y]  ; Si hay colisión, rebotar
+   470 00000389 EB1D                            jmp .end
+   471                                  
+   472                                      .check_paddle_y:
+   473                                      ; Verificar si hay una paleta (=) en la siguiente posición Y
+   474 0000038B 41803A3D                    cmp byte [r10], char_equal
+   475 0000038F 7509                        jne .update_position
+   476 00000391 48F71D(CC140000)            neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una paleta
+   477 00000398 EB0E                        jmp .end
    478                                  
-   479                                      .end:
-   480 000003A8 C3                              ret
-   481                                  
-   482                                  ; Función para inicializar el nivel
-   483                                  init_level:
-   484                                      ; 1) blocks_remaining = cantidad de bloques
-   485 000003A9 B009                        mov al, level1_blocks_count
-   486 000003AB 8805(BE0A0000)              mov [blocks_remaining], al
-   487                                  
-   488                                      ; 2) Llenar block_states con la durabilidad de cada bloque
-   489 000003B1 4831C9                      xor rcx, rcx                       ; índice
-   490                                      .init_loop:
-   491 000003B4 4883F909                        cmp rcx, level1_blocks_count
-   492 000003B8 7D1F                            jge .done_init
-   493                                  
-   494                                          ; Leer durab (4to byte) de level1_blocks[rcx]
-   495                                          ; cada bloque = x, y, tipo, durab
-   496 000003BA 48B8-                           mov rax, level1_blocks
-   496 000003BC [BF0A000000000000] 
-   497 000003C4 486BC904                        imul rcx, 4
-   498 000003C8 4801C8                          add rax, rcx
-   499 000003CB 8A4003                          mov al, [rax+3]    ; durab
-   500                                          ; Guardar en block_states[rcx]
-   501 000003CE 8881[E30A0000]                  mov [block_states + rcx], al
-   502                                  
-   503 000003D4 48FFC1                          inc rcx
-   504 000003D7 EBDB                            jmp .init_loop
+   479                                  
+   480                                      .update_position:
+   481 0000039A 4C8905(B4140000)                mov [ball_x_pos], r8
+   482 000003A1 4C890D(BC140000)                mov [ball_y_pos], r9
+   483                                  
+   484                                      .end:
+   485 000003A8 C3                              ret
+   486                                  
+   487                                  ; Función para inicializar el nivel
+   488                                  ; Función para inicializar el nivel
+   489                                  init_level:
+   490                                      ; 1) Copiamos board_template en board para que quede "virgen"
+   491 000003A9 56                          push rsi
+   492 000003AA 57                          push rdi
+   493 000003AB 51                          push rcx
+   494 000003AC 50                          push rax
+   495                                  
+   496 000003AD 488D35(00000000)            lea rsi, [board_template]
+   497 000003B4 488D3D(400A0000)            lea rdi, [board]
+   498 000003BB B9400A0000                  mov rcx, board_template_size
+   499 000003C0 F3A4                        rep movsb                 ; Copiamos la plantilla a board
+   500                                  
+   501 000003C2 58                          pop rax
+   502 000003C3 59                          pop rcx
+   503 000003C4 5F                          pop rdi
+   504 000003C5 5E                          pop rsi
    505                                  
-   506                                      .done_init:
-   507 000003D9 C3                              ret
+   506                                      ; 2) blocks_remaining = 9
+   507 000003C6 C605(FE140000)09            mov byte [blocks_remaining], level1_blocks_count
    508                                  
-   509                                  
-   510                                  ; Función para imprimir los bloques
-   511                                  ; Función modificada para imprimir bloques
-   512                                  print_blocks:
-   513 000003DA 4D31E4                      xor r12, r12               ; Índice del bloque actual
-   514                                      
-   515                                      .print_loop:
-   516 000003DD 4983FC09                        cmp r12, level1_blocks_count
-   517 000003E1 7D72                            jge .end
+   509                                      ; 3) Rellenar block_states con la durabilidad inicial
+   510 000003CD 4831C9                      xor rcx, rcx             ; Contador para el loop
+   511                                      .init_loop:
+   512 000003D0 4883F909                        cmp rcx, level1_blocks_count
+   513 000003D4 7D18                            jge .done
+   514                                  
+   515                                          ; Calcular el offset correcto para level1_blocks
+   516 000003D6 4889C8                          mov rax, rcx         ; Preservar el contador
+   517 000003D9 48C1E002                        shl rax, 2          ; Multiplicar por 4 (cada bloque tiene 4 bytes)
    518                                          
-   519                                          ; Verificar si el bloque está activo
-   520 000003E3 490FB68424-                     movzx rax, byte [block_states + r12]
-   520 000003E8 [E30A0000]         
-   521 000003EC 4885C0                          test rax, rax
-   522 000003EF 745F                            jz .next_block             ; Si durabilidad es 0, bloque destruido
-   523                                          
-   524                                          ; Obtener posición y tipo del bloque
-   525 000003F1 468A04A5[BF0A0000]              mov r8b, [level1_blocks + r12 * 4]     ; X position
-   526 000003F9 468A0CA5[C00A0000]              mov r9b, [level1_blocks + r12 * 4 + 1] ; Y position
-   527 00000401 468A14A5[C10A0000]              mov r10b, [level1_blocks + r12 * 4 + 2]; Tipo de bloque
-   528                                          
-   529                                          ; Calcular posición en el tablero
-   530 00000409 4D0FB6C0                        movzx r8, r8b
-   531 0000040D 4D0FB6C9                        movzx r9, r9b
-   532 00000411 4981C0[00000000]                add r8, board
-   533 00000418 B852000000                      mov rax, column_cells + 2
-   534 0000041D 49F7E1                          mul r9
-   535 00000420 4901C0                          add r8, rax
-   536                                          
-   537                                          ; Imprimir el bloque según su tipo
-   538 00000423 B904000000                      mov rcx, block_length      ; Longitud del bloque (4 caracteres)
-   539 00000428 48BE-                           mov rsi, block_type_1      ; Dirección base de los tipos de bloques
-   539 0000042A [A50A000000000000] 
-   540 00000432 490FB6C2                        movzx rax, r10b
-   541 00000436 48FFC8                          dec rax                    ; Ajustar índice (tipos empiezan en 1)
-   542 00000439 486BC004                        imul rax, block_length     ; Calcular offset al tipo correcto
-   543 0000043D 4801C6                          add rsi, rax               ; rsi apunta al tipo de bloque correcto
-   544                                          
-   545                                      .print_block_chars:
-   546 00000440 8A06                            mov al, [rsi]             ; Obtener carácter del bloque
-   547 00000442 418800                          mov [r8], al              ; Colocarlo en el tablero
-   548 00000445 48FFC6                          inc rsi
-   549 00000448 49FFC0                          inc r8
-   550 0000044B 48FFC9                          dec rcx
-   551 0000044E 75F0                            jnz .print_block_chars
+   519                                          ; Obtener la durabilidad del bloque desde level1_blocks
+   520 000003DD 8A90[02150000]                  mov dl, byte [level1_blocks + rax + 3]  ; Obtener durabilidad
+   521                                          
+   522                                          ; Guardar la durabilidad en block_states
+   523 000003E3 8891[23150000]                  mov byte [block_states + rcx], dl
+   524                                  
+   525 000003E9 48FFC1                          inc rcx
+   526 000003EC EBE2                            jmp .init_loop
+   527                                  
+   528                                      .done:
+   529 000003EE C3                              ret
+   530                                  
+   531                                  
+   532                                  
+   533                                  
+   534                                  ; Función para imprimir los bloques
+   535                                  ; Función modificada para imprimir bloques
+   536                                  print_blocks:
+   537 000003EF 4D31E4                      xor r12, r12               ; Índice del bloque actual
+   538                                      
+   539                                      .print_loop:
+   540 000003F2 4983FC09                        cmp r12, level1_blocks_count
+   541 000003F6 7D72                            jge .end
+   542                                          
+   543                                          ; Verificar si el bloque está activo
+   544 000003F8 490FB68424-                     movzx rax, byte [block_states + r12]
+   544 000003FD [23150000]         
+   545 00000401 4885C0                          test rax, rax
+   546 00000404 745F                            jz .next_block             ; Si durabilidad es 0, bloque destruido
+   547                                          
+   548                                          ; Obtener posición y tipo del bloque
+   549 00000406 468A04A5[FF140000]              mov r8b, [level1_blocks + r12 * 4]     ; X position
+   550 0000040E 468A0CA5[00150000]              mov r9b, [level1_blocks + r12 * 4 + 1] ; Y position
+   551 00000416 468A14A5[01150000]              mov r10b, [level1_blocks + r12 * 4 + 2]; Tipo de bloque
    552                                          
-   553                                      .next_block:
-   554 00000450 49FFC4                          inc r12
-   555 00000453 EB88                            jmp .print_loop
-   556                                          
-   557                                      .end:
-   558 00000455 C3                              ret
-   559                                  
-   560                                  ; Función modificada para detectar colisión
-   561                                  ; Función mejorada para detectar colisión y manejar la física
-   562                                  ; Función corregida para manejar colisiones con bloques completos
-   563                                  ;---------------------------------------------------------
-   564                                  ; check_block_collision:
-   565                                  ;   Detecta si en la posición r10 (que apunta a board[])
-   566                                  ;   hay un bloque ("UUUU","OOOO","DDDD","LLLL","VVVV","8888").
-   567                                  ;   De ser así, localiza qué bloque es, lo "destruye" y
-   568                                  ;   retorna 1 para indicar colisión. Si no encuentra bloque,
-   569                                  ;   retorna 0.
-   570                                  ;---------------------------------------------------------
-   571                                  ;--------------------------------------
-   572                                  ; check_block_collision
-   573                                  ;--------------------------------------
-   574                                  check_block_collision:
-   575 00000456 55                          push rbp
-   576 00000457 4889E5                      mov rbp, rsp
-   577                                  
-   578 0000045A 418A02                      mov al, [r10] ; leer caracter de board[r10]
-   579                                  
-   580                                      ; Checar si es 'U','O','D','L','V','8'
-   581 0000045D 3C55                        cmp al, 'U'  
-   582 0000045F 7419                        je .possible
-   583 00000461 3C4F                        cmp al, 'O'  
-   584 00000463 7415                        je .possible
-   585 00000465 3C44                        cmp al, 'D'  
-   586 00000467 7411                        je .possible
-   587 00000469 3C4C                        cmp al, 'L'  
-   588 0000046B 740D                        je .possible
-   589 0000046D 3C56                        cmp al, 'V'  
-   590 0000046F 7409                        je .possible
-   591 00000471 3C38                        cmp al, '8'  
-   592 00000473 7405                        je .possible
-   593                                  
-   594                                      ; Si no coincide
-   595 00000475 4831C0                      xor rax, rax
-   596 00000478 5D                          pop rbp
-   597 00000479 C3                          ret
-   598                                  
-   599                                      .possible:
-   600                                          ; Buscar cuál de los blocks del level1_blocks coincide
-   601 0000047A 53                              push rbx
-   602 0000047B 57                              push rdi
-   603 0000047C 56                              push rsi
-   604 0000047D 4154                            push r12
-   605                                  
-   606 0000047F 4D31E4                          xor r12, r12
-   607                                      .find_block_loop:
-   608 00000482 4983FC09                        cmp r12, level1_blocks_count
-   609 00000486 0F8D93000000                    jge .no_block_found
-   610                                  
-   611                                          ; Ver si el block_states[r12] > 0
-   612 0000048C 418A9C24[E30A0000]              mov bl, [block_states + r12]
-   613 00000494 84DB                            test bl, bl
-   614 00000496 747F                            jz .next_block ; si 0 => bloque destruido
-   615                                  
-   616                                          ; leer x,y
-   617 00000498 48B8-                           mov rax, level1_blocks
-   617 0000049A [BF0A000000000000] 
-   618 000004A2 4D6BE404                        imul r12, 4
-   619 000004A6 4C01E0                          add rax, r12
-   620 000004A9 8A10                            mov dl, [rax]       ; x
-   621 000004AB 8A4801                          mov cl, [rax+1]     ; y
-   622                                  
-   623                                          ; revertir r12
-   624 000004AE 4D89E4                          mov r12, r12
-   625 000004B1 49C1EC02                        shr r12, 2
-   626                                  
-   627                                          ; base_dir = board + y*(col+2) + x
-   628 000004B5 488D3D(00000000)                lea rdi, [board]
-   629 000004BC 4831C0                          xor rax, rax
-   630 000004BF B852000000                      mov rax, column_cells + 2
-   631 000004C4 480FB6C9                        movzx rcx, cl
-   632 000004C8 480FAFC1                        imul rax, rcx
-   633 000004CC 4801C7                          add rdi, rax
-   634 000004CF 480FB6C2                        movzx rax, dl
-   635 000004D3 4801C7                          add rdi, rax
-   636                                  
-   637                                          ; checar si r10 esta en [rdi..rdi+3]
-   638 000004D6 4939FA                          cmp r10, rdi
-   639 000004D9 723C                            jb .next_block
-   640 000004DB 488D5F04                        lea rbx, [rdi + 4]
-   641 000004DF 4939DA                          cmp r10, rbx
-   642 000004E2 7333                            jae .next_block
-   643                                  
-   644                                          ; Si llegamos aqui => colisión con el bloque r12
-   645                                          ; 1) Decrementar su durabilidad
-   646 000004E4 41FE8C24[E30A0000]              dec byte [block_states + r12]
+   553                                          ; Calcular posición en el tablero
+   554 0000041E 4D0FB6C0                        movzx r8, r8b
+   555 00000422 4D0FB6C9                        movzx r9, r9b
+   556 00000426 4981C0[400A0000]                add r8, board
+   557 0000042D B852000000                      mov rax, column_cells + 2
+   558 00000432 49F7E1                          mul r9
+   559 00000435 4901C0                          add r8, rax
+   560                                          
+   561                                          ; Imprimir el bloque según su tipo
+   562 00000438 B904000000                      mov rcx, block_length      ; Longitud del bloque (4 caracteres)
+   563 0000043D 48BE-                           mov rsi, block_type_1      ; Dirección base de los tipos de bloques
+   563 0000043F [E514000000000000] 
+   564 00000447 490FB6C2                        movzx rax, r10b
+   565 0000044B 48FFC8                          dec rax                    ; Ajustar índice (tipos empiezan en 1)
+   566 0000044E 486BC004                        imul rax, block_length     ; Calcular offset al tipo correcto
+   567 00000452 4801C6                          add rsi, rax               ; rsi apunta al tipo de bloque correcto
+   568                                          
+   569                                      .print_block_chars:
+   570 00000455 8A06                            mov al, [rsi]             ; Obtener carácter del bloque
+   571 00000457 418800                          mov [r8], al              ; Colocarlo en el tablero
+   572 0000045A 48FFC6                          inc rsi
+   573 0000045D 49FFC0                          inc r8
+   574 00000460 48FFC9                          dec rcx
+   575 00000463 75F0                            jnz .print_block_chars
+   576                                          
+   577                                      .next_block:
+   578 00000465 49FFC4                          inc r12
+   579 00000468 EB88                            jmp .print_loop
+   580                                          
+   581                                      .end:
+   582 0000046A C3                              ret
+   583                                  
+   584                                  
+   585                                  ; Función modificada para detectar colisión
+   586                                  ; Función mejorada para detectar colisión y manejar la física
+   587                                  ; Función corregida para manejar colisiones con bloques completos
+   588                                  ;---------------------------------------------------------
+   589                                  ; check_block_collision:
+   590                                  ;   Detecta si en la posición r10 (que apunta a board[])
+   591                                  ;   hay un bloque ("UUUU","OOOO","DDDD","LLLL","VVVV","8888").
+   592                                  ;   De ser así, localiza qué bloque es, lo "destruye" y
+   593                                  ;   retorna 1 para indicar colisión. Si no encuentra bloque,
+   594                                  ;   retorna 0.
+   595                                  ;---------------------------------------------------------
+   596                                  ;--------------------------------------
+   597                                  ; check_block_collision
+   598                                  ;--------------------------------------
+   599                                  check_block_collision:
+   600 0000046B 55                          push rbp
+   601 0000046C 4889E5                      mov rbp, rsp
+   602                                  
+   603 0000046F 418A02                      mov al, [r10] ; leer caracter de board[r10]
+   604                                  
+   605                                      ; Checar si es 'U','O','D','L','V','8'
+   606 00000472 3C55                        cmp al, 'U'  
+   607 00000474 7419                        je .possible
+   608 00000476 3C4F                        cmp al, 'O'  
+   609 00000478 7415                        je .possible
+   610 0000047A 3C44                        cmp al, 'D'  
+   611 0000047C 7411                        je .possible
+   612 0000047E 3C4C                        cmp al, 'L'  
+   613 00000480 740D                        je .possible
+   614 00000482 3C56                        cmp al, 'V'  
+   615 00000484 7409                        je .possible
+   616 00000486 3C38                        cmp al, '8'  
+   617 00000488 7405                        je .possible
+   618                                  
+   619                                      ; Si no coincide
+   620 0000048A 4831C0                      xor rax, rax
+   621 0000048D 5D                          pop rbp
+   622 0000048E C3                          ret
+   623                                  
+   624                                      .possible:
+   625                                          ; Buscar cuál de los blocks del level1_blocks coincide
+   626 0000048F 53                              push rbx
+   627 00000490 57                              push rdi
+   628 00000491 56                              push rsi
+   629 00000492 4154                            push r12
+   630                                  
+   631 00000494 4D31E4                          xor r12, r12
+   632                                      .find_block_loop:
+   633 00000497 4983FC09                        cmp r12, level1_blocks_count
+   634 0000049B 0F8D93000000                    jge .no_block_found
+   635                                  
+   636                                          ; Ver si el block_states[r12] > 0
+   637 000004A1 418A9C24[23150000]              mov bl, [block_states + r12]
+   638 000004A9 84DB                            test bl, bl
+   639 000004AB 747F                            jz .next_block ; si 0 => bloque destruido
+   640                                  
+   641                                          ; leer x,y
+   642 000004AD 48B8-                           mov rax, level1_blocks
+   642 000004AF [FF14000000000000] 
+   643 000004B7 4D6BE404                        imul r12, 4
+   644 000004BB 4C01E0                          add rax, r12
+   645 000004BE 8A10                            mov dl, [rax]       ; x
+   646 000004C0 8A4801                          mov cl, [rax+1]     ; y
    647                                  
-   648                                          ; 2) Leer valor actualizado
-   649 000004EC 418A9C24[E30A0000]              mov bl, [block_states + r12]
-   650 000004F4 84DB                            test bl, bl
-   651 000004F6 7513                            jnz .still_alive   ; si no es 0, no se borra todavía
-   652                                  
-   653                                          ; si llegó a 0 => borrar (poner 4 espacios)
-   654 000004F8 B904000000                      mov rcx, 4
-   655                                      .erase_block_chars:
-   656 000004FD C60720                          mov byte [rdi], char_space
-   657 00000500 48FFC7                          inc rdi
-   658 00000503 E2F8                            loop .erase_block_chars
-   659                                  
-   660                                          ; blocks_remaining--
-   661 00000505 FE0D(BE0A0000)                  dec byte [blocks_remaining]
-   662                                  
-   663                                      .still_alive:
-   664                                          ; Retornar 1 => colisión
-   665 0000050B B801000000                      mov rax, 1
-   666                                  
-   667 00000510 415C                            pop r12
-   668 00000512 5E                              pop rsi
-   669 00000513 5F                              pop rdi
-   670 00000514 5B                              pop rbx
-   671 00000515 5D                              pop rbp
-   672 00000516 C3                              ret
-   673                                  
-   674                                      .next_block:
-   675 00000517 49FFC4                          inc r12
-   676 0000051A E963FFFFFF                      jmp .find_block_loop
+   648                                          ; revertir r12
+   649 000004C3 4D89E4                          mov r12, r12
+   650 000004C6 49C1EC02                        shr r12, 2
+   651                                  
+   652                                          ; base_dir = board + y*(col+2) + x
+   653 000004CA 488D3D(400A0000)                lea rdi, [board]
+   654 000004D1 4831C0                          xor rax, rax
+   655 000004D4 B852000000                      mov rax, column_cells + 2
+   656 000004D9 480FB6C9                        movzx rcx, cl
+   657 000004DD 480FAFC1                        imul rax, rcx
+   658 000004E1 4801C7                          add rdi, rax
+   659 000004E4 480FB6C2                        movzx rax, dl
+   660 000004E8 4801C7                          add rdi, rax
+   661                                  
+   662                                          ; checar si r10 esta en [rdi..rdi+3]
+   663 000004EB 4939FA                          cmp r10, rdi
+   664 000004EE 723C                            jb .next_block
+   665 000004F0 488D5F04                        lea rbx, [rdi + 4]
+   666 000004F4 4939DA                          cmp r10, rbx
+   667 000004F7 7333                            jae .next_block
+   668                                  
+   669                                          ; Si llegamos aqui => colisión con el bloque r12
+   670                                          ; 1) Decrementar su durabilidad
+   671 000004F9 41FE8C24[23150000]              dec byte [block_states + r12]
+   672                                  
+   673                                          ; 2) Leer valor actualizado
+   674 00000501 418A9C24[23150000]              mov bl, [block_states + r12]
+   675 00000509 84DB                            test bl, bl
+   676 0000050B 7513                            jnz .still_alive   ; si no es 0, no se borra todavía
    677                                  
-   678                                      .no_block_found:
-   679 0000051F 4831C0                          xor rax, rax
-   680 00000522 415C                            pop r12
-   681 00000524 5E                              pop rsi
-   682 00000525 5F                              pop rdi
-   683 00000526 5B                              pop rbx
-   684 00000527 5D                              pop rbp
-   685 00000528 C3                              ret
-   686                                  
+   678                                          ; si llegó a 0 => borrar (poner 4 espacios)
+   679 0000050D B904000000                      mov rcx, 4
+   680                                      .erase_block_chars:
+   681 00000512 C60720                          mov byte [rdi], char_space
+   682 00000515 48FFC7                          inc rdi
+   683 00000518 E2F8                            loop .erase_block_chars
+   684                                  
+   685                                          ; blocks_remaining--
+   686 0000051A FE0D(FE140000)                  dec byte [blocks_remaining]
    687                                  
-   688                                  
-   689                                  _start:
-   690 00000529 E8FDFBFFFF              	call canonical_off
-   691 0000052E E8D9000000              	call start_screen
-   692 00000533 E871FEFFFF                  call init_level
-   693 00000538 EB00                    	jmp .main_loop
-   694                                  	
-   695                                  
-   696                                  	.main_loop:
-   697 0000053A E8C6FCFFFF              		call print_pallet
-   698 0000053F E851FDFFFF                      call move_ball
-   699 00000544 E891FEFFFF                      call print_blocks
-   700 00000549 E88FFCFFFF              		call print_ball
-   701                                  		print board, board_size				
-    82 0000054E B801000000          <1>  mov eax, sys_write
-    83 00000553 BF01000000          <1>  mov edi, 1
-    84 00000558 48BE-               <1>  mov rsi, %1
-    84 0000055A [0000000000000000]  <1>
-    85 00000562 BA400A0000          <1>  mov edx, %2
-    86 00000567 0F05                <1>  syscall
-   702                                  		;setnonblocking	
-   703                                  	.read_more:	
-   704                                  		getchar	
-    90 00000569 B800000000          <1>  mov rax, sys_read
-    91 0000056E BF00000000          <1>  mov rdi, STDIN_FILENO
-    92 00000573 48BE-               <1>  mov rsi, input_char
-    92 00000575 [0000000000000000]  <1>
-    93 0000057D BA01000000          <1>  mov rdx, 1
-    94 00000582 0F05                <1>  syscall
-   705                                  		
-   706 00000584 4883F801                		cmp rax, 1
-   707 00000588 7532                        	jne .done
-   708                                  		
-   709 0000058A 8A05(00000000)          		mov al,[input_char]
-   710                                  
-   711 00000590 3C61                    		cmp al, 'a'
-   712 00000592 750E                    	    jne .not_left
-   713 00000594 48C7C7FFFFFFFF          	    mov rdi, left_direction
-   714 0000059B E880FCFFFF              		call move_pallet
-   715 000005A0 EB1A                    	    jmp .done
-   716                                  		
-   717                                  		.not_left:
-   718 000005A2 3C64                    		 	cmp al, 'd'
-   719 000005A4 750C                    	    	jne .not_right
-   720 000005A6 BF01000000              			mov rdi, right_direction
-   721 000005AB E870FCFFFF              	    	call move_pallet
-   722 000005B0 EB0A                        		jmp .done		
-   723                                  
-   724                                  		.not_right:
-   725                                  
-   726 000005B2 3C71                        		cmp al, 'q'
-   727 000005B4 0F84C5000000                		je exit
-   728                                  
-   729 000005BA EBAD                    			jmp .read_more
+   688                                      .still_alive:
+   689                                          ; Retornar 1 => colisión
+   690 00000520 B801000000                      mov rax, 1
+   691                                  
+   692 00000525 415C                            pop r12
+   693 00000527 5E                              pop rsi
+   694 00000528 5F                              pop rdi
+   695 00000529 5B                              pop rbx
+   696 0000052A 5D                              pop rbp
+   697 0000052B C3                              ret
+   698                                  
+   699                                      .next_block:
+   700 0000052C 49FFC4                          inc r12
+   701 0000052F E963FFFFFF                      jmp .find_block_loop
+   702                                  
+   703                                      .no_block_found:
+   704 00000534 4831C0                          xor rax, rax
+   705 00000537 415C                            pop r12
+   706 00000539 5E                              pop rsi
+   707 0000053A 5F                              pop rdi
+   708 0000053B 5B                              pop rbx
+   709 0000053C 5D                              pop rbp
+   710 0000053D C3                              ret
+   711                                  
+   712                                  
+   713                                  
+   714                                  _start:
+   715 0000053E E8E8FBFFFF              	call canonical_off
+   716 00000543 E8D9000000              	call start_screen
+   717 00000548 E85CFEFFFF                  call init_level
+   718 0000054D EB00                    	jmp .main_loop
+   719                                  	
+   720                                  
+   721                                  	.main_loop:
+   722 0000054F E8B1FCFFFF              		call print_pallet
+   723 00000554 E83CFDFFFF                      call move_ball
+   724 00000559 E891FEFFFF                      call print_blocks
+   725 0000055E E87AFCFFFF              		call print_ball
+   726                                  		print board, board_size				
+    82 00000563 B801000000          <1>  mov eax, sys_write
+    83 00000568 BF01000000          <1>  mov edi, 1
+    84 0000056D 48BE-               <1>  mov rsi, %1
+    84 0000056F [400A000000000000]  <1>
+    85 00000577 BA400A0000          <1>  mov edx, %2
+    86 0000057C 0F05                <1>  syscall
+   727                                  		;setnonblocking	
+   728                                  	.read_more:	
+   729                                  		getchar	
+    90 0000057E B800000000          <1>  mov rax, sys_read
+    91 00000583 BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 00000588 48BE-               <1>  mov rsi, input_char
+    92 0000058A [0000000000000000]  <1>
+    93 00000592 BA01000000          <1>  mov rdx, 1
+    94 00000597 0F05                <1>  syscall
    730                                  		
-   731                                  		.done:	
-   732                                  			;unsetnonblocking		
-   733                                  			sleeptime	
-    98 000005BC B823000000          <1>  mov eax, sys_nanosleep
-    99 000005C1 48BF-               <1>  mov rdi, timespec
-    99 000005C3 [0000000000000000]  <1>
-   100 000005CB 31F6                <1>  xor esi, esi
-   101 000005CD 0F05                <1>  syscall
-   734                                  			print clear, clear_length
-    82 000005CF B801000000          <1>  mov eax, sys_write
-    83 000005D4 BF01000000          <1>  mov edi, 1
-    84 000005D9 48BE-               <1>  mov rsi, %1
-    84 000005DB [1000000000000000]  <1>
-    85 000005E3 BA07000000          <1>  mov edx, %2
-    86 000005E8 0F05                <1>  syscall
-   735 000005EA E94BFFFFFF                  		jmp .main_loop
-   736                                  
-   737                                  		print clear, clear_length
-    82 000005EF B801000000          <1>  mov eax, sys_write
-    83 000005F4 BF01000000          <1>  mov edi, 1
-    84 000005F9 48BE-               <1>  mov rsi, %1
-    84 000005FB [1000000000000000]  <1>
-    85 00000603 BA07000000          <1>  mov edx, %2
-    86 00000608 0F05                <1>  syscall
-   738                                  		
-   739 0000060A EB73                    		jmp exit
-   740                                  
-   741                                  
-   742                                  start_screen:
-   743                                      print clear, clear_length    ; Limpiamos la pantalla primero
-    82 0000060C B801000000          <1>  mov eax, sys_write
-    83 00000611 BF01000000          <1>  mov edi, 1
-    84 00000616 48BE-               <1>  mov rsi, %1
-    84 00000618 [1000000000000000]  <1>
-    85 00000620 BA07000000          <1>  mov edx, %2
-    86 00000625 0F05                <1>  syscall
-   744                                      print msg1, msg1_length
-    82 00000627 B801000000          <1>  mov eax, sys_write
-    83 0000062C BF01000000          <1>  mov edi, 1
-    84 00000631 48BE-               <1>  mov rsi, %1
-    84 00000633 [1700000000000000]  <1>
-    85 0000063B BA14010000          <1>  mov edx, %2
-    86 00000640 0F05                <1>  syscall
-   745                                      
-   746                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
-   747                                          getchar                 ; Esperamos una tecla
-    90 00000642 B800000000          <1>  mov rax, sys_read
-    91 00000647 BF00000000          <1>  mov rdi, STDIN_FILENO
-    92 0000064C 48BE-               <1>  mov rsi, input_char
-    92 0000064E [0000000000000000]  <1>
-    93 00000656 BA01000000          <1>  mov rdx, 1
-    94 0000065B 0F05                <1>  syscall
-   748 0000065D 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
-   749 00000661 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
-   750                                          
-   751                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
-    82 00000663 B801000000          <1>  mov eax, sys_write
-    83 00000668 BF01000000          <1>  mov edi, 1
-    84 0000066D 48BE-               <1>  mov rsi, %1
-    84 0000066F [1000000000000000]  <1>
-    85 00000677 BA07000000          <1>  mov edx, %2
-    86 0000067C 0F05                <1>  syscall
-   752 0000067E C3                          ret
+   731 00000599 4883F801                		cmp rax, 1
+   732 0000059D 7532                        	jne .done
+   733                                  		
+   734 0000059F 8A05(00000000)          		mov al,[input_char]
+   735                                  
+   736 000005A5 3C61                    		cmp al, 'a'
+   737 000005A7 750E                    	    jne .not_left
+   738 000005A9 48C7C7FFFFFFFF          	    mov rdi, left_direction
+   739 000005B0 E86BFCFFFF              		call move_pallet
+   740 000005B5 EB1A                    	    jmp .done
+   741                                  		
+   742                                  		.not_left:
+   743 000005B7 3C64                    		 	cmp al, 'd'
+   744 000005B9 750C                    	    	jne .not_right
+   745 000005BB BF01000000              			mov rdi, right_direction
+   746 000005C0 E85BFCFFFF              	    	call move_pallet
+   747 000005C5 EB0A                        		jmp .done		
+   748                                  
+   749                                  		.not_right:
+   750                                  
+   751 000005C7 3C71                        		cmp al, 'q'
+   752 000005C9 0F84C5000000                		je exit
    753                                  
-   754                                  exit: 
-   755 0000067F E8E9FAFFFF              	call canonical_on
-   756 00000684 B83C000000              	mov    rax, 60
-   757 00000689 BF00000000                  mov    rdi, 0
-   758 0000068E 0F05                        syscall
-   759                                  
+   754 000005CF EBAD                    			jmp .read_more
+   755                                  		
+   756                                  		.done:	
+   757                                  			;unsetnonblocking		
+   758                                  			sleeptime	
+    98 000005D1 B823000000          <1>  mov eax, sys_nanosleep
+    99 000005D6 48BF-               <1>  mov rdi, timespec
+    99 000005D8 [0000000000000000]  <1>
+   100 000005E0 31F6                <1>  xor esi, esi
+   101 000005E2 0F05                <1>  syscall
+   759                                  			print clear, clear_length
+    82 000005E4 B801000000          <1>  mov eax, sys_write
+    83 000005E9 BF01000000          <1>  mov edi, 1
+    84 000005EE 48BE-               <1>  mov rsi, %1
+    84 000005F0 [1000000000000000]  <1>
+    85 000005F8 BA07000000          <1>  mov edx, %2
+    86 000005FD 0F05                <1>  syscall
+   760 000005FF E94BFFFFFF                  		jmp .main_loop
+   761                                  
+   762                                  		print clear, clear_length
+    82 00000604 B801000000          <1>  mov eax, sys_write
+    83 00000609 BF01000000          <1>  mov edi, 1
+    84 0000060E 48BE-               <1>  mov rsi, %1
+    84 00000610 [1000000000000000]  <1>
+    85 00000618 BA07000000          <1>  mov edx, %2
+    86 0000061D 0F05                <1>  syscall
+   763                                  		
+   764 0000061F EB73                    		jmp exit
+   765                                  
+   766                                  
+   767                                  start_screen:
+   768                                      print clear, clear_length    ; Limpiamos la pantalla primero
+    82 00000621 B801000000          <1>  mov eax, sys_write
+    83 00000626 BF01000000          <1>  mov edi, 1
+    84 0000062B 48BE-               <1>  mov rsi, %1
+    84 0000062D [1000000000000000]  <1>
+    85 00000635 BA07000000          <1>  mov edx, %2
+    86 0000063A 0F05                <1>  syscall
+   769                                      print msg1, msg1_length
+    82 0000063C B801000000          <1>  mov eax, sys_write
+    83 00000641 BF01000000          <1>  mov edi, 1
+    84 00000646 48BE-               <1>  mov rsi, %1
+    84 00000648 [1700000000000000]  <1>
+    85 00000650 BA14010000          <1>  mov edx, %2
+    86 00000655 0F05                <1>  syscall
+   770                                      
+   771                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
+   772                                          getchar                 ; Esperamos una tecla
+    90 00000657 B800000000          <1>  mov rax, sys_read
+    91 0000065C BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 00000661 48BE-               <1>  mov rsi, input_char
+    92 00000663 [0000000000000000]  <1>
+    93 0000066B BA01000000          <1>  mov rdx, 1
+    94 00000670 0F05                <1>  syscall
+   773 00000672 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
+   774 00000676 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
+   775                                          
+   776                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
+    82 00000678 B801000000          <1>  mov eax, sys_write
+    83 0000067D BF01000000          <1>  mov edi, 1
+    84 00000682 48BE-               <1>  mov rsi, %1
+    84 00000684 [1000000000000000]  <1>
+    85 0000068C BA07000000          <1>  mov edx, %2
+    86 00000691 0F05                <1>  syscall
+   777 00000693 C3                          ret
+   778                                  
+   779                                  exit: 
+   780 00000694 E8D4FAFFFF              	call canonical_on
+   781 00000699 B83C000000              	mov    rax, 60
+   782 0000069E BF00000000                  mov    rdi, 0
+   783 000006A3 0F05                        syscall
+   784                                  
