@@ -263,19 +263,19 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Primera fila (tipo 1)
-        db 220, 3, 1, 1    ; Bloque 1
-        db 225, 3, 1, 1    ; Bloque 2
-        db 230, 3, 1, 1    ; Bloque 3
+        db 60, 3, 1, 1    ; Bloque 1
+        db 65, 3, 1, 1    ; Bloque 2
+        db 70, 3, 1, 1    ; Bloque 3
         
         ; Segunda fila (tipo 2)
-        db 220, 5, 2, 1    ; Bloque 4
-        db 225, 5, 2, 1    ; Bloque 5
-        db 230, 5, 2, 1    ; Bloque 6
+        db 60, 5, 2, 1    ; Bloque 4
+        db 65, 5, 2, 1    ; Bloque 5
+        db 70, 5, 2, 1    ; Bloque 6
         
         ; Tercera fila (tipo 3)
-        db 220, 7, 3, 1    ; Bloque 7
-        db 225, 7, 3, 1    ; Bloque 8
-        db 230, 7, 3, 1    ; Bloque 9
+        db 60, 7, 3, 2    ; Bloque 7
+        db 65, 7, 3, 2    ; Bloque 8
+        db 70, 7, 3, 2    ; Bloque 9
     level1_blocks_count equ 9   ; Cantidad total de bloques
 
     ; Array para mantener el estado de los bloques
@@ -545,38 +545,162 @@ print_blocks:
 ; Función modificada para detectar colisión
 ; Función mejorada para detectar colisión y manejar la física
 ; Función corregida para manejar colisiones con bloques completos
+;---------------------------------------------------------
+; check_block_collision:
+;   Detecta si en la posición r10 (que apunta a board[])
+;   hay un bloque ("UUUU","OOOO","DDDD","LLLL","VVVV","8888").
+;   De ser así, localiza qué bloque es, lo "destruye" y
+;   retorna 1 para indicar colisión. Si no encuentra bloque,
+;   retorna 0.
+;---------------------------------------------------------
 check_block_collision:
-    ; Guardar registros que vamos a usar
     push rbp
     mov rbp, rsp
-    
-    ; Verificar si la posición actual contiene un bloque
-    mov al, [r10]              ; r10 ya contiene la dirección a verificar
-    
-    ; Verificar cada tipo de bloque
+
+    ;--------------------------------------
+    ; 1. Leer el carácter en r10
+    ;--------------------------------------
+    mov al, [r10]
+
+    ;--------------------------------------
+    ; 2. Comprobar si es uno de U,O,D,L,V,8
+    ;   (cualquiera de los caracteres de los
+    ;   bloques que dibujas)
+    ;--------------------------------------
     cmp al, 'U'
-    je .collision_detected
+    je .possible
     cmp al, 'O'
-    je .collision_detected
+    je .possible
     cmp al, 'D'
-    je .collision_detected
+    je .possible
     cmp al, 'L'
-    je .collision_detected
+    je .possible
     cmp al, 'V'
-    je .collision_detected
+    je .possible
     cmp al, '8'
-    je .collision_detected
-    
-    ; Si no hay colisión
-    mov rax, 0
+    je .possible
+
+    ;--------------------------------------
+    ; No es un bloque
+    ;--------------------------------------
+    xor rax, rax
     pop rbp
     ret
-    
-    .collision_detected:
-        ; Hay colisión con un bloque
+
+    .possible:
+        ;--------------------------------------
+        ; 3. Si es un carácter de bloque, hay
+        ;    que buscar cuál de los 9 (o n)
+        ;    es, para borrarlo.
+        ;--------------------------------------
+        push rbx
+        push rdi
+        push rsi
+        push r12
+
+        xor r12, r12          ; r12 = índice en level1_blocks
+    .find_block_loop:
+        cmp r12, level1_blocks_count
+        jge .not_found_block   ; no hallamos un bloque que coincida
+
+        ;--------------------------------------
+        ; Ver si block_states[r12] está activo
+        ; (es 1). Si es 0, está destruido
+        ;--------------------------------------
+        mov bl, [block_states + r12]
+        test bl, bl
+        jz .next_block
+
+        ;--------------------------------------
+        ; Leer x_pos, y_pos de level1_blocks[r12].
+        ; Cada bloque = 4 bytes: x, y, tipo, durab
+        ;--------------------------------------
+        mov rax, level1_blocks
+        imul r12, 4
+        add rax, r12
+        ; rax apunta al primer byte del bloque
+        ; x_pos  -> [rax + 0]
+        ; y_pos  -> [rax + 1]
+        ; tipo   -> [rax + 2]
+        ; durab  -> [rax + 3] (no lo usas,
+        ;                    pues block_states[] ya controla la "vida")
+        mov dl, [rax]      ; dl = x_pos
+        mov cl, [rax+1]    ; cl = y_pos
+
+        ; Regresar r12 a su valor (deshacer imul).
+        ; O si prefieres, hazlo con un registro
+        ; auxiliar, p.e. no modifiques r12. 
+        ; Pero si tu asm ya funciona así, lo dejamos:
+        mov r12, r12
+        shr r12, 2
+
+        ;--------------------------------------
+        ; Calcular la dirección base del bloque
+        ;   base_dir = board + y_pos*(column_cells+2) + x_pos
+        ;--------------------------------------
+        xor rdi, rdi
+        lea rdi, [board]    ; rdi = dirección base de board
+
+        mov rax, column_cells+2
+        movzx rcx, cl   ; rcx = y_pos
+        imul rax, rcx
+        add rdi, rax
+        movzx rax, dl   ; rax = x_pos
+        add rdi, rax    ; rdi = base_dir
+
+        ;--------------------------------------
+        ; Saber si r10 está en [rdi..rdi+3]
+        ;--------------------------------------
+        cmp r10, rdi
+        jb .next_block
+        lea rbx, [rdi+4]
+        cmp r10, rbx
+        jae .next_block
+
+        ;--------------------------------------
+        ; Si llegamos aquí, r10 está dentro de
+        ; las 4 letras del bloque r12
+        ; => destruirlo
+        ;--------------------------------------
+
+        ; 1) Poner block_states[r12] = 0
+        mov byte [block_states + r12], 0
+
+        ; 2) Borrar los 4 caracteres en board
+        mov rcx, 4
+    .erase_block_chars:
+        mov byte [rdi], char_space   ; ' '
+        inc rdi
+        loop .erase_block_chars
+
+        ; 3) Retornar 1 => colisión detectada
         mov rax, 1
+
+        ; Limpieza de stack
+        pop r12
+        pop rsi
+        pop rdi
+        pop rbx
         pop rbp
         ret
+
+    .next_block:
+        inc r12
+        jmp .find_block_loop
+
+    .not_found_block:
+        ; En teoría no debería pasar, si
+        ; se detectó un 'U','O','...' 
+        ; pero por seguridad:
+        xor rax, rax
+
+        pop r12
+        pop rsi
+        pop rdi
+        pop rbx
+        pop rbp
+        ret
+
 
 _start:
 	call canonical_off
