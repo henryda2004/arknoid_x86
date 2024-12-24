@@ -266,17 +266,31 @@ section .data
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
-    level1_blocks:
+        level1_blocks:
         ; Tercera fila (tipo 3)
         db 60, 7, 3, 1    ; Bloque 7
     level1_blocks_count equ 1   ; Cantidad total de bloques
 
     ; Nivel 2: Bloques de prueba
     level2_blocks:
-        db 60, 7, 1, 2    ; Un bloque simple en el nivel 2
-        db 63, 9, 1, 2    ; Un bloque simple en el nivel 2
-    level2_blocks_count equ 2
+        db 60, 7, 1, 1    ; Un bloque simple en el nivel 2   ; Un bloque simple en el nivel 2
+    level2_blocks_count equ 1
 
+    ; Nivel 3
+    level3_blocks:
+        db 60, 7, 2, 1    ; Bloque 1
+
+    level3_blocks_count equ 1
+
+    ; Nivel 4
+    level4_blocks:
+        db 60, 7, 4, 1    ; Bloque 1
+    level4_blocks_count equ 1
+
+    ; Nivel 5
+    level5_blocks:
+        db 60, 7, 5, 1    ; Bloque 1
+    level5_blocks_count equ 1
 
     ; Array para mantener el estado de los bloques
     block_states: times 100 db 0  ; Durabilidad actual de cada bloque
@@ -503,6 +517,12 @@ init_level:
     je .level1
     cmp byte [current_level], 2
     je .level2
+    cmp byte [current_level], 3
+    je .level3
+    cmp byte [current_level], 4
+    je .level4
+    cmp byte [current_level], 5
+    je .level5
     jmp .done
 
     .level1:
@@ -530,7 +550,44 @@ init_level:
             mov byte [block_states + rcx], dl
             inc rcx
             jmp .init_loop2
+    .level3:
+        mov byte [blocks_remaining], level3_blocks_count
+        xor rcx, rcx             
+        .init_loop3:
+            cmp rcx, level3_blocks_count
+            jge .done
+            mov rax, rcx         
+            shl rax, 2          
+            mov dl, byte [level3_blocks + rax + 3]  
+            mov byte [block_states + rcx], dl
+            inc rcx
+            jmp .init_loop3
 
+    .level4:
+        mov byte [blocks_remaining], level4_blocks_count
+        xor rcx, rcx             
+        .init_loop4:
+            cmp rcx, level4_blocks_count
+            jge .done
+            mov rax, rcx         
+            shl rax, 2          
+            mov dl, byte [level4_blocks + rax + 3]  
+            mov byte [block_states + rcx], dl
+            inc rcx
+            jmp .init_loop4
+
+    .level5:
+        mov byte [blocks_remaining], level5_blocks_count
+        xor rcx, rcx             
+        .init_loop5:
+            cmp rcx, level5_blocks_count
+            jge .done
+            mov rax, rcx         
+            shl rax, 2          
+            mov dl, byte [level5_blocks + rax + 3]  
+            mov byte [block_states + rcx], dl
+            inc rcx
+            jmp .init_loop5
     .done:
         ret
 
@@ -545,7 +602,7 @@ check_level_complete:
     inc byte [current_level]
     
     ; Verificar si hemos completado todos los niveles (asumiendo 2 niveles por ahora)
-    cmp byte [current_level], 3
+    cmp byte [current_level], 6
     je game_win
     
     ; Reinicializar el juego para el siguiente nivel
@@ -575,6 +632,12 @@ get_current_level_blocks:
     je .level1
     cmp byte [current_level], 2
     je .level2
+    cmp byte [current_level], 3
+    je .level3
+    cmp byte [current_level], 4
+    je .level4
+    cmp byte [current_level], 5
+    je .level5
     ; Si llegamos aquí, hay un error en el nivel
     xor rax, rax
     ret
@@ -582,17 +645,30 @@ get_current_level_blocks:
     .level1:
         lea rax, [level1_blocks]
         ret
-
     .level2:
         lea rax, [level2_blocks]
         ret
-
+    .level3:
+        lea rax, [level3_blocks]
+        ret
+    .level4:
+        lea rax, [level4_blocks]
+        ret
+    .level5:
+        lea rax, [level5_blocks]
+        ret
 ; Función para obtener la cantidad de bloques del nivel actual
 get_current_level_count:
     cmp byte [current_level], 1
     je .level1
     cmp byte [current_level], 2
     je .level2
+    cmp byte [current_level], 3
+    je .level3
+    cmp byte [current_level], 4
+    je .level4
+    cmp byte [current_level], 5
+    je .level5
     ; Si llegamos aquí, hay un error en el nivel
     xor rax, rax
     ret
@@ -600,10 +676,19 @@ get_current_level_count:
     .level1:
         mov rax, level1_blocks_count
         ret
-
     .level2:
         mov rax, level2_blocks_count
         ret
+    .level3:
+        mov rax, level3_blocks_count
+        ret
+    .level4:
+        mov rax, level4_blocks_count
+        ret
+    .level5:
+        mov rax, level5_blocks_count
+        ret
+
 
 print_blocks:
     push rbp
