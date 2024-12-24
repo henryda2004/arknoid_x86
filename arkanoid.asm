@@ -286,7 +286,8 @@ section .data
         ; Tercera fila (tipo 3)
         db 60, 6, 3, 1    ; Bloque 7
         db 56, 7, 3, 1    ; Bloque 7
-    level1_blocks_count equ 2   ; Cantidad total de bloques
+        db 60, 9, 1, 1    ; Bloque 7
+    level1_blocks_count equ 3   ; Cantidad total de bloques
 
     ; Nivel 2: Bloques de prueba
     level2_blocks:
@@ -311,6 +312,18 @@ section .data
 
     ; Array para mantener el estado de los bloques
     block_states: times 100 db 0  ; Durabilidad actual de cada bloque
+
+    score_label db "Puntaje: "
+    score_label_len equ $ - score_label
+    blocks_label db "Bloques destruidos: "
+    blocks_label_len equ $ - blocks_label
+    
+    ; Variables para almacenar los valores
+    current_score dq 0          ; Score actual
+    destroyed_blocks db 0       ; Bloques destruidos en el nivel actual
+    
+    ; Buffer para convertir números a string
+    number_buffer: times 20 db 0
 
 section .text
 
@@ -579,6 +592,7 @@ init_empty_board:
 
 init_level:
     ; 1) Copiamos board_template en board para que quede "virgen"
+    mov byte [destroyed_blocks], 0 
     call init_empty_board
     call display_level_number
     
@@ -834,6 +848,82 @@ print_blocks:
         pop rbp
         ret
 
+; Función para convertir número a string
+; Input: RAX = número a convertir
+; RDI = buffer donde escribir el string
+number_to_string:
+    push rbx
+    push rdx
+    push rsi
+    mov rbx, 10          ; Divisor
+    mov rcx, 0          ; Contador de dígitos
+    
+    ; Si el número es 0, manejarlo especialmente
+    test rax, rax
+    jnz .convert_loop
+    mov byte [rdi], '0'
+    mov byte [rdi + 1], 0
+    jmp .end
+    
+    .convert_loop:
+        xor rdx, rdx    ; Limpiar RDX para la división
+        div rbx         ; RAX/10, cociente en RAX, residuo en RDX
+        add dl, '0'     ; Convertir a ASCII
+        push rdx        ; Guardar el dígito
+        inc rcx         ; Incrementar contador
+        test rax, rax   ; Verificar si quedan más dígitos
+        jnz .convert_loop
+        
+    .write_loop:
+        pop rdx         ; Obtener dígito
+        mov [rdi], dl   ; Escribir al buffer
+        inc rdi         ; Siguiente posición
+        dec rcx         ; Decrementar contador
+        jnz .write_loop
+        
+    mov byte [rdi], 0   ; Null terminator
+    
+    .end:
+    pop rsi
+    pop rdx
+    pop rbx
+    ret
+
+; Función para imprimir los labels
+print_labels:
+    push rbp
+    mov rbp, rsp
+    
+    ; Guardar el score en string
+    mov rax, [current_score]
+    mov rdi, number_buffer
+    call number_to_string
+    
+    ; Imprimir score label
+    print score_label, score_label_len
+    print number_buffer, 20
+    
+    ; Nueva línea
+    mov byte [number_buffer], 0xA
+    mov byte [number_buffer + 1], 0xD
+    print number_buffer, 2
+    
+    ; Convertir bloques destruidos a string
+    movzx rax, byte [destroyed_blocks]
+    mov rdi, number_buffer
+    call number_to_string
+    
+    ; Imprimir label de bloques destruidos
+    print blocks_label, blocks_label_len
+    print number_buffer, 20
+    
+    ; Nueva línea
+    mov byte [number_buffer], 0xA
+    mov byte [number_buffer + 1], 0xD
+    print number_buffer, 2
+    
+    pop rbp
+    ret
 
 ; Función modificada para detectar colisión
 ; Función mejorada para detectar colisión y manejar la física
@@ -938,6 +1028,15 @@ check_block_collision:
         loop .erase_block_chars
 
         dec byte [blocks_remaining]
+        inc byte [destroyed_blocks]     ; Incrementar contador de bloques destruidos
+    
+        ; Calcular puntos basado en la durabilidad original del bloque
+        mov rax, r12                    ; Índice del bloque
+        imul rax, 4                     ; Multiplicar por 4 (tamaño de cada entrada)
+        add rax, r13                    ; Agregar base de los bloques
+        movzx rax, byte [rax + 2]       ; Obtener tipo de bloque (durabilidad original)
+        imul rax, 10                    ; Multiplicar por 10
+        add [current_score], rax        ; Agregar al score total
 
     .still_alive:
         mov rax, 1
@@ -971,6 +1070,7 @@ _start:
 	
 
 	.main_loop:
+        call print_labels
 		call print_pallet
         call move_ball
         call print_blocks
