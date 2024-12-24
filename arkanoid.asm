@@ -284,8 +284,9 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
         level1_blocks:
         ; Tercera fila (tipo 3)
-        db 60, 7, 3, 1    ; Bloque 7
-    level1_blocks_count equ 1   ; Cantidad total de bloques
+        db 60, 6, 3, 1    ; Bloque 7
+        db 56, 7, 3, 1    ; Bloque 7
+    level1_blocks_count equ 2   ; Cantidad total de bloques
 
     ; Nivel 2: Bloques de prueba
     level2_blocks:
@@ -920,7 +921,7 @@ check_block_collision:
 
         cmp r10, rdi
         jb .next_block
-        lea rbx, [rdi + 4]
+        lea rbx, [rdi + 6]
         cmp r10, rbx
         jae .next_block
 
@@ -930,7 +931,7 @@ check_block_collision:
         test bl, bl
         jnz .still_alive
 
-        mov rcx, 4
+        mov rcx, block_length
     .erase_block_chars:
         mov byte [rdi], char_space
         inc rdi
