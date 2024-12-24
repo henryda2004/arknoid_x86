@@ -17,7 +17,7 @@ O_NONBLOCK: equ 0x0004
 
 ;screen clean definition
 row_cells:	equ 32	; set to any (reasonable) value you wish
-column_cells: 	equ 80 ; set to any (reasonable) value you wish
+column_cells: 	equ 78 ; set to any (reasonable) value you wish
 array_length:	equ row_cells * column_cells + row_cells ; cells are mapped to bytes in the array and a new line char ends each row
 
 ;This is regarding the sleep time
@@ -245,7 +245,7 @@ section .data
         lvl_tv_nsec dq 0
         
 	pallet_position dq board + 40 + 29 * (column_cells +2)
-	pallet_size dq 3
+	pallet_size dq 5
 
 	ball_x_pos: dq 40
 	ball_y_pos: dq 28
@@ -268,13 +268,13 @@ section .data
     right_edge_position dq board + (board_top_left_y * (column_cells + 2) + board_bottom_right_x - 1) ; Coordenada de la parte derecha del marco
 
     ; Definición de tipos de bloques
-    block_type_1: db "UUUU"    ; Durabilidad 1
-    block_type_2: db "OOOO"    ; Durabilidad 2
-    block_type_3: db "DDDD"    ; Durabilidad 3
-    block_type_4: db "LLLL"    ; Durabilidad 4
-    block_type_5: db "VVVV"    ; Durabilidad 5
-    block_type_6: db "8888"    ; Durabilidad 6
-    block_length: equ 4        ; Longitud de cada bloque
+    block_type_1: db "UUUUUU"    ; Durabilidad 1
+    block_type_2: db "OOOOOO"    ; Durabilidad 2
+    block_type_3: db "DDDDDD"    ; Durabilidad 3
+    block_type_4: db "LLLLLL"    ; Durabilidad 4
+    block_type_5: db "VVVVVV"    ; Durabilidad 5
+    block_type_6: db "888888"    ; Durabilidad 6
+    block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
     current_level db 1

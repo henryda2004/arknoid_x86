@@ -17,7 +17,7 @@
     17                                  
     18                                  ;screen clean definition
     19                                  row_cells:	equ 32	; set to any (reasonable) value you wish
-    20                                  column_cells: 	equ 80 ; set to any (reasonable) value you wish
+    20                                  column_cells: 	equ 78 ; set to any (reasonable) value you wish
     21                                  array_length:	equ row_cells * column_cells + row_cells ; cells are mapped to bytes in the array and a new line char ends each row
     22                                  
     23                                  ;This is regarding the sleep time
@@ -142,142 +142,142 @@
    114                                  	; Guardamos la plantilla del tablero (32 filas)
    115                                      board_template:
    116                                          full_line
-    70 00000000 58<rep 50h>         <1>  times column_cells db "X"
-    71 00000050 0A0D                <1>  db 0x0a, 0xD
+    70 00000000 58<rep 4Eh>         <1>  times column_cells db "X"
+    71 0000004E 0A0D                <1>  db 0x0a, 0xD
    117                                          %rep 30
    118                                          hollow_line
    119                                          %endrep
    118                              <1>  hollow_line
-    75 00000052 58                  <2>  db "X"
-    76 00000053 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000000A1 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000050 58                  <2>  db "X"
+    76 00000051 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000009D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 000000A4 58                  <2>  db "X"
-    76 000000A5 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000000F3 580A0D              <2>  db "X", 0x0a, 0xD
+    75 000000A0 58                  <2>  db "X"
+    76 000000A1 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 000000ED 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 000000F6 58                  <2>  db "X"
-    76 000000F7 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000145 580A0D              <2>  db "X", 0x0a, 0xD
+    75 000000F0 58                  <2>  db "X"
+    76 000000F1 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000013D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 00000148 58                  <2>  db "X"
-    76 00000149 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000197 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000140 58                  <2>  db "X"
+    76 00000141 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000018D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 0000019A 58                  <2>  db "X"
-    76 0000019B 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000001E9 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000190 58                  <2>  db "X"
+    76 00000191 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 000001DD 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 000001EC 58                  <2>  db "X"
-    76 000001ED 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 0000023B 580A0D              <2>  db "X", 0x0a, 0xD
+    75 000001E0 58                  <2>  db "X"
+    76 000001E1 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000022D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 0000023E 58                  <2>  db "X"
-    76 0000023F 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 0000028D 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000230 58                  <2>  db "X"
+    76 00000231 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000027D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 00000290 58                  <2>  db "X"
-    76 00000291 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000002DF 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000280 58                  <2>  db "X"
+    76 00000281 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 000002CD 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 000002E2 58                  <2>  db "X"
-    76 000002E3 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000331 580A0D              <2>  db "X", 0x0a, 0xD
+    75 000002D0 58                  <2>  db "X"
+    76 000002D1 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000031D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 00000334 58                  <2>  db "X"
-    76 00000335 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000383 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000320 58                  <2>  db "X"
+    76 00000321 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000036D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 00000386 58                  <2>  db "X"
-    76 00000387 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000003D5 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000370 58                  <2>  db "X"
+    76 00000371 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 000003BD 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 000003D8 58                  <2>  db "X"
-    76 000003D9 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000427 580A0D              <2>  db "X", 0x0a, 0xD
+    75 000003C0 58                  <2>  db "X"
+    76 000003C1 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000040D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 0000042A 58                  <2>  db "X"
-    76 0000042B 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000479 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000410 58                  <2>  db "X"
+    76 00000411 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000045D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 0000047C 58                  <2>  db "X"
-    76 0000047D 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000004CB 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000460 58                  <2>  db "X"
+    76 00000461 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 000004AD 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 000004CE 58                  <2>  db "X"
-    76 000004CF 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 0000051D 580A0D              <2>  db "X", 0x0a, 0xD
+    75 000004B0 58                  <2>  db "X"
+    76 000004B1 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 000004FD 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 00000520 58                  <2>  db "X"
-    76 00000521 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 0000056F 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000500 58                  <2>  db "X"
+    76 00000501 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000054D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 00000572 58                  <2>  db "X"
-    76 00000573 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000005C1 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000550 58                  <2>  db "X"
+    76 00000551 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000059D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 000005C4 58                  <2>  db "X"
-    76 000005C5 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000613 580A0D              <2>  db "X", 0x0a, 0xD
+    75 000005A0 58                  <2>  db "X"
+    76 000005A1 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 000005ED 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 00000616 58                  <2>  db "X"
-    76 00000617 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000665 580A0D              <2>  db "X", 0x0a, 0xD
+    75 000005F0 58                  <2>  db "X"
+    76 000005F1 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000063D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 00000668 58                  <2>  db "X"
-    76 00000669 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000006B7 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000640 58                  <2>  db "X"
+    76 00000641 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000068D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 000006BA 58                  <2>  db "X"
-    76 000006BB 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000709 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000690 58                  <2>  db "X"
+    76 00000691 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 000006DD 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 0000070C 58                  <2>  db "X"
-    76 0000070D 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 0000075B 580A0D              <2>  db "X", 0x0a, 0xD
+    75 000006E0 58                  <2>  db "X"
+    76 000006E1 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000072D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 0000075E 58                  <2>  db "X"
-    76 0000075F 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000007AD 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000730 58                  <2>  db "X"
+    76 00000731 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000077D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 000007B0 58                  <2>  db "X"
-    76 000007B1 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000007FF 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000780 58                  <2>  db "X"
+    76 00000781 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 000007CD 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 00000802 58                  <2>  db "X"
-    76 00000803 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000851 580A0D              <2>  db "X", 0x0a, 0xD
+    75 000007D0 58                  <2>  db "X"
+    76 000007D1 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000081D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 00000854 58                  <2>  db "X"
-    76 00000855 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000008A3 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000820 58                  <2>  db "X"
+    76 00000821 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000086D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 000008A6 58                  <2>  db "X"
-    76 000008A7 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000008F5 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000870 58                  <2>  db "X"
+    76 00000871 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 000008BD 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 000008F8 58                  <2>  db "X"
-    76 000008F9 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000947 580A0D              <2>  db "X", 0x0a, 0xD
+    75 000008C0 58                  <2>  db "X"
+    76 000008C1 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000090D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 0000094A 58                  <2>  db "X"
-    76 0000094B 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 00000999 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000910 58                  <2>  db "X"
+    76 00000911 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 0000095D 580A0D              <2>  db "X", 0x0a, 0xD
    118                              <1>  hollow_line
-    75 0000099C 58                  <2>  db "X"
-    76 0000099D 20<rep 4Eh>         <2>  times column_cells-2 db " "
-    77 000009EB 580A0D              <2>  db "X", 0x0a, 0xD
+    75 00000960 58                  <2>  db "X"
+    76 00000961 20<rep 4Ch>         <2>  times column_cells-2 db " "
+    77 000009AD 580A0D              <2>  db "X", 0x0a, 0xD
    120                                          full_line
-    70 000009EE 58<rep 50h>         <1>  times column_cells db "X"
-    71 00000A3E 0A0D                <1>  db 0x0a, 0xD
+    70 000009B0 58<rep 4Eh>         <1>  times column_cells db "X"
+    71 000009FE 0A0D                <1>  db 0x0a, 0xD
    121                                      board_template_size: equ $ - board_template
    122                                  
    123                                      ; Espacio real que se usará en la ejecución
-   124 00000A40 00<rep A40h>                board: times board_template_size db 0
+   124 00000A00 00<rep A00h>                board: times board_template_size db 0
    125                                      board_size: equ board_template_size
    126                                  
    127                                  	; Added for the terminal issue
-   128 00001480 00<rep 24h>             	termios:        times 36 db 0
+   128 00001400 00<rep 24h>             	termios:        times 36 db 0
    129                                  	stdin:          equ 0
    130                                  	ICANON:         equ 1<<1
    131                                  	ECHO:           equ 1<<3
@@ -294,9 +294,9 @@
    142 00000130 50                              push rax
    143 00000131 B802000000                      mov eax, ICANON
    144 00000136 F7D0                            not eax
-   145 00000138 2105(8C140000)                  and [termios+12], eax
-   146 0000013E C605(97140000)00        		mov byte[termios+CC_C+VTIME], 0
-   147 00000145 C605(98140000)00        		mov byte[termios+CC_C+VMIN], 0
+   145 00000138 2105(0C140000)                  and [termios+12], eax
+   146 0000013E C605(17140000)00        		mov byte[termios+CC_C+VTIME], 0
+   147 00000145 C605(18140000)00        		mov byte[termios+CC_C+VMIN], 0
    148 0000014C 58                              pop rax
    149                                  
    150 0000014D E86C000000                      call write_stdin_termios
@@ -309,7 +309,7 @@
    157 00000158 50                              push rax
    158 00000159 B808000000                      mov eax, ECHO
    159 0000015E F7D0                            not eax
-   160 00000160 2105(8C140000)                  and [termios+12], eax
+   160 00000160 2105(0C140000)                  and [termios+12], eax
    161 00000166 58                              pop rax
    162                                  
    163 00000167 E852000000                      call write_stdin_termios
@@ -319,9 +319,9 @@
    167 0000016D E82D000000                      call read_stdin_termios
    168                                  
    169                                          ; set canonical bit in local mode flags
-   170 00000172 830D(8C140000)02                or dword [termios+12], ICANON
-   171 00000179 C605(97140000)00        		mov byte[termios+CC_C+VTIME], 0
-   172 00000180 C605(98140000)01        		mov byte[termios+CC_C+VMIN], 1
+   170 00000172 830D(0C140000)02                or dword [termios+12], ICANON
+   171 00000179 C605(17140000)00        		mov byte[termios+CC_C+VTIME], 0
+   172 00000180 C605(18140000)01        		mov byte[termios+CC_C+VMIN], 1
    173 00000187 E832000000                      call write_stdin_termios
    174 0000018C C3                              ret
    175                                  
@@ -329,7 +329,7 @@
    177 0000018D E80D000000                      call read_stdin_termios
    178                                  
    179                                          ; set echo bit in local mode flags
-   180 00000192 830D(8C140000)08                or dword [termios+12], ECHO
+   180 00000192 830D(0C140000)08                or dword [termios+12], ECHO
    181                                  
    182 00000199 E820000000                      call write_stdin_termios
    183 0000019E C3                              ret
@@ -343,7 +343,7 @@
    191 000001A3 B836000000                      mov eax, 36h
    192 000001A8 BB00000000                      mov ebx, stdin
    193 000001AD B901540000                      mov ecx, 5401h
-   194 000001B2 BA[80140000]                    mov edx, termios
+   194 000001B2 BA[00140000]                    mov edx, termios
    195 000001B7 CD80                            int 80h
    196                                  
    197 000001B9 5A                              pop rdx
@@ -361,7 +361,7 @@
    209 000001C2 B836000000                      mov eax, 36h
    210 000001C7 BB00000000                      mov ebx, stdin
    211 000001CC B902540000                      mov ecx, 5402h
-   212 000001D1 BA[80140000]                    mov edx, termios
+   212 000001D1 BA[00140000]                    mov edx, termios
    213 000001D6 CD80                            int 80h
    214                                  
    215 000001D8 5A                              pop rdx
@@ -382,28 +382,28 @@
    230                                  section .data
    231                                  
    232                                  ; Mensajes para los niveles
-   233 000014A4 4E4956454C20                level_msg: db "NIVEL "
+   233 00001424 4E4956454C20                level_msg: db "NIVEL "
    234                                      level_msg_len: equ $ - level_msg
-   235 000014AA 31                          level_1_char: db "1"
-   236 000014AB 32                          level_2_char: db "2"
-   237 000014AC 33                          level_3_char: db "3"
-   238 000014AD 34                          level_4_char: db "4"
-   239 000014AE 35                          level_5_char: db "5"
+   235 0000142A 31                          level_1_char: db "1"
+   236 0000142B 32                          level_2_char: db "2"
+   237 0000142C 33                          level_3_char: db "3"
+   238 0000142D 34                          level_4_char: db "4"
+   239 0000142E 35                          level_5_char: db "5"
    240                                      level_char_len: equ 1
    241                                  
    242                                      ; Timespec para la pausa del mensaje de nivel
    243                                      level_display_time:
-   244 000014AF 0100000000000000                lvl_tv_sec dq 1           ; 1 segundo
-   245 000014B7 0000000000000000                lvl_tv_nsec dq 0
+   244 0000142F 0100000000000000                lvl_tv_sec dq 1           ; 1 segundo
+   245 00001437 0000000000000000                lvl_tv_nsec dq 0
    246                                          
-   247 000014BF [B213000000000000]      	pallet_position dq board + 40 + 29 * (column_cells +2)
-   248 000014C7 0300000000000000        	pallet_size dq 3
+   247 0000143F [3813000000000000]      	pallet_position dq board + 40 + 29 * (column_cells +2)
+   248 00001447 0500000000000000        	pallet_size dq 5
    249                                  
-   250 000014CF 2800000000000000        	ball_x_pos: dq 40
-   251 000014D7 1C00000000000000        	ball_y_pos: dq 28
-   252 000014DF 0100000000000000            ball_direction_x dq 1    ; 1 = derecha, -1 = izquierda
-   253 000014E7 FFFFFFFFFFFFFFFF            ball_direction_y dq -1   ; -1 = arriba, 1 = abajo
-   254 000014EF 00                          ball_moving db 0         ; 0 = estática, 1 = en movimiento
+   250 0000144F 2800000000000000        	ball_x_pos: dq 40
+   251 00001457 1C00000000000000        	ball_y_pos: dq 28
+   252 0000145F 0100000000000000            ball_direction_x dq 1    ; 1 = derecha, -1 = izquierda
+   253 00001467 FFFFFFFFFFFFFFFF            ball_direction_y dq -1   ; -1 = arriba, 1 = abajo
+   254 0000146F 00                          ball_moving db 0         ; 0 = estática, 1 = en movimiento
    255                                  
    256                                  ; Definir los límites de la pantalla o área de juego
    257                                      board_top_left_x equ 1
@@ -416,52 +416,52 @@
    264                                      right_edge equ board_bottom_right_x         ; Límite derecho en la última columna
    265                                  
    266                                      ; O también puedes hacerlo así si prefieres usando las coordenadas en memoria para obtener la ubicación exacta:
-   267 000014F0 [920A000000000000]          left_edge_position dq board + (board_top_left_y * (column_cells + 2)) ; Coordenada de la parte izquierda del marco
-   268 000014F8 [E00A000000000000]          right_edge_position dq board + (board_top_left_y * (column_cells + 2) + board_bottom_right_x - 1) ; Coordenada de la parte derecha del marco
+   267 00001470 [500A000000000000]          left_edge_position dq board + (board_top_left_y * (column_cells + 2)) ; Coordenada de la parte izquierda del marco
+   268 00001478 [9C0A000000000000]          right_edge_position dq board + (board_top_left_y * (column_cells + 2) + board_bottom_right_x - 1) ; Coordenada de la parte derecha del marco
    269                                  
    270                                      ; Definición de tipos de bloques
-   271 00001500 55555555                    block_type_1: db "UUUU"    ; Durabilidad 1
-   272 00001504 4F4F4F4F                    block_type_2: db "OOOO"    ; Durabilidad 2
-   273 00001508 44444444                    block_type_3: db "DDDD"    ; Durabilidad 3
-   274 0000150C 4C4C4C4C                    block_type_4: db "LLLL"    ; Durabilidad 4
-   275 00001510 56565656                    block_type_5: db "VVVV"    ; Durabilidad 5
-   276 00001514 38383838                    block_type_6: db "8888"    ; Durabilidad 6
-   277                                      block_length: equ 4        ; Longitud de cada bloque
+   271 00001480 555555555555                block_type_1: db "UUUUUU"    ; Durabilidad 1
+   272 00001486 4F4F4F4F4F4F                block_type_2: db "OOOOOO"    ; Durabilidad 2
+   273 0000148C 444444444444                block_type_3: db "DDDDDD"    ; Durabilidad 3
+   274 00001492 4C4C4C4C4C4C                block_type_4: db "LLLLLL"    ; Durabilidad 4
+   275 00001498 565656565656                block_type_5: db "VVVVVV"    ; Durabilidad 5
+   276 0000149E 383838383838                block_type_6: db "888888"    ; Durabilidad 6
+   277                                      block_length: equ 6        ; Longitud de cada bloque
    278                                  
    279                                      ; Estructura para el nivel actual
-   280 00001518 01                          current_level db 1
-   281 00001519 00                          blocks_remaining db 0
+   280 000014A4 01                          current_level db 1
+   281 000014A5 00                          blocks_remaining db 0
    282                                  
    283                                      ; Definición del nivel 1 (ejemplo con múltiples bloques)
    284                                      ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
    285                                          level1_blocks:
    286                                          ; Tercera fila (tipo 3)
-   287 0000151A 3C070301                        db 60, 7, 3, 1    ; Bloque 7
+   287 000014A6 3C070301                        db 60, 7, 3, 1    ; Bloque 7
    288                                      level1_blocks_count equ 1   ; Cantidad total de bloques
    289                                  
    290                                      ; Nivel 2: Bloques de prueba
    291                                      level2_blocks:
-   292 0000151E 3C070101                        db 60, 7, 1, 1    ; Un bloque simple en el nivel 2   ; Un bloque simple en el nivel 2
+   292 000014AA 3C070101                        db 60, 7, 1, 1    ; Un bloque simple en el nivel 2   ; Un bloque simple en el nivel 2
    293                                      level2_blocks_count equ 1
    294                                  
    295                                      ; Nivel 3
    296                                      level3_blocks:
-   297 00001522 3C070201                        db 60, 7, 2, 1    ; Bloque 1
+   297 000014AE 3C070201                        db 60, 7, 2, 1    ; Bloque 1
    298                                  
    299                                      level3_blocks_count equ 1
    300                                  
    301                                      ; Nivel 4
    302                                      level4_blocks:
-   303 00001526 3C070401                        db 60, 7, 4, 1    ; Bloque 1
+   303 000014B2 3C070401                        db 60, 7, 4, 1    ; Bloque 1
    304                                      level4_blocks_count equ 1
    305                                  
    306                                      ; Nivel 5
    307                                      level5_blocks:
-   308 0000152A 3C070501                        db 60, 7, 5, 1    ; Bloque 1
+   308 000014B6 3C070501                        db 60, 7, 5, 1    ; Bloque 1
    309                                      level5_blocks_count equ 1
    310                                  
    311                                      ; Array para mantener el estado de los bloques
-   312 0000152E 00<rep 64h>                 block_states: times 100 db 0  ; Durabilidad actual de cada bloque
+   312 000014BA 00<rep 64h>                 block_states: times 100 db 0  ; Durabilidad actual de cada bloque
    313                                  
    314                                  section .text
    315                                  
@@ -472,12 +472,12 @@
    320                                  ; Return:
    321                                  ;	Void
    322                                  print_ball:
-   323 000001DD 4C8B05(CF140000)        	mov r8, [ball_x_pos]
-   324 000001E4 4C8B0D(D7140000)        	mov r9, [ball_y_pos]
-   325 000001EB 4981C0[400A0000]        	add r8, board
+   323 000001DD 4C8B05(4F140000)        	mov r8, [ball_x_pos]
+   324 000001E4 4C8B0D(57140000)        	mov r9, [ball_y_pos]
+   325 000001EB 4981C0[000A0000]        	add r8, board
    326                                  
    327 000001F2 4C89C9                  	mov rcx, r9
-   328 000001F5 B852000000              	mov rax, column_cells + 2
+   328 000001F5 B850000000              	mov rax, column_cells + 2
    329 000001FA 48F7E9                  	imul rcx
    330                                  	
    331 000001FD 4901C0                  	add r8, rax
@@ -497,8 +497,8 @@
    345                                  ; Return;
    346                                  ;	void
    347                                  print_pallet:
-   348 00000205 4C8B05(BF140000)        	mov r8, [pallet_position]
-   349 0000020C 488B0D(C7140000)        	mov rcx, [pallet_size]
+   348 00000205 4C8B05(3F140000)        	mov r8, [pallet_position]
+   349 0000020C 488B0D(47140000)        	mov rcx, [pallet_size]
    350                                  	.write_pallet:
    351 00000213 41C6003D                		mov byte [r8], char_equal
    352 00000217 49FFC0                  		inc r8
@@ -516,9 +516,9 @@
    364                                  ;	void
    365                                  move_pallet:
    366                                      
-   367 00000220 803D(EF140000)00            cmp byte [ball_moving], 0
+   367 00000220 803D(6F140000)00            cmp byte [ball_moving], 0
    368 00000227 7507                        jne .continue_movement
-   369 00000229 C605(EF140000)01            mov byte [ball_moving], 1
+   369 00000229 C605(6F140000)01            mov byte [ball_moving], 1
    370                                  
    371                                      .continue_movement:
    372 00000230 4883FFFF                        cmp rdi, left_direction
@@ -526,61 +526,61 @@
    374                                  
    375                                          .move_left:
    376                                              ; Verificar si la siguiente posición sería una X (borde izquierdo)
-   377 00000236 4C8B05(BF140000)                    mov r8, [pallet_position]
+   377 00000236 4C8B05(3F140000)                    mov r8, [pallet_position]
    378 0000023D 49FFC8                              dec r8              ; Verificar la posición a la izquierda
    379 00000240 418A00                              mov al, [r8]       ; Cargar el carácter en esa posición
    380 00000243 3C58                                cmp al, 'X'        ; Comparar si es una X
    381 00000245 744D                                je .end            ; Si es X, no mover
    382                                              
-   383 00000247 4C8B05(BF140000)                    mov r8, [pallet_position]
-   384 0000024E 4C8B0D(C7140000)                    mov r9, [pallet_size]
+   383 00000247 4C8B05(3F140000)                    mov r8, [pallet_position]
+   384 0000024E 4C8B0D(47140000)                    mov r9, [pallet_size]
    385 00000255 43C64408FF20                        mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter de la paleta
    386 0000025B 49FFC8                              dec r8
-   387 0000025E 4C8905(BF140000)                    mov [pallet_position], r8
+   387 0000025E 4C8905(3F140000)                    mov [pallet_position], r8
    388 00000265 EB2D                                jmp .end
    389                                              
    390                                          .move_right:
    391                                              ; Verificar si la siguiente posición después de la paleta sería una X
-   392 00000267 4C8B05(BF140000)                    mov r8, [pallet_position]
-   393 0000026E 4C8B0D(C7140000)                    mov r9, [pallet_size]
+   392 00000267 4C8B05(3F140000)                    mov r8, [pallet_position]
+   393 0000026E 4C8B0D(47140000)                    mov r9, [pallet_size]
    394 00000275 4D01C8                              add r8, r9         ; Moverse al final de la paleta
    395 00000278 418A00                              mov al, [r8]       ; Cargar el carácter en esa posición
    396 0000027B 3C58                                cmp al, 'X'        ; Comparar si es una X
    397 0000027D 7415                                je .end            ; Si es X, no mover
    398                                              
-   399 0000027F 4C8B05(BF140000)                    mov r8, [pallet_position]
+   399 0000027F 4C8B05(3F140000)                    mov r8, [pallet_position]
    400 00000286 41C60020                            mov byte [r8], char_space
    401 0000028A 49FFC0                              inc r8
-   402 0000028D 4C8905(BF140000)                    mov [pallet_position], r8
+   402 0000028D 4C8905(3F140000)                    mov [pallet_position], r8
    403                                          .end:
    404 00000294 C3                                  ret
    405                                  
    406                                  move_ball:
    407                                      ; Si la bola no está en movimiento, no hacer nada
-   408 00000295 803D(EF140000)00            cmp byte [ball_moving], 0
+   408 00000295 803D(6F140000)00            cmp byte [ball_moving], 0
    409 0000029C 0F8406010000                je .end
    410                                  
    411                                      ; Borrar la posición actual de la bola
-   412 000002A2 4C8B05(CF140000)            mov r8, [ball_x_pos]
-   413 000002A9 4C8B0D(D7140000)            mov r9, [ball_y_pos]
-   414 000002B0 4981C0[400A0000]            add r8, board
+   412 000002A2 4C8B05(4F140000)            mov r8, [ball_x_pos]
+   413 000002A9 4C8B0D(57140000)            mov r9, [ball_y_pos]
+   414 000002B0 4981C0[000A0000]            add r8, board
    415 000002B7 4C89C9                      mov rcx, r9
-   416 000002BA B852000000                  mov rax, column_cells + 2
+   416 000002BA B850000000                  mov rax, column_cells + 2
    417 000002BF 48F7E9                      imul rcx
    418 000002C2 4901C0                      add r8, rax
    419 000002C5 41C60020                    mov byte [r8], char_space    ; Borrar la bola actual
    420                                  
    421                                      ; Calcular siguiente posición X
-   422 000002C9 4C8B05(CF140000)            mov r8, [ball_x_pos]
-   423 000002D0 4C8B0D(D7140000)            mov r9, [ball_y_pos]
-   424 000002D7 488B05(DF140000)            mov rax, [ball_direction_x]
+   422 000002C9 4C8B05(4F140000)            mov r8, [ball_x_pos]
+   423 000002D0 4C8B0D(57140000)            mov r9, [ball_y_pos]
+   424 000002D7 488B05(5F140000)            mov rax, [ball_direction_x]
    425 000002DE 4901C0                      add r8, rax                  ; Nueva posición X
    426                                  
    427                                      ; Calcular la dirección de memoria para la siguiente posición
    428 000002E1 4D89C2                      mov r10, r8
-   429 000002E4 4981C2[400A0000]            add r10, board
+   429 000002E4 4981C2[000A0000]            add r10, board
    430 000002EB 4C89C9                      mov rcx, r9
-   431 000002EE B852000000                  mov rax, column_cells + 2
+   431 000002EE B850000000                  mov rax, column_cells + 2
    432 000002F3 48F7E9                      imul rcx
    433 000002F6 4901C2                      add r10, rax
    434                                  
@@ -588,7 +588,7 @@
    436 000002F9 418A02                      mov al, [r10]
    437 000002FC 3C58                        cmp al, 'X'
    438 000002FE 750C                        jne .check_block_x
-   439 00000300 48F71D(DF140000)            neg qword [ball_direction_x]  ; Cambiar dirección X si hay una X
+   439 00000300 48F71D(5F140000)            neg qword [ball_direction_x]  ; Cambiar dirección X si hay una X
    440 00000307 E99C000000                  jmp .end
    441                                  
    442                                      .check_block_x:
@@ -602,26 +602,26 @@
    450 0000031B 4158                            pop r8
    451 0000031D 4885C0                          test rax, rax
    452 00000320 7409                            jz .check_paddle_x      ; Si no hay colisión, verificar paleta
-   453 00000322 48F71D(DF140000)                neg qword [ball_direction_x]  ; Si hay colisión, rebotar
+   453 00000322 48F71D(5F140000)                neg qword [ball_direction_x]  ; Si hay colisión, rebotar
    454 00000329 EB7D                            jmp .end
    455                                  
    456                                      .check_paddle_x:
    457                                          ; Verificar si hay una paleta (=) en la siguiente posición X
    458 0000032B 41803A3D                        cmp byte [r10], char_equal
    459 0000032F 7509                            jne .check_y_movement
-   460 00000331 48F71D(DF140000)                neg qword [ball_direction_x]  ; Cambiar dirección X si hay una paleta
+   460 00000331 48F71D(5F140000)                neg qword [ball_direction_x]  ; Cambiar dirección X si hay una paleta
    461 00000338 EB6E                            jmp .end
    462                                  
    463                                      .check_y_movement:
    464                                          ; Calcular siguiente posición Y
-   465 0000033A 488B05(E7140000)                mov rax, [ball_direction_y]
+   465 0000033A 488B05(67140000)                mov rax, [ball_direction_y]
    466 00000341 4901C1                          add r9, rax                  ; Nueva posición Y
    467                                  
    468                                          ; Calcular la dirección de memoria para la siguiente posición Y
    469 00000344 4D89C2                          mov r10, r8
-   470 00000347 4981C2[400A0000]                add r10, board
+   470 00000347 4981C2[000A0000]                add r10, board
    471 0000034E 4C89C9                          mov rcx, r9
-   472 00000351 B852000000                      mov rax, column_cells + 2
+   472 00000351 B850000000                      mov rax, column_cells + 2
    473 00000356 48F7E9                          imul rcx
    474 00000359 4901C2                          add r10, rax
    475                                  
@@ -629,7 +629,7 @@
    477 0000035C 418A02                          mov al, [r10]
    478 0000035F 3C58                            cmp al, 'X'
    479 00000361 7509                            jne .check_block_y
-   480 00000363 48F71D(E7140000)                neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una X
+   480 00000363 48F71D(67140000)                neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una X
    481 0000036A EB3C                            jmp .end
    482                                  
    483                                      .check_block_y:
@@ -643,20 +643,20 @@
    491 0000037B 4158                            pop r8
    492 0000037D 4885C0                          test rax, rax
    493 00000380 7409                            jz .check_paddle_y      ; Si no hay colisión, verificar paleta
-   494 00000382 48F71D(E7140000)                neg qword [ball_direction_y]  ; Si hay colisión, rebotar
+   494 00000382 48F71D(67140000)                neg qword [ball_direction_y]  ; Si hay colisión, rebotar
    495 00000389 EB1D                            jmp .end
    496                                  
    497                                      .check_paddle_y:
    498                                      ; Verificar si hay una paleta (=) en la siguiente posición Y
    499 0000038B 41803A3D                    cmp byte [r10], char_equal
    500 0000038F 7509                        jne .update_position
-   501 00000391 48F71D(E7140000)            neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una paleta
+   501 00000391 48F71D(67140000)            neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una paleta
    502 00000398 EB0E                        jmp .end
    503                                  
    504                                  
    505                                      .update_position:
-   506 0000039A 4C8905(CF140000)                mov [ball_x_pos], r8
-   507 000003A1 4C890D(D7140000)                mov [ball_y_pos], r9
+   506 0000039A 4C8905(4F140000)                mov [ball_x_pos], r8
+   507 000003A1 4C890D(57140000)                mov [ball_y_pos], r9
    508                                  
    509                                      .end:
    510 000003A8 C3                              ret
@@ -679,7 +679,7 @@
    521                                      
    522                                      ; Calcular la posición central para el mensaje
    523                                      ; Para el mensaje "NIVEL X", necesitamos centrar 7 caracteres
-   524 000003C8 B850000000                  mov rax, column_cells
+   524 000003C8 B84E000000                  mov rax, column_cells
    525 000003CD 4883E807                    sub rax, 7                  ; longitud de "NIVEL X"
    526 000003D1 48D1E8                      shr rax, 1                  ; dividir por 2 para centrar
    527                                      
@@ -688,19 +688,19 @@
    530 000003D9 48D1EB                      shr rbx, 1                  ; dividir por 2 para obtener la fila central
    531                                      
    532                                      ; Calcular el offset en el buffer
-   533 000003DC B952000000                  mov rcx, column_cells + 2   ; ancho total de una línea incluyendo newline
+   533 000003DC B950000000                  mov rcx, column_cells + 2   ; ancho total de una línea incluyendo newline
    534 000003E1 48F7E3                      mul rbx                     ; multiplicar por la fila central
    535 000003E4 4801D8                      add rax, rbx                ; añadir el offset horizontal
    536                                      
    537                                      ; Escribir "NIVEL " en la posición calculada
-   538 000003E7 488DB8[400A0000]            lea rdi, [board + rax]
+   538 000003E7 488DB8[000A0000]            lea rdi, [board + rax]
    539 000003EE 48BE-                       mov rsi, level_msg
-   539 000003F0 [A414000000000000] 
+   539 000003F0 [2414000000000000] 
    540 000003F8 B906000000                  mov rcx, level_msg_len
    541 000003FD F3A4                        rep movsb
    542                                      
    543                                      ; Escribir el número del nivel
-   544 000003FF 8A05(18150000)              mov al, [current_level]
+   544 000003FF 8A05(A4140000)              mov al, [current_level]
    545 00000405 0430                        add al, '0'                 ; convertir a ASCII
    546 00000407 8807                        mov [rdi], al
    547                                      
@@ -709,14 +709,14 @@
     82 00000409 B801000000          <1>  mov eax, sys_write
     83 0000040E BF01000000          <1>  mov edi, 1
     84 00000413 48BE-               <1>  mov rsi, %1
-    84 00000415 [400A000000000000]  <1>
-    85 0000041D BA400A0000          <1>  mov edx, %2
+    84 00000415 [000A000000000000]  <1>
+    85 0000041D BA000A0000          <1>  mov edx, %2
     86 00000422 0F05                <1>  syscall
    550                                      
    551                                      ; Esperar un segundo
    552 00000424 B823000000                  mov rax, sys_nanosleep
    553 00000429 48BF-                       mov rdi, level_display_time
-   553 0000042B [AF14000000000000] 
+   553 0000042B [2F14000000000000] 
    554 00000433 4831F6                      xor rsi, rsi
    555 00000436 0F05                        syscall
    556                                      
@@ -731,8 +731,8 @@
    565 0000043D 50                          push rax
    566                                  
    567 0000043E 488D35(00000000)            lea rsi, [board_template]   ; Copiar la plantilla del tablero
-   568 00000445 488D3D(400A0000)            lea rdi, [board]            ; Destino: el tablero actual
-   569 0000044C B9400A0000                  mov rcx, board_template_size
+   568 00000445 488D3D(000A0000)            lea rdi, [board]            ; Destino: el tablero actual
+   569 0000044C B9000A0000                  mov rcx, board_template_size
    570 00000451 F3A4                        rep movsb                   ; Copiar el tablero
    571                                  
    572 00000453 58                          pop rax
@@ -753,8 +753,8 @@
    587 00000465 50                          push rax
    588                                  
    589 00000466 488D35(00000000)            lea rsi, [board_template]
-   590 0000046D 488D3D(400A0000)            lea rdi, [board]
-   591 00000474 B9400A0000                  mov rcx, board_template_size
+   590 0000046D 488D3D(000A0000)            lea rdi, [board]
+   591 00000474 B9000A0000                  mov rcx, board_template_size
    592 00000479 F3A4                        rep movsb                 ; Copiamos la plantilla a board
    593                                  
    594 0000047B 58                          pop rax
@@ -763,79 +763,79 @@
    597 0000047E 5E                          pop rsi
    598                                  
    599                                      ; Verificar el nivel actual y cargar los bloques correspondientes
-   600 0000047F 803D(18150000)01            cmp byte [current_level], 1
+   600 0000047F 803D(A4140000)01            cmp byte [current_level], 1
    601 00000486 7431                        je .level1
-   602 00000488 803D(18150000)02            cmp byte [current_level], 2
+   602 00000488 803D(A4140000)02            cmp byte [current_level], 2
    603 0000048F 7454                        je .level2
-   604 00000491 803D(18150000)03            cmp byte [current_level], 3
+   604 00000491 803D(A4140000)03            cmp byte [current_level], 3
    605 00000498 7477                        je .level3
-   606 0000049A 803D(18150000)04            cmp byte [current_level], 4
+   606 0000049A 803D(A4140000)04            cmp byte [current_level], 4
    607 000004A1 0F8492000000                je .level4
-   608 000004A7 803D(18150000)05            cmp byte [current_level], 5
+   608 000004A7 803D(A4140000)05            cmp byte [current_level], 5
    609 000004AE 0F84AD000000                je .level5
    610 000004B4 E9D0000000                  jmp .done
    611                                  
    612                                      .level1:
-   613 000004B9 C605(19150000)01                mov byte [blocks_remaining], level1_blocks_count
+   613 000004B9 C605(A5140000)01                mov byte [blocks_remaining], level1_blocks_count
    614 000004C0 4831C9                          xor rcx, rcx             
    615                                          .init_loop1:
    616 000004C3 4883F901                            cmp rcx, level1_blocks_count
    617 000004C7 0F8DBC000000                        jge .done
    618 000004CD 4889C8                              mov rax, rcx         
    619 000004D0 48C1E002                            shl rax, 2          
-   620 000004D4 8A90[1D150000]                      mov dl, byte [level1_blocks + rax + 3]  
-   621 000004DA 8891[2E150000]                      mov byte [block_states + rcx], dl
+   620 000004D4 8A90[A9140000]                      mov dl, byte [level1_blocks + rax + 3]  
+   621 000004DA 8891[BA140000]                      mov byte [block_states + rcx], dl
    622 000004E0 48FFC1                              inc rcx
    623 000004E3 EBDE                                jmp .init_loop1
    624                                  
    625                                      .level2:
-   626 000004E5 C605(19150000)01                mov byte [blocks_remaining], level2_blocks_count
+   626 000004E5 C605(A5140000)01                mov byte [blocks_remaining], level2_blocks_count
    627 000004EC 4831C9                          xor rcx, rcx             
    628                                          .init_loop2:
    629 000004EF 4883F901                            cmp rcx, level2_blocks_count
    630 000004F3 0F8D90000000                        jge .done
    631 000004F9 4889C8                              mov rax, rcx         
    632 000004FC 48C1E002                            shl rax, 2          
-   633 00000500 8A90[21150000]                      mov dl, byte [level2_blocks + rax + 3]  
-   634 00000506 8891[2E150000]                      mov byte [block_states + rcx], dl
+   633 00000500 8A90[AD140000]                      mov dl, byte [level2_blocks + rax + 3]  
+   634 00000506 8891[BA140000]                      mov byte [block_states + rcx], dl
    635 0000050C 48FFC1                              inc rcx
    636 0000050F EBDE                                jmp .init_loop2
    637                                      .level3:
-   638 00000511 C605(19150000)01                mov byte [blocks_remaining], level3_blocks_count
+   638 00000511 C605(A5140000)01                mov byte [blocks_remaining], level3_blocks_count
    639 00000518 4831C9                          xor rcx, rcx             
    640                                          .init_loop3:
    641 0000051B 4883F901                            cmp rcx, level3_blocks_count
    642 0000051F 7D68                                jge .done
    643 00000521 4889C8                              mov rax, rcx         
    644 00000524 48C1E002                            shl rax, 2          
-   645 00000528 8A90[25150000]                      mov dl, byte [level3_blocks + rax + 3]  
-   646 0000052E 8891[2E150000]                      mov byte [block_states + rcx], dl
+   645 00000528 8A90[B1140000]                      mov dl, byte [level3_blocks + rax + 3]  
+   646 0000052E 8891[BA140000]                      mov byte [block_states + rcx], dl
    647 00000534 48FFC1                              inc rcx
    648 00000537 EBE2                                jmp .init_loop3
    649                                  
    650                                      .level4:
-   651 00000539 C605(19150000)01                mov byte [blocks_remaining], level4_blocks_count
+   651 00000539 C605(A5140000)01                mov byte [blocks_remaining], level4_blocks_count
    652 00000540 4831C9                          xor rcx, rcx             
    653                                          .init_loop4:
    654 00000543 4883F901                            cmp rcx, level4_blocks_count
    655 00000547 7D40                                jge .done
    656 00000549 4889C8                              mov rax, rcx         
    657 0000054C 48C1E002                            shl rax, 2          
-   658 00000550 8A90[29150000]                      mov dl, byte [level4_blocks + rax + 3]  
-   659 00000556 8891[2E150000]                      mov byte [block_states + rcx], dl
+   658 00000550 8A90[B5140000]                      mov dl, byte [level4_blocks + rax + 3]  
+   659 00000556 8891[BA140000]                      mov byte [block_states + rcx], dl
    660 0000055C 48FFC1                              inc rcx
    661 0000055F EBE2                                jmp .init_loop4
    662                                  
    663                                      .level5:
-   664 00000561 C605(19150000)01                mov byte [blocks_remaining], level5_blocks_count
+   664 00000561 C605(A5140000)01                mov byte [blocks_remaining], level5_blocks_count
    665 00000568 4831C9                          xor rcx, rcx             
    666                                          .init_loop5:
    667 0000056B 4883F901                            cmp rcx, level5_blocks_count
    668 0000056F 7D18                                jge .done
    669 00000571 4889C8                              mov rax, rcx         
    670 00000574 48C1E002                            shl rax, 2          
-   671 00000578 8A90[2D150000]                      mov dl, byte [level5_blocks + rax + 3]  
-   672 0000057E 8891[2E150000]                      mov byte [block_states + rcx], dl
+   671 00000578 8A90[B9140000]                      mov dl, byte [level5_blocks + rax + 3]  
+   672 0000057E 8891[BA140000]                      mov byte [block_states + rcx], dl
    673 00000584 48FFC1                              inc rcx
    674 00000587 EBE2                                jmp .init_loop5
    675                                      .done:
@@ -845,27 +845,27 @@
    679                                  ; Función para verificar y manejar la transición de nivel
    680                                  check_level_complete:
    681                                      ; Verificar si quedan bloques
-   682 0000058A 803D(19150000)00            cmp byte [blocks_remaining], 0
+   682 0000058A 803D(A5140000)00            cmp byte [blocks_remaining], 0
    683 00000591 753C                        jne .not_complete
    684                                      
    685                                      ; Incrementar el nivel
-   686 00000593 FE05(18150000)              inc byte [current_level]
+   686 00000593 FE05(A4140000)              inc byte [current_level]
    687                                      
    688                                      ; Verificar si hemos completado todos los niveles (asumiendo 2 niveles por ahora)
-   689 00000599 803D(18150000)06            cmp byte [current_level], 6
+   689 00000599 803D(A4140000)06            cmp byte [current_level], 6
    690 000005A0 742E                        je game_win
    691                                      
    692                                      ; Reinicializar el juego para el siguiente nivel
    693 000005A2 E8B1FEFFFF                  call init_level
    694                                      
    695                                      ; Reinicializar la posición de la bola y la paleta
-   696 000005A7 48C705(CF140000)28-         mov qword [ball_x_pos], 40
+   696 000005A7 48C705(4F140000)28-         mov qword [ball_x_pos], 40
    696 000005AF 000000             
-   697 000005B2 48C705(D7140000)1C-         mov qword [ball_y_pos], 28
+   697 000005B2 48C705(57140000)1C-         mov qword [ball_y_pos], 28
    697 000005BA 000000             
-   698 000005BD C605(EF140000)00            mov byte [ball_moving], 0
-   699 000005C4 48C705(BF140000)-           mov qword [pallet_position], board + 40 + 29 * (column_cells + 2)
-   699 000005CB [B2130000]         
+   698 000005BD C605(6F140000)00            mov byte [ball_moving], 0
+   699 000005C4 48C705(3F140000)-           mov qword [pallet_position], board + 40 + 29 * (column_cells + 2)
+   699 000005CB [38130000]         
    700                                      
    701                                      .not_complete:
    702 000005CF C3                              ret
@@ -881,46 +881,46 @@
    712                                  
    713                                  ; Primero, agreguemos una función para obtener el puntero a los bloques del nivel actual
    714                                  get_current_level_blocks:
-   715 000005D5 803D(18150000)01            cmp byte [current_level], 1
+   715 000005D5 803D(A4140000)01            cmp byte [current_level], 1
    716 000005DC 7428                        je .level1
-   717 000005DE 803D(18150000)02            cmp byte [current_level], 2
+   717 000005DE 803D(A4140000)02            cmp byte [current_level], 2
    718 000005E5 7427                        je .level2
-   719 000005E7 803D(18150000)03            cmp byte [current_level], 3
+   719 000005E7 803D(A4140000)03            cmp byte [current_level], 3
    720 000005EE 7426                        je .level3
-   721 000005F0 803D(18150000)04            cmp byte [current_level], 4
+   721 000005F0 803D(A4140000)04            cmp byte [current_level], 4
    722 000005F7 7425                        je .level4
-   723 000005F9 803D(18150000)05            cmp byte [current_level], 5
+   723 000005F9 803D(A4140000)05            cmp byte [current_level], 5
    724 00000600 7424                        je .level5
    725                                      ; Si llegamos aquí, hay un error en el nivel
    726 00000602 4831C0                      xor rax, rax
    727 00000605 C3                          ret
    728                                  
    729                                      .level1:
-   730 00000606 488D05(1A150000)                lea rax, [level1_blocks]
+   730 00000606 488D05(A6140000)                lea rax, [level1_blocks]
    731 0000060D C3                              ret
    732                                      .level2:
-   733 0000060E 488D05(1E150000)                lea rax, [level2_blocks]
+   733 0000060E 488D05(AA140000)                lea rax, [level2_blocks]
    734 00000615 C3                              ret
    735                                      .level3:
-   736 00000616 488D05(22150000)                lea rax, [level3_blocks]
+   736 00000616 488D05(AE140000)                lea rax, [level3_blocks]
    737 0000061D C3                              ret
    738                                      .level4:
-   739 0000061E 488D05(26150000)                lea rax, [level4_blocks]
+   739 0000061E 488D05(B2140000)                lea rax, [level4_blocks]
    740 00000625 C3                              ret
    741                                      .level5:
-   742 00000626 488D05(2A150000)                lea rax, [level5_blocks]
+   742 00000626 488D05(B6140000)                lea rax, [level5_blocks]
    743 0000062D C3                              ret
    744                                  ; Función para obtener la cantidad de bloques del nivel actual
    745                                  get_current_level_count:
-   746 0000062E 803D(18150000)01            cmp byte [current_level], 1
+   746 0000062E 803D(A4140000)01            cmp byte [current_level], 1
    747 00000635 7428                        je .level1
-   748 00000637 803D(18150000)02            cmp byte [current_level], 2
+   748 00000637 803D(A4140000)02            cmp byte [current_level], 2
    749 0000063E 7425                        je .level2
-   750 00000640 803D(18150000)03            cmp byte [current_level], 3
+   750 00000640 803D(A4140000)03            cmp byte [current_level], 3
    751 00000647 7422                        je .level3
-   752 00000649 803D(18150000)04            cmp byte [current_level], 4
+   752 00000649 803D(A4140000)04            cmp byte [current_level], 4
    753 00000650 741F                        je .level4
-   754 00000652 803D(18150000)05            cmp byte [current_level], 5
+   754 00000652 803D(A4140000)05            cmp byte [current_level], 5
    755 00000659 741C                        je .level5
    756                                      ; Si llegamos aquí, hay un error en el nivel
    757 0000065B 4831C0                      xor rax, rax
@@ -963,7 +963,7 @@
    794                                          
    795                                          ; Verificar si el bloque está activo
    796 00000699 490FB68424-                     movzx rax, byte [block_states + r12]
-   796 0000069E [2E150000]         
+   796 0000069E [BA140000]         
    797 000006A2 4885C0                          test rax, rax
    798 000006A5 7456                            jz .next_block
    799                                          
@@ -975,17 +975,17 @@
    805                                          ; El resto de la lógica de impresión permanece igual
    806 000006B6 4D0FB6C0                        movzx r8, r8b
    807 000006BA 4D0FB6C9                        movzx r9, r9b
-   808 000006BE 4981C0[400A0000]                add r8, board
-   809 000006C5 B852000000                      mov rax, column_cells + 2
+   808 000006BE 4981C0[000A0000]                add r8, board
+   809 000006C5 B850000000                      mov rax, column_cells + 2
    810 000006CA 49F7E1                          mul r9
    811 000006CD 4901C0                          add r8, rax
    812                                          
-   813 000006D0 B904000000                      mov rcx, block_length
+   813 000006D0 B906000000                      mov rcx, block_length
    814 000006D5 48BE-                           mov rsi, block_type_1
-   814 000006D7 [0015000000000000] 
+   814 000006D7 [8014000000000000] 
    815 000006DF 490FB6C2                        movzx rax, r10b
    816 000006E3 48FFC8                          dec rax
-   817 000006E6 486BC004                        imul rax, block_length
+   817 000006E6 486BC006                        imul rax, block_length
    818 000006EA 4801C6                          add rsi, rax
    819                                          
    820                                      .print_block_chars:
@@ -1064,7 +1064,7 @@
    893 00000743 0F8D8C000000                    jge .no_block_found
    894                                  
    895                                          ; El resto de la lógica de verificación de colisiones...
-   896 00000749 418A9C24[2E150000]              mov bl, [block_states + r12]
+   896 00000749 418A9C24[BA140000]              mov bl, [block_states + r12]
    897 00000751 84DB                            test bl, bl
    898 00000753 7478                            jz .next_block
    899                                  
@@ -1080,9 +1080,9 @@
    909 00000767 49C1EC02                        shr r12, 2
    910                                  
    911                                          ; La misma lógica de detección de colisiones...
-   912 0000076B 488D3D(400A0000)                lea rdi, [board]
+   912 0000076B 488D3D(000A0000)                lea rdi, [board]
    913 00000772 4831C0                          xor rax, rax
-   914 00000775 B852000000                      mov rax, column_cells + 2
+   914 00000775 B850000000                      mov rax, column_cells + 2
    915 0000077A 480FB6C9                        movzx rcx, cl
    916 0000077E 480FAFC1                        imul rax, rcx
    917 00000782 4801C7                          add rdi, rax
@@ -1096,8 +1096,8 @@
    925 00000798 7333                            jae .next_block
    926                                  
    927                                          ; Manejo de colisión igual que antes...
-   928 0000079A 41FE8C24[2E150000]              dec byte [block_states + r12]
-   929 000007A2 418A9C24[2E150000]              mov bl, [block_states + r12]
+   928 0000079A 41FE8C24[BA140000]              dec byte [block_states + r12]
+   929 000007A2 418A9C24[BA140000]              mov bl, [block_states + r12]
    930 000007AA 84DB                            test bl, bl
    931 000007AC 7513                            jnz .still_alive
    932                                  
@@ -1107,7 +1107,7 @@
    936 000007B6 48FFC7                          inc rdi
    937 000007B9 E2F8                            loop .erase_block_chars
    938                                  
-   939 000007BB FE0D(19150000)                  dec byte [blocks_remaining]
+   939 000007BB FE0D(A5140000)                  dec byte [blocks_remaining]
    940                                  
    941                                      .still_alive:
    942 000007C1 B801000000                      mov rax, 1
@@ -1150,8 +1150,8 @@
     82 00000809 B801000000          <1>  mov eax, sys_write
     83 0000080E BF01000000          <1>  mov edi, 1
     84 00000813 48BE-               <1>  mov rsi, %1
-    84 00000815 [400A000000000000]  <1>
-    85 0000081D BA400A0000          <1>  mov edx, %2
+    84 00000815 [000A000000000000]  <1>
+    85 0000081D BA000A0000          <1>  mov edx, %2
     86 00000822 0F05                <1>  syscall
    979                                  		;setnonblocking	
    980                                  	.read_more:	
