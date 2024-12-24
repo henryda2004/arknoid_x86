@@ -228,6 +228,22 @@ right_direction: equ 1
 
 
 section .data
+
+; Mensajes para los niveles
+    level_msg: db "NIVEL "
+    level_msg_len: equ $ - level_msg
+    level_1_char: db "1"
+    level_2_char: db "2"
+    level_3_char: db "3"
+    level_4_char: db "4"
+    level_5_char: db "5"
+    level_char_len: equ 1
+
+    ; Timespec para la pausa del mensaje de nivel
+    level_display_time:
+        lvl_tv_sec dq 1           ; 1 segundo
+        lvl_tv_nsec dq 0
+        
 	pallet_position dq board + 40 + 29 * (column_cells +2)
 	pallet_size dq 3
 
@@ -495,8 +511,76 @@ move_ball:
 
 ; Función para inicializar el nivel
 ; Función para inicializar el nivel
+; Función para mostrar el número de nivel
+display_level_number:
+    push rbp
+    mov rbp, rsp
+    
+    ; Limpiar la pantalla primero
+    print clear, clear_length
+    
+    ; Calcular la posición central para el mensaje
+    ; Para el mensaje "NIVEL X", necesitamos centrar 7 caracteres
+    mov rax, column_cells
+    sub rax, 7                  ; longitud de "NIVEL X"
+    shr rax, 1                  ; dividir por 2 para centrar
+    
+    ; Calcular la fila central
+    mov rbx, row_cells
+    shr rbx, 1                  ; dividir por 2 para obtener la fila central
+    
+    ; Calcular el offset en el buffer
+    mov rcx, column_cells + 2   ; ancho total de una línea incluyendo newline
+    mul rbx                     ; multiplicar por la fila central
+    add rax, rbx                ; añadir el offset horizontal
+    
+    ; Escribir "NIVEL " en la posición calculada
+    lea rdi, [board + rax]
+    mov rsi, level_msg
+    mov rcx, level_msg_len
+    rep movsb
+    
+    ; Escribir el número del nivel
+    mov al, [current_level]
+    add al, '0'                 ; convertir a ASCII
+    mov [rdi], al
+    
+    ; Mostrar el board con el mensaje
+    print board, board_size
+    
+    ; Esperar un segundo
+    mov rax, sys_nanosleep
+    mov rdi, level_display_time
+    xor rsi, rsi
+    syscall
+    
+    pop rbp
+    ret
+
+; Función para inicializar un tablero vacío
+init_empty_board:
+    push rsi
+    push rdi
+    push rcx
+    push rax
+
+    lea rsi, [board_template]   ; Copiar la plantilla del tablero
+    lea rdi, [board]            ; Destino: el tablero actual
+    mov rcx, board_template_size
+    rep movsb                   ; Copiar el tablero
+
+    pop rax
+    pop rcx
+    pop rdi
+    pop rsi
+    ret
+
+
 init_level:
     ; 1) Copiamos board_template en board para que quede "virgen"
+    call init_empty_board
+    call display_level_number
+    
     push rsi
     push rdi
     push rcx
