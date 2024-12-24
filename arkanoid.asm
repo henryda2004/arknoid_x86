@@ -267,21 +267,16 @@ section .data
     ; Definición del nivel 1 (ejemplo con múltiples bloques)
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
-        ; Primera fila (tipo 1)
-        db 60, 3, 1, 1    ; Bloque 1s
-        db 65, 3, 1, 1    ; Bloque 2
-        db 70, 3, 1, 1    ; Bloque 3
-        
-        ; Segunda fila (tipo 2)
-        db 60, 5, 2, 1    ; Bloque 4
-        db 65, 5, 2, 1    ; Bloque 5
-        db 70, 5, 2, 1    ; Bloque 6
-        
         ; Tercera fila (tipo 3)
-        db 60, 7, 3, 2    ; Bloque 7
-        db 65, 7, 3, 2    ; Bloque 8
-        db 70, 7, 3, 2    ; Bloque 9
-    level1_blocks_count equ 9   ; Cantidad total de bloques
+        db 60, 7, 3, 1    ; Bloque 7
+    level1_blocks_count equ 1   ; Cantidad total de bloques
+
+    ; Nivel 2: Bloques de prueba
+    level2_blocks:
+        db 60, 7, 1, 2    ; Un bloque simple en el nivel 2
+        db 63, 9, 1, 2    ; Un bloque simple en el nivel 2
+    level2_blocks_count equ 2
+
 
     ; Array para mantener el estado de los bloques
     block_states: times 100 db 0  ; Durabilidad actual de cada bloque
@@ -503,54 +498,142 @@ init_level:
     pop rdi
     pop rsi
 
-    ; 2) blocks_remaining = 9
-    mov byte [blocks_remaining], level1_blocks_count
+    ; Verificar el nivel actual y cargar los bloques correspondientes
+    cmp byte [current_level], 1
+    je .level1
+    cmp byte [current_level], 2
+    je .level2
+    jmp .done
 
-    ; 3) Rellenar block_states con la durabilidad inicial
-    xor rcx, rcx             ; Contador para el loop
-    .init_loop:
-        cmp rcx, level1_blocks_count
-        jge .done
+    .level1:
+        mov byte [blocks_remaining], level1_blocks_count
+        xor rcx, rcx             
+        .init_loop1:
+            cmp rcx, level1_blocks_count
+            jge .done
+            mov rax, rcx         
+            shl rax, 2          
+            mov dl, byte [level1_blocks + rax + 3]  
+            mov byte [block_states + rcx], dl
+            inc rcx
+            jmp .init_loop1
 
-        ; Calcular el offset correcto para level1_blocks
-        mov rax, rcx         ; Preservar el contador
-        shl rax, 2          ; Multiplicar por 4 (cada bloque tiene 4 bytes)
-        
-        ; Obtener la durabilidad del bloque desde level1_blocks
-        mov dl, byte [level1_blocks + rax + 3]  ; Obtener durabilidad
-        
-        ; Guardar la durabilidad en block_states
-        mov byte [block_states + rcx], dl
-
-        inc rcx
-        jmp .init_loop
+    .level2:
+        mov byte [blocks_remaining], level2_blocks_count
+        xor rcx, rcx             
+        .init_loop2:
+            cmp rcx, level2_blocks_count
+            jge .done
+            mov rax, rcx         
+            shl rax, 2          
+            mov dl, byte [level2_blocks + rax + 3]  
+            mov byte [block_states + rcx], dl
+            inc rcx
+            jmp .init_loop2
 
     .done:
         ret
 
 
+; Función para verificar y manejar la transición de nivel
+check_level_complete:
+    ; Verificar si quedan bloques
+    cmp byte [blocks_remaining], 0
+    jne .not_complete
+    
+    ; Incrementar el nivel
+    inc byte [current_level]
+    
+    ; Verificar si hemos completado todos los niveles (asumiendo 2 niveles por ahora)
+    cmp byte [current_level], 3
+    je game_win
+    
+    ; Reinicializar el juego para el siguiente nivel
+    call init_level
+    
+    ; Reinicializar la posición de la bola y la paleta
+    mov qword [ball_x_pos], 40
+    mov qword [ball_y_pos], 28
+    mov byte [ball_moving], 0
+    mov qword [pallet_position], board + 40 + 29 * (column_cells + 2)
+    
+    .not_complete:
+        ret
 
+    ; Nueva función para manejar la victoria del juego
+    game_win:
+        ; Aquí puedes agregar lógica para mostrar un mensaje de victoria
+        ; y terminar el juego o reiniciarlo
+        jmp exit
 
 ; Función para imprimir los bloques
 ; Función modificada para imprimir bloques
+
+; Primero, agreguemos una función para obtener el puntero a los bloques del nivel actual
+get_current_level_blocks:
+    cmp byte [current_level], 1
+    je .level1
+    cmp byte [current_level], 2
+    je .level2
+    ; Si llegamos aquí, hay un error en el nivel
+    xor rax, rax
+    ret
+
+    .level1:
+        lea rax, [level1_blocks]
+        ret
+
+    .level2:
+        lea rax, [level2_blocks]
+        ret
+
+; Función para obtener la cantidad de bloques del nivel actual
+get_current_level_count:
+    cmp byte [current_level], 1
+    je .level1
+    cmp byte [current_level], 2
+    je .level2
+    ; Si llegamos aquí, hay un error en el nivel
+    xor rax, rax
+    ret
+
+    .level1:
+        mov rax, level1_blocks_count
+        ret
+
+    .level2:
+        mov rax, level2_blocks_count
+        ret
+
 print_blocks:
-    xor r12, r12               ; Índice del bloque actual
+    push rbp
+    mov rbp, rsp
+    
+    ; Obtener puntero a los bloques del nivel actual
+    call get_current_level_blocks
+    mov r13, rax                  ; Guardar puntero a los bloques en r13
+    
+    ; Obtener cantidad de bloques del nivel actual
+    call get_current_level_count
+    mov r14, rax                  ; Guardar cantidad de bloques en r14
+    
+    xor r12, r12                  ; Índice del bloque actual
     
     .print_loop:
-        cmp r12, level1_blocks_count
+        cmp r12, r14                  ; Usar r14 en lugar de level1_blocks_count
         jge .end
         
         ; Verificar si el bloque está activo
         movzx rax, byte [block_states + r12]
         test rax, rax
-        jz .next_block             ; Si durabilidad es 0, bloque destruido
+        jz .next_block
         
-        ; Obtener posición y tipo del bloque
-        mov r8b, [level1_blocks + r12 * 4]     ; X position
-        mov r9b, [level1_blocks + r12 * 4 + 1] ; Y position
-        mov r10b, [level1_blocks + r12 * 4 + 2]; Tipo de bloque
+        ; Obtener posición y tipo del bloque usando r13
+        mov r8b, [r13 + r12 * 4]      ; X position
+        mov r9b, [r13 + r12 * 4 + 1]  ; Y position
+        mov r10b, [r13 + r12 * 4 + 2] ; Tipo de bloque
         
-        ; Calcular posición en el tablero
+        ; El resto de la lógica de impresión permanece igual
         movzx r8, r8b
         movzx r9, r9b
         add r8, board
@@ -558,17 +641,16 @@ print_blocks:
         mul r9
         add r8, rax
         
-        ; Imprimir el bloque según su tipo
-        mov rcx, block_length      ; Longitud del bloque (4 caracteres)
-        mov rsi, block_type_1      ; Dirección base de los tipos de bloques
+        mov rcx, block_length
+        mov rsi, block_type_1
         movzx rax, r10b
-        dec rax                    ; Ajustar índice (tipos empiezan en 1)
-        imul rax, block_length     ; Calcular offset al tipo correcto
-        add rsi, rax               ; rsi apunta al tipo de bloque correcto
+        dec rax
+        imul rax, block_length
+        add rsi, rax
         
     .print_block_chars:
-        mov al, [rsi]             ; Obtener carácter del bloque
-        mov [r8], al              ; Colocarlo en el tablero
+        mov al, [rsi]
+        mov [r8], al
         inc rsi
         inc r8
         dec rcx
@@ -579,6 +661,7 @@ print_blocks:
         jmp .print_loop
         
     .end:
+        pop rbp
         ret
 
 
@@ -596,13 +679,14 @@ print_blocks:
 ;--------------------------------------
 ; check_block_collision
 ;--------------------------------------
+; Actualizar check_block_collision para usar el nivel actual
 check_block_collision:
     push rbp
     mov rbp, rsp
 
-    mov al, [r10] ; leer caracter de board[r10]
+    mov al, [r10]
 
-    ; Checar si es 'U','O','D','L','V','8'
+    ; Verificación de caracteres igual que antes...
     cmp al, 'U'  
     je .possible
     cmp al, 'O'  
@@ -616,40 +700,46 @@ check_block_collision:
     cmp al, '8'  
     je .possible
 
-    ; Si no coincide
     xor rax, rax
     pop rbp
     ret
 
     .possible:
-        ; Buscar cuál de los blocks del level1_blocks coincide
         push rbx
         push rdi
         push rsi
         push r12
 
+        ; Obtener puntero a los bloques del nivel actual
+        call get_current_level_blocks
+        mov r13, rax                  ; Guardar puntero a los bloques
+        
+        ; Obtener cantidad de bloques del nivel actual
+        call get_current_level_count
+        mov r14, rax                  ; Guardar cantidad de bloques
+
         xor r12, r12
     .find_block_loop:
-        cmp r12, level1_blocks_count
+        cmp r12, r14                  ; Usar r14 en lugar de level1_blocks_count
         jge .no_block_found
 
-        ; Ver si el block_states[r12] > 0
+        ; El resto de la lógica de verificación de colisiones...
         mov bl, [block_states + r12]
         test bl, bl
-        jz .next_block ; si 0 => bloque destruido
+        jz .next_block
 
-        ; leer x,y
-        mov rax, level1_blocks
+        ; Usar r13 para acceder a los bloques del nivel actual
+        mov rax, r13
         imul r12, 4
         add rax, r12
         mov dl, [rax]       ; x
         mov cl, [rax+1]     ; y
 
-        ; revertir r12
+        ; Revertir r12
         mov r12, r12
         shr r12, 2
 
-        ; base_dir = board + y*(col+2) + x
+        ; La misma lógica de detección de colisiones...
         lea rdi, [board]
         xor rax, rax
         mov rax, column_cells + 2
@@ -659,36 +749,28 @@ check_block_collision:
         movzx rax, dl
         add rdi, rax
 
-        ; checar si r10 esta en [rdi..rdi+3]
         cmp r10, rdi
         jb .next_block
         lea rbx, [rdi + 4]
         cmp r10, rbx
         jae .next_block
 
-        ; Si llegamos aqui => colisión con el bloque r12
-        ; 1) Decrementar su durabilidad
+        ; Manejo de colisión igual que antes...
         dec byte [block_states + r12]
-
-        ; 2) Leer valor actualizado
         mov bl, [block_states + r12]
         test bl, bl
-        jnz .still_alive   ; si no es 0, no se borra todavía
+        jnz .still_alive
 
-        ; si llegó a 0 => borrar (poner 4 espacios)
         mov rcx, 4
     .erase_block_chars:
         mov byte [rdi], char_space
         inc rdi
         loop .erase_block_chars
 
-        ; blocks_remaining--
         dec byte [blocks_remaining]
 
     .still_alive:
-        ; Retornar 1 => colisión
         mov rax, 1
-
         pop r12
         pop rsi
         pop rdi
@@ -722,6 +804,7 @@ _start:
 		call print_pallet
         call move_ball
         call print_blocks
+        call check_level_complete
 		call print_ball
 		print board, board_size				
 		;setnonblocking	
@@ -759,9 +842,6 @@ _start:
 			print clear, clear_length
     		jmp .main_loop
 
-		print clear, clear_length
-		
-		jmp exit
 
 
 start_screen:
