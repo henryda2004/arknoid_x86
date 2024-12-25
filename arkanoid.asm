@@ -331,10 +331,10 @@ section .data
     
     enemy_points dq 50              ; Puntos por destruir un enemigo
     enemy_move_counter db 0         ; Contador para controlar velocidad de movimiento
-    enemy_move_delay db 2           ; Mover enemigos cada N ciclos
+    enemy_move_delay db 3           ; Mover enemigos cada N ciclos
     enemy_move_total db 0      ; Contador total de movimientos
     enemy_target db 0          ; 0 = persigue bola, 1 = persigue paleta
-    MOVEMENT_THRESHOLD db 70   ; Número de movimientos antes de cambiar objetivo
+    MOVEMENT_THRESHOLD db 20   ; Número de movimientos antes de cambiar objetivo
 
 section .text
 
@@ -1206,28 +1206,66 @@ move_enemies:
         jmp .check_collision
         
     .chase_paddle:
-        ; Calcular posición central de la paleta
+        ; Obtener la posición X actual de la paleta
         mov r10, [pallet_position]
-        sub r10, board
-        mov rbx, column_cells
-        add rbx, 2
-        xor rdx, rdx
+        sub r10, board              ; Convertir a offset relativo
+        
+        ; Calcular la posición X real de la paleta
         mov rax, r10
-        div rbx                    ; rdx ahora tiene la X de la paleta
+        mov rbx, column_cells
+        add rbx, 2                  ; Añadir newline chars
+        xor rdx, rdx
+        div rbx                     ; rax = y, rdx = x
         
-        ; Comparar con posición X del enemigo
+        ; rdx ahora contiene la posición X de la paleta
+        ; Añadir la mitad del tamaño de la paleta para apuntar al centro
+        mov rcx, [pallet_size]
+        shr rcx, 1                  ; Dividir por 2
+        add rdx, rcx
+        
+        ; Comparar con posición X del enemigo y mover gradualmente
         cmp r8, rdx
-        jg .move_left
-        jl .move_right
-        
-        ; Mover hacia la Y de la paleta
+        je .check_y_paddle          ; Si está en la misma X, verificar Y
+        jg .move_left              ; Si está a la derecha, mover izquierda
+        jl .move_right             ; Si está a la izquierda, mover derecha
+
+    .check_y_paddle:
+        ; La Y de la paleta siempre es row_cells - 2
         mov r10, row_cells
-        sub r10, 2                 ; Y de la paleta
+        sub r10, 2
+        
+        ; Comparar con posición Y del enemigo y mover gradualmente
         cmp r9, r10
-        jg .move_up
-        jl .move_down
+        je .no_movement            ; Si está en la misma Y, no mover
+        jg .move_up               ; Si está abajo, mover arriba
+        jl .move_down             ; Si está arriba, mover abajo
+        
+    .no_movement:
+        jmp .check_collision
+
+    ; También agregar una nueva sección para el movimiento suave
+    .smooth_transition:
+        ; Si el enemigo está muy lejos de su objetivo, limitar el movimiento
+        mov al, [enemy_target]
+        test al, al
+        jz .check_collision        ; Si persigue la bola, movimiento normal
+        
+        ; Verificar distancia en X
+        mov r10, rdx              ; Posición X objetivo
+        sub r10, r8               ; Calcular diferencia
+        cmp r10, 5               ; Si la diferencia es mayor a 5
+        jg .limit_right_movement  ; Limitar movimiento a la derecha
+        cmp r10, -5              ; Si la diferencia es menor a -5
+        jl .limit_left_movement   ; Limitar movimiento a la izquierda
         jmp .check_collision
         
+    .limit_right_movement:
+        add r8, 2                ; Mover solo 2 unidades a la derecha
+        jmp .check_collision
+        
+    .limit_left_movement:
+        sub r8, 2                ; Mover solo 2 unidades a la izquierda
+        jmp .check_collision
     .move_left:
         dec r8
         jmp .check_vertical
