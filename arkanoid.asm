@@ -323,6 +323,16 @@ section .data
     ; Buffer para convertir números a string
     number_buffer: times 20 db 0
 
+    enemy_chars db "@", "#", "$", "&", "@"    ; El nivel 1 y 5 comparten el mismo caracter (@)
+    
+    ; Estructura para los enemigos (x, y, activo)
+    enemies: times 5 * 3 db 0     ; Máximo 5 enemigos, cada uno con 3 bytes (x, y, activo)
+    enemies_count db 2            ; Cantidad de enemigos activos
+    
+    enemy_points dq 50              ; Puntos por destruir un enemigo
+    enemy_move_counter db 0         ; Contador para controlar velocidad de movimiento
+    enemy_move_delay db 3           ; Mover enemigos cada N ciclos
+
 section .text
 
 ;	Function: print_ball
@@ -593,6 +603,7 @@ init_level:
     mov byte [destroyed_blocks], 0 
     call init_empty_board
     call display_level_number
+    call init_enemies
     
     push rsi
     push rdi
@@ -1082,12 +1093,320 @@ check_block_collision:
         pop rbp
         ret
 
+init_enemies:
+    push rbp
+    mov rbp, rsp
+    
+    ; Limpiar estado previo de enemigos
+    mov rcx, 15                     ; 5 enemigos * 3 bytes
+    lea rdi, [enemies]
+    xor al, al
+    rep stosb
+    
+    ; Configurar enemigo según el nivel actual
+    movzx rcx, byte [current_level]
+    dec rcx                         ; Ajustar para índice base 0
+    
+    ; Activar un enemigo
+    lea rdi, [enemies]
+    
+    ; Posición X inicial (centro de la pantalla)
+    mov byte [rdi], 40
+    
+    ; Posición Y inicial (cerca de la parte superior)
+    mov byte [rdi + 1], 5
+    
+    ; Marcar como activo
+    mov byte [rdi + 2], 1
+    
+    ; Establecer cantidad de enemigos activos
+    mov byte [enemies_count], 1
+    
+    pop rbp
+    ret
 
+; Función para mover enemigos
+move_enemies:
+    push rbp
+    mov rbp, rsp
+    
+    ; Control de velocidad de movimiento
+    inc byte [enemy_move_counter]
+    mov al, [enemy_move_counter]
+    cmp al, [enemy_move_delay]
+    jl .end
+    
+    ; Resetear contador
+    mov byte [enemy_move_counter], 0
+    
+    ; Iterar sobre enemigos
+    xor r12, r12                    ; Índice del enemigo
+    
+    .enemy_loop:
+        cmp r12, 5                      ; Máximo 5 enemigos
+        jge .end
+        
+        ; Calcular offset del enemigo actual
+        mov rax, r12
+        imul rax, 3                     ; Cada enemigo ocupa 3 bytes
+        lea rsi, [enemies + rax]
+        
+        ; Verificar si el enemigo está activo
+        cmp byte [rsi + 2], 1
+        jne .next_enemy
+        
+        ; Obtener posición actual del enemigo
+        movzx r8, byte [rsi]            ; X
+        movzx r9, byte [rsi + 1]        ; Y
+        
+        ; Borrar posición actual del enemigo en el tablero
+        push r8                         ; Guardar coordenadas actuales
+        push r9
+        
+        ; Calcular offset en el tablero para borrar
+        mov rax, column_cells
+        add rax, 2                      ; Incluir caracteres de nueva línea
+        mul r9
+        add rax, r8
+        lea rdi, [board + rax]
+        mov byte [rdi], ' '             ; Borrar posición actual
+        
+        pop r9                          ; Restaurar coordenadas
+        pop r8
+        
+        ; Calcular dirección hacia la bola
+        mov r10, [ball_x_pos]
+        cmp r8, r10
+        jg .move_left
+        jl .move_right
+        
+        ; Movimiento vertical
+        mov r10, [ball_y_pos]
+        cmp r9, r10
+        jg .move_up
+        jl .move_down
+        jmp .check_collision
+        
+    .move_left:
+        dec r8
+        jmp .check_vertical
+        
+    .move_right:
+        inc r8
+        jmp .check_vertical
+        
+    .move_up:
+        dec r9
+        jmp .check_collision
+        
+    .move_down:
+        inc r9
+        jmp .check_collision
+        
+    .check_vertical:
+        mov r10, [ball_y_pos]
+        cmp r9, r10
+        jg .move_up
+        jl .move_down
+        
+    .check_collision:
+        ; Verificar colisión con bordes
+        cmp r8, 1                       ; Borde izquierdo
+        jle .next_enemy
+        cmp r8, column_cells
+        jge .next_enemy
+        cmp r9, 1                       ; Borde superior
+        jle .next_enemy
+        cmp r9, row_cells
+        jge .next_enemy
+        
+        ; Verificar colisión con bloques antes de moverse
+        push r8
+        push r9
+        push r10
+        
+        ; Calcular posición en el tablero para verificar
+        mov rax, column_cells
+        add rax, 2
+        mul r9
+        add rax, r8
+        lea r10, [board + rax]
+        
+        ; Verificar si hay un bloque en la nueva posición
+        mov al, [r10]
+        cmp al, 'U'
+        je .invalid_move
+        cmp al, 'O'
+        je .invalid_move
+        cmp al, 'D'
+        je .invalid_move
+        cmp al, 'L'
+        je .invalid_move
+        cmp al, 'V'
+        je .invalid_move
+        cmp al, '8'
+        je .invalid_move
+        cmp al, 'X'
+        je .invalid_move
+        
+        pop r10
+        pop r9
+        pop r8
+        
+        ; Guardar nueva posición si es válida
+        mov [rsi], r8b
+        mov [rsi + 1], r9b
+        jmp .next_enemy
+        
+    .invalid_move:
+        pop r10
+        pop r9
+        pop r8
+        
+    .next_enemy:
+        inc r12
+        jmp .enemy_loop
+        
+    .end:
+        pop rbp
+        ret
+
+; Función para dibujar enemigos
+print_enemies:
+    push rbp
+    mov rbp, rsp
+    
+    xor r12, r12                    ; Índice del enemigo
+    
+    .print_loop:
+        cmp r12, 5                      ; Máximo 5 enemigos
+        jge .end
+        
+        ; Calcular offset del enemigo actual
+        mov rax, r12
+        imul rax, 3                     ; Cada enemigo ocupa 3 bytes
+        lea rsi, [enemies + rax]
+        
+        ; Verificar si el enemigo está activo
+        cmp byte [rsi + 2], 1
+        jne .next_enemy
+        
+        ; Calcular posición en el tablero
+        movzx r8, byte [rsi]            ; X
+        movzx r9, byte [rsi + 1]        ; Y
+        
+        ; Calcular offset en el tablero
+        mov rax, column_cells
+        add rax, 2                      ; Incluir caracteres de nueva línea
+        mul r9
+        add rax, r8
+        lea rdi, [board + rax]
+        
+        ; Obtener carácter del enemigo según el nivel
+        movzx rax, byte [current_level]
+        dec rax                         ; Ajustar para índice base 0
+        mov al, [enemy_chars + rax]
+        
+        ; Dibujar enemigo
+        mov [rdi], al
+        
+    .next_enemy:
+        inc r12
+        jmp .print_loop
+        
+    .end:
+        pop rbp
+        ret
+
+; Función para verificar colisión con enemigos
+check_enemy_collision:
+    push rbp
+    mov rbp, rsp
+    
+    xor r12, r12                    ; Índice del enemigo
+    xor rax, rax                    ; Valor de retorno (0 = no colisión)
+    
+    .check_loop:
+        cmp r12, 5                      ; Máximo 5 enemigos
+        jge .end
+        
+        ; Calcular offset del enemigo actual
+        mov rcx, r12
+        imul rcx, 3                     ; Cada enemigo ocupa 3 bytes
+        lea rsi, [enemies + rcx]
+        
+        ; Verificar si el enemigo está activo
+        cmp byte [rsi + 2], 1
+        jne .next_enemy
+        
+        ; Verificar colisión con la bola
+        movzx r8, byte [rsi]            ; X enemigo
+        movzx r9, byte [rsi + 1]        ; Y enemigo
+        
+        mov r10, [ball_x_pos]
+        mov r11, [ball_y_pos]
+        
+        ; Verificar si las coordenadas coinciden
+        cmp r8, r10
+        jne .check_paddle
+        cmp r9, r11
+        jne .check_paddle
+        
+        ; Colisión con la bola detectada
+        call destroy_enemy
+        mov rax, 1                      ; Indicar colisión
+        jmp .end
+        
+    .check_paddle:
+        ; Verificar colisión con la paleta
+        mov r10, [pallet_position]
+        sub r10, board
+        mov r11, column_cells
+        add r11, 2
+        xor rdx, rdx
+        div r11
+        mov r11, rdx                    ; X de la paleta
+        
+        cmp r8, r11
+        jl .next_enemy
+        
+        mov rcx, [pallet_size]
+        add r11, rcx
+        cmp r8, r11
+        jg .next_enemy
+        
+        mov r11, row_cells
+        sub r11, 2                      ; Y de la paleta
+        cmp r9, r11
+        jne .next_enemy
+        
+        ; Colisión con la paleta detectada
+        call destroy_enemy
+        
+    .next_enemy:
+        inc r12
+        jmp .check_loop
+        
+    .end:
+        pop rbp
+        ret
+
+; Función para destruir un enemigo
+destroy_enemy:
+    ; Desactivar enemigo
+    mov byte [rsi + 2], 0
+    
+    ; Sumar puntos
+    mov rax, [enemy_points]
+    add [current_score], rax
+    
+    ret
 
 _start:
 	call canonical_off
 	call start_screen
     call init_level
+    call init_enemies
 	jmp .main_loop
 	
 
@@ -1097,6 +1416,9 @@ _start:
         call move_ball
         call print_blocks
         call check_level_complete
+        call move_enemies
+        call check_enemy_collision
+        call print_enemies
 		call print_ball
 		print board, board_size				
 		;setnonblocking	
