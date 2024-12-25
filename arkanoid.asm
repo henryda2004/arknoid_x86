@@ -282,9 +282,9 @@ section .data
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
-        level1_blocks:
+    level1_blocks:
         ; Tercera fila (tipo 3)
-        db 56, 7, 3, 1    ; Bloque 7
+        db 56, 7, 3, 2    ; Bloque 7
     level1_blocks_count equ 1   ; Cantidad total de bloques
 
     ; Nivel 2: Bloques de prueba
@@ -331,7 +331,10 @@ section .data
     
     enemy_points dq 50              ; Puntos por destruir un enemigo
     enemy_move_counter db 0         ; Contador para controlar velocidad de movimiento
-    enemy_move_delay db 3           ; Mover enemigos cada N ciclos
+    enemy_move_delay db 2           ; Mover enemigos cada N ciclos
+    enemy_move_total db 0      ; Contador total de movimientos
+    enemy_target db 0          ; 0 = persigue bola, 1 = persigue paleta
+    MOVEMENT_THRESHOLD db 70   ; Número de movimientos antes de cambiar objetivo
 
 section .text
 
@@ -1096,7 +1099,9 @@ check_block_collision:
 init_enemies:
     push rbp
     mov rbp, rsp
-    
+    ; Reiniciar contadores de movimiento
+    mov byte [enemy_move_total], 0
+    mov byte [enemy_target], 0      ; Inicialmente persigue la bola
     ; Limpiar estado previo de enemigos
     mov rcx, 15                     ; 5 enemigos * 3 bytes
     lea rdi, [enemies]
@@ -1139,9 +1144,17 @@ move_enemies:
     ; Resetear contador
     mov byte [enemy_move_counter], 0
     
-    ; Iterar sobre enemigos
-    xor r12, r12                    ; Índice del enemigo
+    ; Incrementar contador total de movimientos y verificar umbral
+    inc byte [enemy_move_total]
+    mov al, [enemy_move_total]
+    cmp al, [MOVEMENT_THRESHOLD]
+    jl .continue_normal
+    mov byte [enemy_target], 1    ; Cambiar a perseguir paleta
     
+    .continue_normal:
+        ; Iterar sobre enemigos
+        xor r12, r12                    ; Índice del enemigo
+        
     .enemy_loop:
         cmp r12, 5                      ; Máximo 5 enemigos
         jge .end
@@ -1174,14 +1187,42 @@ move_enemies:
         pop r9                          ; Restaurar coordenadas
         pop r8
         
-        ; Calcular dirección hacia la bola
+        ; Decidir objetivo basado en enemy_target
+        mov al, [enemy_target]
+        test al, al
+        jnz .chase_paddle              ; Si es 1, perseguir paleta
+        
+        ; Perseguir bola (comportamiento original)
+    .chase_ball:
         mov r10, [ball_x_pos]
         cmp r8, r10
         jg .move_left
         jl .move_right
         
-        ; Movimiento vertical
         mov r10, [ball_y_pos]
+        cmp r9, r10
+        jg .move_up
+        jl .move_down
+        jmp .check_collision
+        
+    .chase_paddle:
+        ; Calcular posición central de la paleta
+        mov r10, [pallet_position]
+        sub r10, board
+        mov rbx, column_cells
+        add rbx, 2
+        xor rdx, rdx
+        mov rax, r10
+        div rbx                    ; rdx ahora tiene la X de la paleta
+        
+        ; Comparar con posición X del enemigo
+        cmp r8, rdx
+        jg .move_left
+        jl .move_right
+        
+        ; Mover hacia la Y de la paleta
+        mov r10, row_cells
+        sub r10, 2                 ; Y de la paleta
         cmp r9, r10
         jg .move_up
         jl .move_down
@@ -1204,7 +1245,10 @@ move_enemies:
         jmp .check_collision
         
     .check_vertical:
-        mov r10, [ball_y_pos]
+        mov al, [enemy_target]
+        test al, al
+        jnz .chase_paddle         ; Si persigue paleta, volver a su lógica
+        mov r10, [ball_y_pos]     ; Si no, seguir persiguiendo la bola
         cmp r9, r10
         jg .move_up
         jl .move_down
@@ -1363,49 +1407,55 @@ check_enemy_collision:
         mov rax, 1
         jmp .end
         
-        .check_horizontal:
-            ; Comprobar colisión horizontal (misma fila)
-            mov r10, [ball_x_pos]
-            mov r11, [ball_y_pos]
-            cmp r11, r9
-            jne .check_paddle
-            sub r10, r8
-            cmp r10, 1
-            jg .check_paddle
-            cmp r10, -1
-            jl .check_paddle
-            
-            ; Colisión horizontal detectada
-            call destroy_enemy
-            neg qword [ball_direction_x]    ; Invertir dirección horizontal
-            mov rax, 1
-            jmp .end
+    .check_horizontal:
+        ; Comprobar colisión horizontal (misma fila)
+        mov r10, [ball_x_pos]
+        mov r11, [ball_y_pos]
+        cmp r11, r9
+        jne .check_paddle
+        sub r10, r8
+        cmp r10, 1
+        jg .check_paddle
+        cmp r10, -1
+        jl .check_paddle
+        
+        ; Colisión horizontal detectada
+        call destroy_enemy
+        neg qword [ball_direction_x]    ; Invertir dirección horizontal
+        mov rax, 1
+        jmp .end
         
     .check_paddle:
         ; Verificar colisión con la paleta
         mov r10, [pallet_position]
         sub r10, board
+        mov rax, r10
         mov r11, column_cells
         add r11, 2
         xor rdx, rdx
-        div r11
-        mov r11, rdx                    ; X de la paleta
+        div r11                     ; División para obtener la posición Y
+        mov r11, rdx               ; X de la paleta en r11
         
-        cmp r8, r11
-        jl .next_enemy
+        mov rcx, [pallet_size]     ; Obtener el tamaño de la paleta
         
-        mov rcx, [pallet_size]
-        add r11, rcx
-        cmp r8, r11
-        jg .next_enemy
-        
-        mov r11, row_cells
-        sub r11, 2                      ; Y de la paleta
-        cmp r9, r11
+        ; Verificar si el enemigo está en la misma fila que la paleta
+        mov r13, row_cells
+        sub r13, 2                 ; Y de la paleta
+        cmp r9, r13               ; Comparar Y del enemigo con Y de la paleta
         jne .next_enemy
         
-        ; Colisión con la paleta detectada
-        call destroy_enemy
+        ; Verificar si el enemigo está dentro del rango X de la paleta
+        cmp r8, r11               ; Comparar X del enemigo con X inicial de la paleta
+        jl .next_enemy
+        
+        add r11, rcx              ; Añadir el tamaño de la paleta
+        cmp r8, r11               ; Comparar X del enemigo con X final de la paleta
+        jg .next_enemy
+        
+        ; Si llegamos aquí, hay colisión con la paleta
+        call destroy_enemy        ; Destruir el enemigo
+        mov rax, 1                ; Indicar que hubo colisión
+        jmp .end
         
     .next_enemy:
         inc r12
