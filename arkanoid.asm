@@ -1319,6 +1319,7 @@ print_enemies:
         ret
 
 ; Función para verificar colisión con enemigos
+; Función para verificar colisión con enemigos
 check_enemy_collision:
     push rbp
     mov rbp, rsp
@@ -1343,19 +1344,42 @@ check_enemy_collision:
         movzx r8, byte [rsi]            ; X enemigo
         movzx r9, byte [rsi + 1]        ; Y enemigo
         
+        ; Verificar si la bola está en el rango del enemigo (considerando el enemigo como un área)
         mov r10, [ball_x_pos]
         mov r11, [ball_y_pos]
         
-        ; Verificar si las coordenadas coinciden
-        cmp r8, r10
-        jne .check_paddle
-        cmp r9, r11
-        jne .check_paddle
+        ; Comprobar colisión vertical (misma columna)
+        cmp r10, r8
+        jne .check_horizontal
+        sub r11, r9
+        cmp r11, 1
+        jg .check_horizontal
+        cmp r11, -1
+        jl .check_horizontal
         
-        ; Colisión con la bola detectada
+        ; Colisión vertical detectada
         call destroy_enemy
-        mov rax, 1                      ; Indicar colisión
+        neg qword [ball_direction_y]    ; Invertir dirección vertical
+        mov rax, 1
         jmp .end
+        
+        .check_horizontal:
+            ; Comprobar colisión horizontal (misma fila)
+            mov r10, [ball_x_pos]
+            mov r11, [ball_y_pos]
+            cmp r11, r9
+            jne .check_paddle
+            sub r10, r8
+            cmp r10, 1
+            jg .check_paddle
+            cmp r10, -1
+            jl .check_paddle
+            
+            ; Colisión horizontal detectada
+            call destroy_enemy
+            neg qword [ball_direction_x]    ; Invertir dirección horizontal
+            mov rax, 1
+            jmp .end
         
     .check_paddle:
         ; Verificar colisión con la paleta
