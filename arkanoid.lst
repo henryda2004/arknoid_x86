@@ -1363,10 +1363,10 @@
   1116 00000A17 488D3D(5D150000)            lea rdi, [enemies]
   1117                                      
   1118                                      ; Posición X inicial (centro de la pantalla)
-  1119 00000A1E C60728                      mov byte [rdi], 40
+  1119 00000A1E C60704                      mov byte [rdi], 4
   1120                                      
   1121                                      ; Posición Y inicial (cerca de la parte superior)
-  1122 00000A21 C6470105                    mov byte [rdi + 1], 5
+  1122 00000A21 C6470101                    mov byte [rdi + 1], 1
   1123                                      
   1124                                      ; Marcar como activo
   1125 00000A25 C6470201                    mov byte [rdi + 2], 1

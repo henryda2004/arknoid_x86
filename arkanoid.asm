@@ -1116,10 +1116,10 @@ init_enemies:
     lea rdi, [enemies]
     
     ; Posición X inicial (centro de la pantalla)
-    mov byte [rdi], 40
+    mov byte [rdi], 4
     
     ; Posición Y inicial (cerca de la parte superior)
-    mov byte [rdi + 1], 5
+    mov byte [rdi + 1], 1
     
     ; Marcar como activo
     mov byte [rdi + 2], 1
