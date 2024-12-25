@@ -284,10 +284,8 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
         level1_blocks:
         ; Tercera fila (tipo 3)
-        db 60, 6, 3, 1    ; Bloque 7
         db 56, 7, 3, 1    ; Bloque 7
-        db 60, 9, 1, 1    ; Bloque 7
-    level1_blocks_count equ 3   ; Cantidad total de bloques
+    level1_blocks_count equ 1   ; Cantidad total de bloques
 
     ; Nivel 2: Bloques de prueba
     level2_blocks:
@@ -717,10 +715,34 @@ check_level_complete:
         ret
 
     ; Nueva función para manejar la victoria del juego
-    game_win:
-        ; Aquí puedes agregar lógica para mostrar un mensaje de victoria
-        ; y terminar el juego o reiniciarlo
-        jmp exit
+game_win:
+    ; Limpiar la pantalla primero
+    print clear, clear_length
+    
+    ; Mensaje de victoria
+    mov rax, [current_score]    ; Obtener el puntaje final
+    mov rdi, number_buffer      ; Convertir a string
+    call number_to_string
+    
+    ; Definir mensaje de victoria
+    section .data
+        win_msg: db "¡Felicidades! ¡Has ganado!", 0xA, 0xD
+        win_msg_len: equ $ - win_msg
+        score_msg: db "Puntaje final: "
+        score_msg_len: equ $ - score_msg
+    section .text
+    
+    ; Imprimir mensajes
+    print win_msg, win_msg_len
+    print score_msg, score_msg_len
+    print number_buffer, 20
+    
+    ; Esperar un momento antes de salir
+    mov qword [timespec + 0], 2    ; 2 segundos
+    mov qword [timespec + 8], 0    ; 0 nanosegundos
+    sleeptime
+    
+    jmp exit
 
 ; Función para imprimir los bloques
 ; Función modificada para imprimir bloques
