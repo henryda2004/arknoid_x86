@@ -280,12 +280,14 @@ section .data
     current_level db 1
     blocks_remaining db 0
 
-    ; Definición del nivel 1 (ejemplo con múltiples bloques)
+    ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 56, 7, 3, 2    ; Bloque 7
-    level1_blocks_count equ 1   ; Cantidad total de bloques
+        db 56, 7, 3, 1    ; Bloque 7
+        db 20, 7, 3, 1    ; Bloque 7
+        db 30, 7, 3, 1    ; Bloque 7
+    level1_blocks_count equ 3   ; Cantidad total de bloques
 
     ; Nivel 2: Bloques de prueba
     level2_blocks:
@@ -326,15 +328,35 @@ section .data
     enemy_chars db "@", "#", "$", "&", "@"    ; El nivel 1 y 5 comparten el mismo caracter (@)
     
     ; Estructura para los enemigos (x, y, activo)
-    enemies: times 5 * 3 db 0     ; Máximo 5 enemigos, cada uno con 3 bytes (x, y, activo)
-    enemies_count db 2            ; Cantidad de enemigos activos
+    enemies: times 10 * 3 db 0     ; Máximo 5 enemigos, cada uno con 3 bytes (x, y, activo)
+    enemies_count db 10            ; Cantidad de enemigos activos
     
     enemy_points dq 50              ; Puntos por destruir un enemigo
     enemy_move_counter db 0         ; Contador para controlar velocidad de movimiento
-    enemy_move_delay db 3           ; Mover enemigos cada N ciclos
+    enemy_move_delay db 1           ; Mover enemigos cada N ciclos
     enemy_move_total db 0      ; Contador total de movimientos
     enemy_target db 0          ; 0 = persigue bola, 1 = persigue paleta
     MOVEMENT_THRESHOLD db 20   ; Número de movimientos antes de cambiar objetivo
+ ;Formato: número de bloques destruidos necesario para que aparezca cada enemigo
+    ; Añade esto en la sección .dataa
+    level1_spawn_points: db 0, 1, 2, 6, 8, 10, 12, 14, 16, 18    ; 10 enemigos, cada 2 bloques
+    level2_spawn_points: db 1, 3, 5, 7, 9, 11, 13, 15, 17, 19    ; 10 enemigos, cada 2 bloques
+    level3_spawn_points: db 0, 3, 6, 9, 12, 15, 18, 21, 24, 27   ; 10 enemigos, cada 3 bloques
+    level4_spawn_points: db 1, 4, 7, 10, 13, 16, 19, 22, 25, 28  ; 10 enemigos, cada 3 bloques
+    level5_spawn_points: db 0, 5, 10, 15, 20, 25, 30, 35, 40, 45 ; 10 enemigos, cada 5 bloques
+        ; Arreglo de punteros a los spawn points de cada nivel
+    spawn_points_table:
+        dq level1_spawn_points
+        dq level2_spawn_points
+        dq level3_spawn_points
+        dq level4_spawn_points
+        dq level5_spawn_points
+
+    ; Variables para el comportamiento de enemigos
+    BEHAVIOR_CHANGE_TIME db 30    ; Ciclos antes de cambiar comportamiento
+    behavior_counter db 0          ; Contador para cambio de comportamiento
+    current_behavior db 0          ; 0 = persigue bola, 1 = persigue paleta
+    enemy_spawns_triggered: times 10 db 0  ; 0 = no spawned, 1 = spawned
 
 section .text
 
@@ -623,6 +645,11 @@ init_level:
     pop rdi
     pop rsi
 
+    mov rcx, 10
+    xor rax, rax
+    lea rdi, [enemy_spawns_triggered]
+    rep stosb      
+
     ; Verificar el nivel actual y cargar los bloques correspondientes
     cmp byte [current_level], 1
     je .level1
@@ -635,6 +662,8 @@ init_level:
     cmp byte [current_level], 5
     je .level5
     jmp .done
+
+
 
     .level1:
         mov byte [blocks_remaining], level1_blocks_count
@@ -1101,62 +1130,41 @@ init_enemies:
     mov rbp, rsp
     ; Reiniciar contadores de movimiento
     mov byte [enemy_move_total], 0
-    mov byte [enemy_target], 0      ; Inicialmente persigue la bola
+    mov byte [enemy_target], 0 ; Inicialmente persigue la bola
     ; Limpiar estado previo de enemigos
-    mov rcx, 15                     ; 5 enemigos * 3 bytes
+    mov rcx, 10 ; Máximo 10 enemigos
     lea rdi, [enemies]
     xor al, al
-    rep stosb
+    rep stosb ; Limpiar datos de enemigos
     
-    ; Configurar enemigo según el nivel actual
-    movzx rcx, byte [current_level]
-    dec rcx                         ; Ajustar para índice base 0
-    
-    ; Activar un enemigo
-    lea rdi, [enemies]
-    
-    ; Posición X inicial (centro de la pantalla)
-    mov byte [rdi], 4
-    
-    ; Posición Y inicial (cerca de la parte superior)
-    mov byte [rdi + 1], 1
-    
-    ; Marcar como activo
-    mov byte [rdi + 2], 1
-    
-    ; Establecer cantidad de enemigos activos
-    mov byte [enemies_count], 1
-    
+    ; Marcar todos los enemigos como inactivos
+    lea rdi, [enemy_spawns_triggered]
+    xor al, al
+    mov rcx, 10
+    rep stosb ; Todos los enemigos no han sido activados aún
+
     pop rbp
     ret
+
 
 ; Función para mover enemigos
 move_enemies:
     push rbp
     mov rbp, rsp
     
-    ; Control de velocidad de movimiento
+    ; Incrementar contador de movimiento
     inc byte [enemy_move_counter]
-    mov al, [enemy_move_counter]
+    movzx rax, byte [enemy_move_counter]
     cmp al, [enemy_move_delay]
-    jl .end
+    jne .end
     
     ; Resetear contador
     mov byte [enemy_move_counter], 0
     
-    ; Incrementar contador total de movimientos y verificar umbral
-    inc byte [enemy_move_total]
-    mov al, [enemy_move_total]
-    cmp al, [MOVEMENT_THRESHOLD]
-    jl .continue_normal
-    mov byte [enemy_target], 1    ; Cambiar a perseguir paleta
+    xor r12, r12                    ; Índice del enemigo
     
-    .continue_normal:
-        ; Iterar sobre enemigos
-        xor r12, r12                    ; Índice del enemigo
-        
     .enemy_loop:
-        cmp r12, 5                      ; Máximo 5 enemigos
+        cmp r12, 10                     ; Máximo 10 enemigos
         jge .end
         
         ; Calcular offset del enemigo actual
@@ -1168,29 +1176,28 @@ move_enemies:
         cmp byte [rsi + 2], 1
         jne .next_enemy
         
-        ; Obtener posición actual del enemigo
+        ; Obtener posición actual
         movzx r8, byte [rsi]            ; X
         movzx r9, byte [rsi + 1]        ; Y
         
-        ; Borrar posición actual del enemigo en el tablero
-        push r8                         ; Guardar coordenadas actuales
+        ; Limpiar posición actual antes de mover
+        push r8
         push r9
-        
-        ; Calcular offset en el tablero para borrar
         mov rax, column_cells
-        add rax, 2                      ; Incluir caracteres de nueva línea
+        add rax, 2
         mul r9
         add rax, r8
         lea rdi, [board + rax]
-        mov byte [rdi], ' '             ; Borrar posición actual
-        
-        pop r9                          ; Restaurar coordenadas
+        mov byte [rdi], ' '         ; Limpiar rastro
+        pop r9
         pop r8
-        
-        ; Decidir objetivo basado en enemy_target
-        mov al, [enemy_target]
-        test al, al
-        jnz .chase_paddle              ; Si es 1, perseguir paleta
+
+        ; Determinar comportamiento basado en índice
+        mov rax, r12
+        and rax, 1                      ; 0 para índices pares, 1 para impares
+        test rax, rax
+        jz .chase_ball
+        jmp .chase_paddle             ; Si es 1, perseguir paleta
         
         ; Perseguir bola (comportamiento original)
     .chase_ball:
@@ -1353,6 +1360,74 @@ move_enemies:
         pop rbp
         ret
 
+get_current_spawn_points:
+    push rbp
+    mov rbp, rsp
+    
+    movzx rax, byte [current_level]
+    dec rax                         ; Ajustar para índice base 0
+    mov rax, [spawn_points_table + rax * 8]
+    
+    pop rbp
+    ret
+
+; Función para verificar si debe aparecer un nuevo enemigo
+check_enemy_spawn:
+    push rbp
+    mov rbp, rsp
+    
+    ; Obtener spawn points del nivel actual
+    call get_current_spawn_points
+    mov r12, rax                    ; r12 = puntero a spawn points
+    
+    ; Obtener cantidad de bloques destruidos
+    movzx r13, byte [destroyed_blocks]
+    
+    ; Verificar cada punto de spawn
+    xor rcx, rcx                    ; Índice del enemigo
+    
+    .check_loop:
+        cmp rcx, 10                     ; Máximo 10 enemigos
+        jge .end
+        
+        ; Verificar si este spawn point ya fue usado
+        cmp byte [enemy_spawns_triggered + rcx], 1
+        je .next_enemy
+        
+        ; Verificar si este enemigo ya está activo
+        mov rax, rcx
+        imul rax, 3                     ; Cada enemigo ocupa 3 bytes
+        lea rsi, [enemies + rax]
+        cmp byte [rsi + 2], 1          ; Verificar si está activo
+        je .next_enemy
+        
+        ; Verificar si debemos spawnear este enemigo
+        movzx rax, byte [r12 + rcx]    ; Obtener punto de spawn
+        cmp r13, rax                   ; Comparar con bloques destruidos
+        jne .next_enemy
+        
+        ; Marcar este spawn point como usado
+        mov byte [enemy_spawns_triggered + rcx], 1
+        
+        ; Spawner nuevo enemigo
+        mov byte [rsi], 40             ; X inicial
+        mov byte [rsi + 1], 2          ; Y inicial
+        mov byte [rsi + 2], 1          ; Activar enemigo
+        
+        ; Inicializar comportamiento
+        mov rax, rcx
+        and rax, 1                     ; Alternar comportamiento basado en índice par/impar
+        mov [current_behavior], al      ; 0 = persigue bola, 1 = persigue paleta
+        
+    .next_enemy:
+        inc rcx
+        jmp .check_loop
+        
+    .end:
+        pop rbp
+        ret
+
+
 ; Función para dibujar enemigos
 print_enemies:
     push rbp
@@ -1361,7 +1436,7 @@ print_enemies:
     xor r12, r12                    ; Índice del enemigo
     
     .print_loop:
-        cmp r12, 5                      ; Máximo 5 enemigos
+        cmp r12, 10                      ; Máximo 5 enemigos
         jge .end
         
         ; Calcular offset del enemigo actual
@@ -1506,13 +1581,15 @@ check_enemy_collision:
 ; Función para destruir un enemigo
 destroy_enemy:
     ; Desactivar enemigo
-    mov byte [rsi + 2], 0
-    
-    ; Sumar puntos
+    mov byte [rsi + 2], 0   ; Marcar enemigo como inactivo
+
+    ; Sumar puntos por destruir enemigo
     mov rax, [enemy_points]
     add [current_score], rax
-    
+
+    ; No tocar bloques destruidos aquí
     ret
+
 
 _start:
 	call canonical_off
@@ -1528,6 +1605,7 @@ _start:
         call move_ball
         call print_blocks
         call check_level_complete
+        call check_enemy_spawn
         call move_enemies
         call check_enemy_collision
         call print_enemies
