@@ -313,10 +313,6 @@ section .data
     ; Array para mantener el estado de los bloques
     block_states: times 100 db 0  ; Durabilidad actual de cada bloque
 
-    score_label db "Puntaje: "
-    score_label_len equ $ - score_label
-    blocks_label db "Bloques destruidos: "
-    blocks_label_len equ $ - blocks_label
     
     ; Variables para almacenar los valores
     current_score dq 0          ; Score actual
@@ -357,6 +353,16 @@ section .data
     behavior_counter db 0          ; Contador para cambio de comportamiento
     current_behavior db 0          ; 0 = persigue bola, 1 = persigue paleta
     enemy_spawns_triggered: times 10 db 0  ; 0 = no spawned, 1 = spawned
+
+    score_label: db "Puntaje: [          ]", 0xA, 0xD  ; 10 espacios para el número
+    score_label_len: equ $ - score_label
+    blocks_label: db "Bloques destruidos: [   ]", 0xA, 0xD  ; 3 espacios para el número
+    blocks_label_len: equ $ - blocks_label
+    
+    ; Posición donde insertar los números en los labels
+    score_pos equ 10    ; Posición después de "Puntaje: ["
+    blocks_pos equ 20   ; Posición después de "Bloques destruidos: ["
+
 
 section .text
 
@@ -958,37 +964,104 @@ number_to_string:
 print_labels:
     push rbp
     mov rbp, rsp
-    
-    ; Guardar el score en string
+
+    ; Crear buffer temporal
+    sub rsp, 32
+
+    ; Copiar labels a buffer temporal
+    mov rdi, rsp
+    lea rsi, [score_label]
+    mov rcx, score_label_len
+    rep movsb
+
+    ; Convertir score a string
     mov rax, [current_score]
     mov rdi, number_buffer
     call number_to_string
-    
-    ; Imprimir score label
-    print score_label, score_label_len
-    print number_buffer, 20
-    
-    ; Nueva línea
-    mov byte [number_buffer], 0xA
-    mov byte [number_buffer + 1], 0xD
-    print number_buffer, 2
-    
+
+    ; Calcular longitud del número
+    mov rcx, 0
+    mov rdi, number_buffer
+    .count_loop:
+        cmp byte [rdi + rcx], 0
+        je .count_done
+        inc rcx
+        jmp .count_loop
+    .count_done:
+
+    ; Insertar el número en la posición correcta, alineado a la derecha
+    mov rdi, rsp
+    add rdi, score_pos           ; Moverse a la posición del número
+    mov rsi, 10                  ; Espacio reservado para el número
+    sub rsi, rcx                 ; Calcular padding necesario
+    .pad_loop:
+        test rsi, rsi
+        jz .pad_done
+        mov byte [rdi], ' '      ; Añadir espacio de padding
+        inc rdi
+        dec rsi
+        jmp .pad_loop
+    .pad_done:
+
+    ; Copiar el número
+    mov rsi, number_buffer
+    rep movsb
+
+    ; Imprimir el buffer completo
+    print rsp, score_label_len
+
+    ; Repetir proceso para bloques destruidos
+    mov rdi, rsp
+    lea rsi, [blocks_label]
+    mov rcx, blocks_label_len
+    rep movsb
+
+    ; Verificar que el `[` esté en su posición correcta
+    mov rdi, rsp
+    add rdi, blocks_pos - 1  ; Posición exacta donde debe ir el '['
+    mov byte [rdi], '['      ; Garantizar que el `[` esté presente
+
     ; Convertir bloques destruidos a string
     movzx rax, byte [destroyed_blocks]
     mov rdi, number_buffer
     call number_to_string
-    
-    ; Imprimir label de bloques destruidos
-    print blocks_label, blocks_label_len
-    print number_buffer, 20
-    
-    ; Nueva línea
-    mov byte [number_buffer], 0xA
-    mov byte [number_buffer + 1], 0xD
-    print number_buffer, 2
-    
+
+    ; Calcular longitud del número
+    mov rcx, 0
+    mov rdi, number_buffer
+    .count_loop2:
+        cmp byte [rdi + rcx], 0
+        je .count_done2
+        inc rcx
+        jmp .count_loop2
+    .count_done2:
+
+    ; Insertar el número en la posición correcta, alineado a la derecha
+    mov rdi, rsp
+    add rdi, blocks_pos         ; Moverse a la posición del número
+    mov rsi, 3                  ; Espacio reservado para el número
+    sub rsi, rcx                ; Calcular padding necesario
+    .pad_loop2:
+        test rsi, rsi
+        jz .pad_done2
+        mov byte [rdi], ' '      ; Añadir espacio de padding
+        inc rdi
+        dec rsi
+        jmp .pad_loop2
+    .pad_done2:
+
+    ; Copiar el número
+    mov rsi, number_buffer
+    rep movsb
+
+    ; Imprimir el buffer completo
+    print rsp, blocks_label_len
+
+    ; Restaurar stack
+    add rsp, 32
     pop rbp
     ret
+
 
 ; Función modificada para detectar colisión
 ; Función mejorada para detectar colisión y manejar la física
