@@ -284,30 +284,30 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 56, 7, 3, 1    ; Bloque 7
-        db 20, 7, 3, 1    ; Bloque 7
-        db 30, 7, 3, 1    ; Bloque 7
+        db 56, 7, 3, 1, 'S'    ; Bloque 7
+        db 59, 9, 3, 1, 'S'    ; Bloque 7
+        db 18, 7, 3, 1, 'S'    ; Bloque 7
     level1_blocks_count equ 3   ; Cantidad total de bloques
 
     ; Nivel 2: Bloques de prueba
     level2_blocks:
-        db 60, 7, 1, 1    ; Un bloque simple en el nivel 2   ; Un bloque simple en el nivel 2
+        db 60, 7, 1, 1, 'E'    ; Un bloque simple en el nivel 2   ; Un bloque simple en el nivel 2
     level2_blocks_count equ 1
 
     ; Nivel 3
     level3_blocks:
-        db 60, 7, 2, 1    ; Bloque 1
+        db 60, 7, 2, 1, 'E'    ; Bloque 1
 
     level3_blocks_count equ 1
 
     ; Nivel 4
     level4_blocks:
-        db 60, 7, 4, 1    ; Bloque 1
+        db 60, 7, 4, 1, 'E'    ; Bloque 1
     level4_blocks_count equ 1
 
     ; Nivel 5
     level5_blocks:
-        db 60, 7, 5, 1    ; Bloque 1
+        db 60, 7, 5, 1, 'E'    ; Bloque 1
     level5_blocks_count equ 1
 
     ; Array para mantener el estado de los bloques
@@ -329,7 +329,7 @@ section .data
     
     enemy_points dq 50              ; Puntos por destruir un enemigo
     enemy_move_counter db 0         ; Contador para controlar velocidad de movimiento
-    enemy_move_delay db 1           ; Mover enemigos cada N ciclos
+    enemy_move_delay db 2           ; Mover enemigos cada N ciclos
     enemy_move_total db 0      ; Contador total de movimientos
     enemy_target db 0          ; 0 = persigue bola, 1 = persigue paleta
     MOVEMENT_THRESHOLD db 20   ; Número de movimientos antes de cambiar objetivo
@@ -368,14 +368,14 @@ section .data
     lives_data: 
         db 2, 30, 1     ; Vida 1 (activa)
         db 4, 30, 1     ; Vida 2 (activa)
-        db 6, 30, 0     ; Vida 3 (inactiva)
-        db 8, 30, 0     ; Vida 4 (inactiva)
-        db 10, 30, 0    ; Vida 5 (inactiva)
-        db 12, 30, 0    ; Vida 6 (inactiva)
-        db 14, 30, 0    ; Vida 7 (inactiva)
+        db 6, 30, 1     ; Vida 3 (inactiva)
+        db 8, 30, 1     ; Vida 4 (inactiva)
+        db 10, 30, 1    ; Vida 5 (inactiva)
+        db 12, 30, 1    ; Vida 6 (inactiva)
+        db 14, 30, 1    ; Vida 7 (inactiva)
     lives_count equ 7    ; Total de vidas
     life_char db "^"    
-    current_lives db 2   ; Contador de vidas activas actual
+    current_lives db 7   ; Contador de vidas activas actual
 
 section .text
 
@@ -855,7 +855,7 @@ init_level:
             cmp rcx, level1_blocks_count
             jge .done
             mov rax, rcx         
-            shl rax, 2          
+            imul rax, 5         ; en vez de shl rax,2
             mov dl, byte [level1_blocks + rax + 3]  
             mov byte [block_states + rcx], dl
             inc rcx
@@ -868,7 +868,7 @@ init_level:
             cmp rcx, level2_blocks_count
             jge .done
             mov rax, rcx         
-            shl rax, 2          
+            imul rax, 5         ; en vez de shl rax,2
             mov dl, byte [level2_blocks + rax + 3]  
             mov byte [block_states + rcx], dl
             inc rcx
@@ -880,7 +880,7 @@ init_level:
             cmp rcx, level3_blocks_count
             jge .done
             mov rax, rcx         
-            shl rax, 2          
+            imul rax, 5         ; en vez de shl rax,2
             mov dl, byte [level3_blocks + rax + 3]  
             mov byte [block_states + rcx], dl
             inc rcx
@@ -893,7 +893,7 @@ init_level:
             cmp rcx, level4_blocks_count
             jge .done
             mov rax, rcx         
-            shl rax, 2          
+            imul rax, 5         ; en vez de shl rax,2
             mov dl, byte [level4_blocks + rax + 3]  
             mov byte [block_states + rcx], dl
             inc rcx
@@ -906,7 +906,7 @@ init_level:
             cmp rcx, level5_blocks_count
             jge .done
             mov rax, rcx         
-            shl rax, 2          
+            imul rax, 5         ; en vez de shl rax,2
             mov dl, byte [level5_blocks + rax + 3]  
             mov byte [block_states + rcx], dl
             inc rcx
@@ -1061,10 +1061,13 @@ print_blocks:
         jz .next_block
         
         ; Obtener posición y tipo del bloque usando r13
-        mov r8b, [r13 + r12 * 4]      ; X position
-        mov r9b, [r13 + r12 * 4 + 1]  ; Y position
-        mov r10b, [r13 + r12 * 4 + 2] ; Tipo de bloque
-        
+        mov rax, r12
+        imul rax, 5
+        add rax, r13
+        mov r8b, [rax]        ; X position
+        mov r9b, [rax + 1]    ; Y position
+        mov r10b, [rax + 2]   ; Tipo de bloque
+
         ; El resto de la lógica de impresión permanece igual
         movzx r8, r8b
         movzx r9, r9b
@@ -1259,9 +1262,10 @@ check_block_collision:
     push rbp
     mov rbp, rsp
 
+    ; Almacenar el carácter en la posición r10 (pos. de la bola en board[])
     mov al, [r10]
 
-    ; Verificación de caracteres igual que antes...
+    ; Verificar si el carácter es un bloque
     cmp al, 'U'  
     je .possible
     cmp al, 'O'  
@@ -1275,105 +1279,129 @@ check_block_collision:
     cmp al, '8'  
     je .possible
 
+    ; No es bloque, salir
     xor rax, rax
     pop rbp
     ret
 
-    .possible:
-        push rbx
-        push rdi
-        push rsi
-        push r12
+.possible:
+    push rbx
+    push rdi
+    push rsi
+    push r12
+    push r13
+    push r14
+    push r15
 
-        ; Obtener puntero a los bloques del nivel actual
-        call get_current_level_blocks
-        mov r13, rax                  ; Guardar puntero a los bloques
-        
-        ; Obtener cantidad de bloques del nivel actual
-        call get_current_level_count
-        mov r14, rax                  ; Guardar cantidad de bloques
+    ; 1) Obtener base de los bloques del nivel actual
+    call get_current_level_blocks
+    mov r13, rax  ; (r13) = base de levelX_blocks
 
-        xor r12, r12
-    .find_block_loop:
-        cmp r12, r14                  ; Usar r14 en lugar de level1_blocks_count
-        jge .no_block_found
+    ; 2) Obtener la cantidad de bloques
+    call get_current_level_count
+    mov r14, rax
 
-        ; El resto de la lógica de verificación de colisiones...
-        mov bl, [block_states + r12]
-        test bl, bl
-        jz .next_block
+    xor r12, r12  ; Índice del bloque actual
 
-        ; Usar r13 para acceder a los bloques del nivel actual
-        mov rax, r13
-        imul r12, 4
-        add rax, r12
-        mov dl, [rax]       ; x
-        mov cl, [rax+1]     ; y
+.find_block_loop:
+    cmp r12, r14
+    jge .no_block_found  ; Se acabaron los bloques
 
-        ; Revertir r12
-        mov r12, r12
-        shr r12, 2
+    ; Calcular puntero base del bloque actual en levelX_blocks
+    mov rax, r12
+    imul rax, 5            ; (x, y, tipo, durabilidad_inicial, letra)
+    add rax, r13
+    mov r15, rax           ; r15 apunta a los datos del bloque actual
 
-        ; La misma lógica de detección de colisiones...
-        lea rdi, [board]
-        xor rax, rax
-        mov rax, column_cells + 2
-        movzx rcx, cl
-        imul rax, rcx
-        add rdi, rax
-        movzx rax, dl
-        add rdi, rax
+    ; --- Aquí la diferencia: la durabilidad no la leemos de [r15+3], sino de block_states[r12]
+    movzx rbx, byte [block_states + r12]  ; Durabilidad "viva" en block_states
+    test rbx, rbx
+    jz .next_block  ; si durabilidad=0 => bloque destruido => ignorar
 
-        cmp r10, rdi
-        jb .next_block
-        lea rbx, [rdi + 6]
-        cmp r10, rbx
-        jae .next_block
+    ; Obtener coordenadas
+    mov dl, [r15]         ; x
+    mov cl, [r15 + 1]     ; y
 
-        ; Manejo de colisión igual que antes...
-        dec byte [block_states + r12]
-        mov bl, [block_states + r12]
-        test bl, bl
-        jnz .still_alive
+    ; Calcular posición en el board
+    lea rdi, [board]
+    xor rax, rax
+    mov rax, column_cells
+    add rax, 2
+    movzx rcx, cl         ; y
+    imul rax, rcx
+    add rdi, rax
+    movzx rax, dl         ; x
+    add rdi, rax
 
-        mov rcx, block_length
-    .erase_block_chars:
-        mov byte [rdi], char_space
-        inc rdi
-        loop .erase_block_chars
+    ; Guardar la posición base del bloque
+    push rdi
 
-        dec byte [blocks_remaining]
-        inc byte [destroyed_blocks]     ; Incrementar contador de bloques destruidos
-    
-        ; Calcular puntos basado en la durabilidad original del bloque
-        mov rax, r12                    ; Índice del bloque
-        imul rax, 4                     ; Multiplicar por 4 (tamaño de cada entrada)
-        add rax, r13                    ; Agregar base de los bloques
-        movzx rax, byte [rax + 2]       ; Obtener tipo de bloque (durabilidad original)
-        imul rax, 10                    ; Multiplicar por 10
-        add [current_score], rax        ; Agregar al score total
+    ; Verificar si la bola (r10) está dentro de [rdi .. rdi+block_length)
+    cmp r10, rdi
+    jb .skip_collision
+    lea rbx, [rdi + block_length]
+    cmp r10, rbx
+    jae .skip_collision
 
-    .still_alive:
-        mov rax, 1
-        pop r12
-        pop rsi
-        pop rdi
-        pop rbx
-        pop rbp
-        ret
+    ; ------- Hay colisión, reducir durabilidad en block_states
+    dec byte [block_states + r12]
+    ; Volver a cargar durabilidad
+    movzx rbx, byte [block_states + r12]
+    test rbx, rbx
+    jnz .update_display  ; si no llegó a 0 => solo "golpeado"
 
-    .next_block:
-        inc r12
-        jmp .find_block_loop
+    ; >>> Llegó a 0 => Bloque destruido
+    pop rdi  ; recuperar puntero base del bloque en board
+    mov rcx, block_length
+.clear_loop:
+    mov byte [rdi], ' '
+    inc rdi
+    loop .clear_loop
 
-    .no_block_found:
-        xor rax, rax
-        pop r12
-        pop rsi
-        pop rdi
-        pop rbx
-        pop rbp
-        ret
+    ; Dibujar letra del bloque destruido
+    mov al, [r15 + 4]  ; Obtener la letra asociada
+    sub rdi, block_length
+    mov [rdi], al      ; Escribir la letra en la posición inicial
+
+    ; Actualizar contadores globales
+    dec byte [blocks_remaining]
+    inc byte [destroyed_blocks]
+
+    ; Sumar puntos según el tipo
+    movzx rax, byte [r15 + 2]  ; tipo del bloque original
+    imul rax, 10
+    add [current_score], rax
+
+    mov rax, 1  ; colisión con destrucción
+    jmp .end_pop
+
+.update_display:
+    ; => durabilidad >0, se podría actualizar el "look" del bloque
+    mov rax, 1  ; colisión con "rebote"  
+    pop rdi     ; pop que quedó pendiente
+    jmp .end_pop
+
+.skip_collision:
+    pop rdi     ; si no hubo colisión, quita de la pila
+.next_block:
+    inc r12
+    jmp .find_block_loop
+
+.no_block_found:
+    xor rax, rax  ; 0 => no hubo colisión
+
+.end_pop:
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rsi
+    pop rdi
+    pop rbx
+    pop rbp
+    ret
+
+
 
 init_enemies:
     push rbp
