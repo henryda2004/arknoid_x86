@@ -362,6 +362,7 @@ section .data
     ; Posición donde insertar los números en los labels
     score_pos equ 10    ; Posición después de "Puntaje: ["
     blocks_pos equ 20   ; Posición después de "Bloques destruidos: ["
+    lives_remaining db 3 ; Número inicial de vidas
 
 
 section .text
@@ -372,6 +373,36 @@ section .text
 ;
 ; Return:
 ;	Void
+print_lives:
+    push rdi
+    push rsi
+    push rcx
+    push rax
+    
+    ; Posición inicial dentro del tablero (fila inferior izquierda desplazada hacia adentro)
+    mov rdi, board
+    add rdi, (row_cells - 2) * (column_cells + 2) + 2 ; Fila interna, no en el borde
+
+    ; Número de vidas restantes
+    movzx rcx, byte [lives_remaining] ; Número de vidas
+    
+    .print_life:
+        test rcx, rcx
+        jz .done ; Si no hay más vidas, salir
+        
+        mov byte [rdi], '^' ; Dibujar vida
+        inc rdi             ; Mover al siguiente espacio
+        dec rcx             ; Reducir el contador
+        jmp .print_life
+        
+    .done:
+        pop rax
+        pop rcx
+        pop rsi
+        pop rdi
+        ret
+
+
 print_ball:
 	mov r8, [ball_x_pos]
 	mov r9, [ball_y_pos]
@@ -1683,6 +1714,7 @@ _start:
         call check_enemy_collision
         call print_enemies
 		call print_ball
+        call print_lives
 		print board, board_size				
 		;setnonblocking	
 	.read_more:	
