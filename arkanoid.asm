@@ -244,7 +244,7 @@ section .data
         lvl_tv_sec dq 1           ; 1 segundo
         lvl_tv_nsec dq 0
         
-	pallet_position dq board + 40 + 29 * (column_cells +2)
+	pallet_position dq board + 38 + 29 * (column_cells +2)
 	pallet_size dq 5
 
 	ball_x_pos: dq 40
@@ -375,6 +375,7 @@ section .data
         db 14, 30, 0    ; Vida 7 (inactiva)
     lives_count equ 7    ; Total de vidas
     life_char db "^"    
+    current_lives db 2   ; Contador de vidas activas actual
 
 section .text
 
@@ -386,6 +387,7 @@ section .text
 ;	Void
 
 ; Función para imprimir las vidas
+; Función modificada para imprimir las vidas
 print_lives:
     push rbp
     mov rbp, rsp
@@ -401,10 +403,6 @@ print_lives:
         imul rax, 3                     ; Cada vida ocupa 3 bytes (x, y, estado)
         lea rsi, [lives_data + rax]
         
-        ; Verificar si la vida está activa
-        cmp byte [rsi + 2], 1
-        jne .next_life
-        
         ; Calcular posición en el tablero
         movzx r8, byte [rsi]            ; X
         movzx r9, byte [rsi + 1]        ; Y
@@ -416,7 +414,16 @@ print_lives:
         add rax, r8
         lea rdi, [board + rax]
         
-        ; Dibujar vida
+        ; Verificar estado de la vida y dibujar el carácter correspondiente
+        cmp byte [rsi + 2], 1
+        je .draw_active
+        
+        ; Si está inactiva, dibujar espacio
+        mov byte [rdi], ' '
+        jmp .next_life
+        
+    .draw_active:
+        ; Si está activa, dibujar el símbolo de vida
         mov al, [life_char]
         mov [rdi], al
         
@@ -427,6 +434,119 @@ print_lives:
     .end:
         pop rbp
         ret
+
+; Función para desactivar una vida
+; Función modificada para perder una vida
+lose_life:
+    push rbp
+    mov rbp, rsp
+    
+    ; Verificar si aún quedan vidas
+    cmp byte [current_lives], 0
+    je .game_lost
+    
+    ; Encontrar la última vida activa
+    mov rcx, lives_count
+    dec rcx                     ; Empezar desde la última vida
+    
+    .find_active_life:
+        mov rax, rcx
+        imul rax, 3            ; Cada vida ocupa 3 bytes
+        lea rsi, [lives_data + rax]
+        cmp byte [rsi + 2], 1  ; Verificar si está activa
+        je .deactivate_life
+        dec rcx
+        jns .find_active_life  ; Continuar si no hemos llegado a -1
+        jmp .game_lost         ; Si no encontramos vidas activas
+        
+    .deactivate_life:
+        ; Calcular posición correcta en el tablero para borrar la vida
+        movzx r8, byte [rsi]            ; X
+        movzx r9, byte [rsi + 1]        ; Y
+        
+        ; Calcular offset en el tablero: Y * (column_cells + 2) + X
+        mov rax, column_cells
+        add rax, 2                      ; Incluir caracteres de nueva línea
+        mul r9
+        add rax, r8
+        lea rdi, [board + rax]
+        
+        ; Borrar visualmente la vida
+        mov byte [rdi], ' '             
+        
+        ; Desactivar la vida en los datos
+        mov byte [rsi + 2], 0          
+        dec byte [current_lives]
+        
+        ; Borrar visualmente la paleta anterior
+        mov r8, [pallet_position]
+        mov rcx, [pallet_size]
+        .erase_pallet_loop:
+            mov byte [r8], ' '          ; Reemplazar cada posición con un espacio
+            inc r8
+            dec rcx
+            jnz .erase_pallet_loop
+        
+
+        ; Reiniciar posición de la bola y la paleta
+        mov qword [ball_x_pos], 40
+        mov qword [ball_y_pos], 28
+        mov byte [ball_moving], 0
+        mov qword [pallet_position], board + 38 + 29 * (column_cells + 2)
+        
+        jmp .end
+        
+    .game_lost:
+        call game_lost
+        jmp .end
+        
+    .end:
+        pop rbp
+        ret
+; Función modificada para verificar colisión con el borde inferior
+check_bottom_collision:
+    push rbp
+    mov rbp, rsp
+    
+    ; Verificar si la bola está en la última fila (row_cells - 1)
+    mov rax, [ball_y_pos]
+    cmp rax, row_cells - 2
+    jne .no_collision
+    
+    ; Si hay colisión, perder una vida
+    call lose_life
+    
+    .no_collision:
+        pop rbp
+        ret
+
+; Nueva función para game over
+game_lost:
+    ; Limpiar la pantalla
+    print clear, clear_length
+    
+    ; Mostrar mensaje de derrota
+    section .data
+        lost_msg: db "¡Has perdido!", 0xA, 0xD
+        lost_msg_len: equ $ - lost_msg
+    section .text
+    
+    ; Imprimir mensaje de derrota
+    print lost_msg, lost_msg_len
+    print score_msg, score_msg_len
+    
+    ; Mostrar puntaje final
+    mov rax, [current_score]
+    mov rdi, number_buffer
+    call number_to_string
+    print number_buffer, 20
+    
+    ; Esperar un momento antes de salir
+    mov qword [timespec + 0], 2    ; 2 segundos
+    mov qword [timespec + 8], 0    ; 0 nanosegundos
+    sleeptime
+    
+    jmp exit
 
 
 print_ball:
@@ -1733,6 +1853,7 @@ _start:
         call print_labels
 		call print_pallet
         call move_ball
+        call check_bottom_collision
         call print_blocks
         call print_lives
         call check_level_complete
