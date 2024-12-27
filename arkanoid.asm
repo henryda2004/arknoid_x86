@@ -362,8 +362,19 @@ section .data
     ; Posición donde insertar los números en los labels
     score_pos equ 10    ; Posición después de "Puntaje: ["
     blocks_pos equ 20   ; Posición después de "Bloques destruidos: ["
-    lives_remaining db 3 ; Número inicial de vidas
-
+    
+    ; Definición de las vidas (x, y, estado)
+    ; Formato: posición_x, posición_y, estado (1 = activa, 0 = inactiva)
+    lives_data: 
+        db 2, 30, 1     ; Vida 1 (activa)
+        db 4, 30, 1     ; Vida 2 (activa)
+        db 6, 30, 0     ; Vida 3 (inactiva)
+        db 8, 30, 0     ; Vida 4 (inactiva)
+        db 10, 30, 0    ; Vida 5 (inactiva)
+        db 12, 30, 0    ; Vida 6 (inactiva)
+        db 14, 30, 0    ; Vida 7 (inactiva)
+    lives_count equ 7    ; Total de vidas
+    life_char db "^"    
 
 section .text
 
@@ -373,33 +384,48 @@ section .text
 ;
 ; Return:
 ;	Void
-print_lives:
-    push rdi
-    push rsi
-    push rcx
-    push rax
-    
-    ; Posición inicial dentro del tablero (fila inferior izquierda desplazada hacia adentro)
-    mov rdi, board
-    add rdi, (row_cells - 2) * (column_cells + 2) + 2 ; Fila interna, no en el borde
 
-    ; Número de vidas restantes
-    movzx rcx, byte [lives_remaining] ; Número de vidas
+; Función para imprimir las vidas
+print_lives:
+    push rbp
+    mov rbp, rsp
     
-    .print_life:
-        test rcx, rcx
-        jz .done ; Si no hay más vidas, salir
+    xor r12, r12                    ; Índice de la vida actual
+    
+    .print_loop:
+        cmp r12, lives_count
+        jge .end
         
-        mov byte [rdi], '^' ; Dibujar vida
-        inc rdi             ; Mover al siguiente espacio
-        dec rcx             ; Reducir el contador
-        jmp .print_life
+        ; Calcular offset de la vida actual
+        mov rax, r12
+        imul rax, 3                     ; Cada vida ocupa 3 bytes (x, y, estado)
+        lea rsi, [lives_data + rax]
         
-    .done:
-        pop rax
-        pop rcx
-        pop rsi
-        pop rdi
+        ; Verificar si la vida está activa
+        cmp byte [rsi + 2], 1
+        jne .next_life
+        
+        ; Calcular posición en el tablero
+        movzx r8, byte [rsi]            ; X
+        movzx r9, byte [rsi + 1]        ; Y
+        
+        ; Calcular offset en el tablero
+        mov rax, column_cells
+        add rax, 2                      ; Incluir caracteres de nueva línea
+        mul r9
+        add rax, r8
+        lea rdi, [board + rax]
+        
+        ; Dibujar vida
+        mov al, [life_char]
+        mov [rdi], al
+        
+    .next_life:
+        inc r12
+        jmp .print_loop
+        
+    .end:
+        pop rbp
         ret
 
 
@@ -1708,13 +1734,13 @@ _start:
 		call print_pallet
         call move_ball
         call print_blocks
+        call print_lives
         call check_level_complete
         call check_enemy_spawn
         call move_enemies
         call check_enemy_collision
         call print_enemies
 		call print_ball
-        call print_lives
 		print board, board_size				
 		;setnonblocking	
 	.read_more:	
