@@ -723,13 +723,13 @@ move_letters:
 
         ; Verificar si la letra alcanzó el final del tablero
         cmp r9, row_cells - 1
-        jl .draw_letter
+        jl .check_pallet_collision
 
         ; Desactivar la letra si llega al final
         mov byte [rbx + 3], 0
         jmp .next_letter
 
-        .draw_letter:
+        .check_pallet_collision:
             ; Calcular la nueva posición en el tablero
             mov rax, column_cells
             add rax, 2
@@ -737,9 +737,19 @@ move_letters:
             add rax, r8
             lea rdi, [board + rax]
 
-            ; Dibujar la letra en la nueva posición
+            ; Verificar si hay colisión con la paleta (símbolo =)
+            mov al, [rdi]
+            cmp al, char_equal
+            je .destroy_letter
+
+            ; Si no hay colisión, dibujar la letra
             mov al, [rbx + 2]
             mov [rdi], al
+            jmp .next_letter
+
+        .destroy_letter:
+            ; Desactivar la letra si toca la paleta
+            mov byte [rbx + 3], 0
 
         .next_letter:
             inc rcx
