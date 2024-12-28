@@ -684,6 +684,73 @@ remove_letter:
         pop rbx
         pop rbp
         ret
+; Función para mover las letras hacia abajo
+move_letters:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push rdi
+    push rsi
+
+    xor rcx, rcx                    ; Índice de la letra actual
+
+    .move_loop:
+        cmp rcx, 100                ; Máximo 100 letras
+        jge .end                    ; Salir si todas las letras fueron procesadas
+
+        ; Obtener puntero a la letra actual
+        lea rbx, [letters_map + rcx * 4]
+
+        ; Verificar si la letra está activa
+        cmp byte [rbx + 3], 0
+        je .next_letter
+
+        ; Obtener la posición actual de la letra
+        movzx r8, byte [rbx]        ; X
+        movzx r9, byte [rbx + 1]    ; Y
+
+        ; Calcular la posición en el tablero para borrar la letra anterior
+        mov rax, column_cells
+        add rax, 2                  ; Incluye caracteres de nueva línea
+        mul r9
+        add rax, r8
+        lea rdi, [board + rax]
+        mov byte [rdi], ' '         ; Borra la letra en la posición anterior
+
+        ; Incrementar la posición Y de la letra
+        inc byte [rbx + 1]
+        movzx r9, byte [rbx + 1]
+
+        ; Verificar si la letra alcanzó el final del tablero
+        cmp r9, row_cells - 1
+        jl .draw_letter
+
+        ; Desactivar la letra si llega al final
+        mov byte [rbx + 3], 0
+        jmp .next_letter
+
+        .draw_letter:
+            ; Calcular la nueva posición en el tablero
+            mov rax, column_cells
+            add rax, 2
+            mul r9
+            add rax, r8
+            lea rdi, [board + rax]
+
+            ; Dibujar la letra en la nueva posición
+            mov al, [rbx + 2]
+            mov [rdi], al
+
+        .next_letter:
+            inc rcx
+            jmp .move_loop
+
+    .end:
+        pop rsi
+        pop rdi
+        pop rbx
+        pop rbp
+        ret
 
 print_ball:
 	mov r8, [ball_x_pos]
@@ -2020,6 +2087,7 @@ _start:
 	.main_loop:
         call print_labels
         call print_blocks
+        call move_letters
         call print_letters
 		call print_pallet
         call move_ball
