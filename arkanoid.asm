@@ -377,6 +377,11 @@ section .data
     life_char db "^"    
     current_lives db 7   ; Contador de vidas activas actual
 
+; Estructura para almacenar las letras y sus posiciones
+    ; Formato: x, y, letra, activo (1 = activo, 0 = inactivo)
+    letters_map: times 100 * 4 db 0  ; Espacio para 100 letras
+    letters_count db 0   
+
 section .text
 
 ;	Function: print_ball
@@ -548,6 +553,137 @@ game_lost:
     
     jmp exit
 
+
+; Función para registrar una nueva letra en el mapa
+; Entrada:
+;   al - letra a registrar
+;   r8b - posición x
+;   r9b - posición y
+register_letter:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push rcx
+    
+    ; Encontrar un espacio libre en el mapa
+    xor rcx, rcx
+    movzx rdx, byte [letters_count]
+    
+    .find_slot:
+        cmp rcx, 100              ; Máximo de letras
+        jge .end                  ; Si no hay espacio, salir
+        
+        lea rbx, [letters_map + rcx * 4]
+        cmp byte [rbx + 3], 0    ; Verificar si el slot está inactivo
+        je .found_slot
+        
+        inc rcx
+        jmp .find_slot
+        
+    .found_slot:
+        ; Guardar la información de la letra
+        mov [rbx], r8b           ; x
+        mov [rbx + 1], r9b       ; y
+        mov [rbx + 2], al        ; letra
+        mov byte [rbx + 3], 1    ; marcar como activo
+        
+        inc byte [letters_count]
+        
+    .end:
+        pop rcx
+        pop rbx
+        pop rbp
+        ret
+
+; Función para imprimir todas las letras registradas
+print_letters:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push rcx
+    
+    xor rcx, rcx
+    
+    .print_loop:
+        cmp rcx, 100              ; Máximo de letras
+        jge .end
+        
+        ; Obtener puntero a la letra actual
+        lea rbx, [letters_map + rcx * 4]
+        
+        ; Verificar si está activa
+        cmp byte [rbx + 3], 0
+        je .next_letter
+        
+        ; Calcular posición en el tablero
+        movzx r8, byte [rbx]      ; x
+        movzx r9, byte [rbx + 1]  ; y
+        
+        ; Calcular offset en el tablero
+        mov rax, column_cells
+        add rax, 2                ; Incluir caracteres de nueva línea
+        mul r9
+        add rax, r8
+        lea rdi, [board + rax]
+        
+        ; Imprimir la letra
+        mov al, [rbx + 2]
+        mov [rdi], al
+        
+    .next_letter:
+        inc rcx
+        jmp .print_loop
+        
+    .end:
+        pop rcx
+        pop rbx
+        pop rbp
+        ret
+
+; Función para borrar una letra específica
+; Entrada:
+;   r8b - posición x
+;   r9b - posición y
+remove_letter:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push rcx
+    
+    xor rcx, rcx
+    
+    .find_loop:
+        cmp rcx, 100              ; Máximo de letras
+        jge .end
+        
+        lea rbx, [letters_map + rcx * 4]
+        
+        ; Verificar si está activa y coincide la posición
+        cmp byte [rbx + 3], 0
+        je .next_letter
+        
+        mov al, [rbx]
+        cmp al, r8b
+        jne .next_letter
+        
+        mov al, [rbx + 1]
+        cmp al, r9b
+        jne .next_letter
+        
+        ; Encontrada la letra, desactivarla
+        mov byte [rbx + 3], 0
+        dec byte [letters_count]
+        jmp .end
+        
+    .next_letter:
+        inc rcx
+        jmp .find_loop
+        
+    .end:
+        pop rcx
+        pop rbx
+        pop rbp
+        ret
 
 print_ball:
 	mov r8, [ball_x_pos]
@@ -1362,7 +1498,11 @@ check_block_collision:
     mov al, [r15 + 4]  ; Obtener la letra asociada
     sub rdi, block_length
     mov [rdi], al      ; Escribir la letra en la posición inicial
-
+    ; Después de escribir la letra en el tablero
+    mov al, [r15 + 4]      ; Obtener la letra
+    movzx r8, byte [r15]   ; Posición x del bloque
+    movzx r9, byte [r15 + 1] ; Posición y del bloque
+    call register_letter
     ; Actualizar contadores globales
     dec byte [blocks_remaining]
     inc byte [destroyed_blocks]
@@ -1879,10 +2019,11 @@ _start:
 
 	.main_loop:
         call print_labels
+        call print_blocks
+        call print_letters
 		call print_pallet
         call move_ball
         call check_bottom_collision
-        call print_blocks
         call print_lives
         call check_level_complete
         call check_enemy_spawn
