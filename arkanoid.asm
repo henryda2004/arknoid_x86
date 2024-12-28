@@ -284,8 +284,8 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 56, 7, 3, 1, 'S'    ; Bloque 7
-        db 59, 9, 3, 1, 'S'    ; Bloque 7
+        db 56, 7, 3, 2, 'S'    ; Bloque 7
+        db 61, 9, 3, 1, 'S'    ; Bloque 7
         db 18, 7, 3, 1, 'S'    ; Bloque 7
     level1_blocks_count equ 3   ; Cantidad total de bloques
 

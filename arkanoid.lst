@@ -437,14 +437,14 @@
    285                                      level1_blocks:
    286                                          ; Tercera fila (tipo 3)
    287 000014A6 3807030153                      db 56, 7, 3, 1, 'S'    ; Bloque 7
-   288                                      level1_blocks_count equ 1   ; Cantidad total de bloques
-   289                                  
-   290                                      ; Nivel 2: Bloques de prueba
-   291                                      level2_blocks:
-   292 000014AB 3807030153                      db 56, 7, 3, 1, 'S'    ; Bloque 7
-   293 000014B0 3D09030120                      db 61, 9, 3, 1, ' '    ; Bloque 7
-   294 000014B5 1207030153                      db 18, 7, 3, 1, 'S'    ; Bloque 7    level2_blocks_count equ 1
-   295                                      level2_blocks_count equ 3   ; Cantidad total de bloques
+   288 000014AB 3B09030153                      db 59, 9, 3, 1, 'S'    ; Bloque 7
+   289 000014B0 1207030153                      db 18, 7, 3, 1, 'S'    ; Bloque 7
+   290                                      level1_blocks_count equ 3   ; Cantidad total de bloques
+   291                                  
+   292                                      ; Nivel 2: Bloques de prueba
+   293                                      level2_blocks:
+   294 000014B5 3C07010145                      db 60, 7, 1, 1, 'E'    ; Un bloque simple en el nivel 2   ; Un bloque simple en el nivel 2
+   295                                      level2_blocks_count equ 1
    296                                  
    297                                      ; Nivel 3
    298                                      level3_blocks:
@@ -1060,10 +1060,10 @@
    849                                  
    850                                  
    851                                      .level1:
-   852 0000069F C605(A5140000)01                mov byte [blocks_remaining], level1_blocks_count
+   852 0000069F C605(A5140000)03                mov byte [blocks_remaining], level1_blocks_count
    853 000006A6 4831C9                          xor rcx, rcx             
    854                                          .init_loop1:
-   855 000006A9 4883F901                            cmp rcx, level1_blocks_count
+   855 000006A9 4883F903                            cmp rcx, level1_blocks_count
    856 000006AD 0F8DBC000000                        jge .done
    857 000006B3 4889C8                              mov rax, rcx         
    858 000006B6 486BC005                            imul rax, 5         ; en vez de shl rax,2
@@ -1073,14 +1073,14 @@
    862 000006C9 EBDE                                jmp .init_loop1
    863                                  
    864                                      .level2:
-   865 000006CB C605(A5140000)03                mov byte [blocks_remaining], level2_blocks_count
+   865 000006CB C605(A5140000)01                mov byte [blocks_remaining], level2_blocks_count
    866 000006D2 4831C9                          xor rcx, rcx             
    867                                          .init_loop2:
-   868 000006D5 4883F903                            cmp rcx, level2_blocks_count
+   868 000006D5 4883F901                            cmp rcx, level2_blocks_count
    869 000006D9 0F8D90000000                        jge .done
    870 000006DF 4889C8                              mov rax, rcx         
    871 000006E2 486BC005                            imul rax, 5         ; en vez de shl rax,2
-   872 000006E6 8A90[AE140000]                      mov dl, byte [level2_blocks + rax + 3]  
+   872 000006E6 8A90[B8140000]                      mov dl, byte [level2_blocks + rax + 3]  
    873 000006EC 8891[C9140000]                      mov byte [block_states + rcx], dl
    874 000006F2 48FFC1                              inc rcx
    875 000006F5 EBDE                                jmp .init_loop2
@@ -1243,7 +1243,7 @@
    993 00000897 488D05(A6140000)                lea rax, [level1_blocks]
    994 0000089E C3                              ret
    995                                      .level2:
-   996 0000089F 488D05(AB140000)                lea rax, [level2_blocks]
+   996 0000089F 488D05(B5140000)                lea rax, [level2_blocks]
    997 000008A6 C3                              ret
    998                                      .level3:
    999 000008A7 488D05(BA140000)                lea rax, [level3_blocks]
@@ -1271,10 +1271,10 @@
   1021 000008EF C3                          ret
   1022                                  
   1023                                      .level1:
-  1024 000008F0 B801000000                      mov rax, level1_blocks_count
+  1024 000008F0 B803000000                      mov rax, level1_blocks_count
   1025 000008F5 C3                              ret
   1026                                      .level2:
-  1027 000008F6 B803000000                      mov rax, level2_blocks_count
+  1027 000008F6 B801000000                      mov rax, level2_blocks_count
   1028 000008FB C3                              ret
   1029                                      .level3:
   1030 000008FC B801000000                      mov rax, level3_blocks_count
