@@ -284,8 +284,8 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 56, 7, 3, 2, 'S'    ; Bloque 7
-        db 61, 9, 3, 1, 'S'    ; Bloque 7
+        db 58, 7, 3, 2, ' '    ; Bloque 7
+        db 61, 9, 3, 1, 'E'    ; Bloque 7
         db 18, 7, 3, 1, 'S'    ; Bloque 7
     level1_blocks_count equ 3   ; Cantidad total de bloques
 
@@ -381,7 +381,9 @@ section .data
     ; Formato: x, y, letra, activo (1 = activo, 0 = inactivo)
     letters_map: times 100 * 4 db 0  ; Espacio para 100 letras
     letters_count db 0   
-
+    last_letter db ' '    ; Variable para almacenar la última letra
+    last_letter_msg db "Poder actual: [ ]", 0xA, 0xD  ; Mensaje para mostrar la última letra
+    last_letter_msg_len equ $ - last_letter_msg
 section .text
 
 ;	Function: print_ball
@@ -565,6 +567,9 @@ register_letter:
     push rbx
     push rcx
     
+    cmp al, ' '
+    je .end
+
     ; Encontrar un espacio libre en el mapa
     xor rcx, rcx
     movzx rdx, byte [letters_count]
@@ -696,8 +701,8 @@ move_letters:
 
     .move_loop:
         cmp rcx, 100                ; Máximo 100 letras
-        jge .end                    ; Salir si todas las letras fueron procesadas
-
+        jge .print_last_letter      ; Al terminar, mostrar la última letra
+        
         ; Obtener puntero a la letra actual
         lea rbx, [letters_map + rcx * 4]
 
@@ -739,21 +744,38 @@ move_letters:
 
             ; Verificar si hay colisión con la paleta (símbolo =)
             mov al, [rdi]
+            cmp al, ' '
+            je .next_letter
             cmp al, char_equal
-            je .destroy_letter
+            je .capture_letter
 
             ; Si no hay colisión, dibujar la letra
             mov al, [rbx + 2]
             mov [rdi], al
             jmp .next_letter
 
-        .destroy_letter:
-            ; Desactivar la letra si toca la paleta
+        .capture_letter:
+            ; Guardar la letra capturada
+            mov al, [rbx + 2]       ; Obtener la letra
+            mov [last_letter], al   ; Guardarla como última letra capturada
+            
+            ; Desactivar la letra
             mov byte [rbx + 3], 0
 
         .next_letter:
             inc rcx
             jmp .move_loop
+
+    .print_last_letter:
+        ; Imprimir el mensaje con la última letra
+        print last_letter_msg, last_letter_msg_len - 3  ; Imprimir hasta antes del salto de línea
+        
+        ; Imprimir la última letra
+        mov al, [last_letter]
+        mov [last_letter_msg + 15], al  ; Colocar la letra en el espacio entre corchetes
+        
+        ; Imprimir el salto de línea
+        print last_letter_msg + last_letter_msg_len - 3, 3
 
     .end:
         pop rsi
