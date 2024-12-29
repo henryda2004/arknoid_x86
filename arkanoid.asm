@@ -284,7 +284,7 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 58, 7, 3, 2, ' '    ; Bloque 7
+        db 58, 7, 3, 2, 'D'    ; Bloque 7
         db 61, 9, 3, 1, 'E'    ; Bloque 7
         db 18, 7, 3, 1, 'S'    ; Bloque 7
     level1_blocks_count equ 3   ; Cantidad total de bloques
@@ -1043,6 +1043,23 @@ init_empty_board:
 
 init_level:
     ; 1) Copiamos board_template en board para que quede "virgen"
+        ; Reiniciar letras activas
+    lea rdi, [letters_map]
+    mov rcx, 100 * 4             ; Cada letra ocupa 4 bytes, limpiar 100 letras
+    xor rax, rax
+    rep stosb                    ; Llenar con ceros
+    
+    ; Inicializar dirección de la bola (derecha y arriba)
+    mov qword [ball_direction_x], 1    ; Dirección hacia la derecha (1 = derecha, -1 = izquierda)
+    mov qword [ball_direction_y], -1   ; Dirección hacia arriba (-1 = arriba, 1 = abajo)
+
+
+    ; Reiniciar contador de letras activas
+    xor rax, rax
+    mov [letters_count], al
+
+    ; Reiniciar última letra capturada
+    mov byte [last_letter], ' '
     mov byte [destroyed_blocks], 0 
     call init_empty_board
     call display_level_number
@@ -1170,7 +1187,7 @@ check_level_complete:
     mov qword [ball_x_pos], 40
     mov qword [ball_y_pos], 28
     mov byte [ball_moving], 0
-    mov qword [pallet_position], board + 40 + 29 * (column_cells + 2)
+    mov qword [pallet_position], board + 38 + 29 * (column_cells + 2)
     
     .not_complete:
         ret
