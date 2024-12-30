@@ -245,7 +245,9 @@ section .data
         lvl_tv_nsec dq 0
         
 	pallet_position dq board + 38 + 29 * (column_cells +2)
-	pallet_size dq 5
+    pallet_size dq 5
+    default_pallet_size dq 5    ; Tamaño normal de la paleta
+    extended_pallet_size dq 7   ; Tamaño extendido de la paleta
 
 	ball_x_pos: dq 40
 	ball_y_pos: dq 28
@@ -386,15 +388,7 @@ section .data
     last_letter_msg_len equ $ - last_letter_msg
 section .text
 
-;	Function: print_ball
-; This function displays the position of the ball
-; Arguments: none
-;
-; Return:
-;	Void
 
-; Función para imprimir las vidas
-; Función modificada para imprimir las vidas
 print_lives:
     push rbp
     mov rbp, rsp
@@ -697,84 +691,80 @@ move_letters:
     push rdi
     push rsi
 
-    xor rcx, rcx                    ; Índice de la letra actual
+    xor rcx, rcx
 
     .move_loop:
-        cmp rcx, 100                ; Máximo 100 letras
-        jge .print_last_letter      ; Al terminar, mostrar la última letra
+        cmp rcx, 100
+        jge .print_last_letter
         
-        ; Obtener puntero a la letra actual
         lea rbx, [letters_map + rcx * 4]
-
-        ; Verificar si la letra está activa
         cmp byte [rbx + 3], 0
         je .next_letter
 
-        ; Obtener la posición actual de la letra
-        movzx r8, byte [rbx]        ; X
-        movzx r9, byte [rbx + 1]    ; Y
+        movzx r8, byte [rbx]
+        movzx r9, byte [rbx + 1]
 
-        ; Calcular la posición en el tablero para borrar la letra anterior
         mov rax, column_cells
-        add rax, 2                  ; Incluye caracteres de nueva línea
+        add rax, 2
         mul r9
         add rax, r8
         lea rdi, [board + rax]
-        mov byte [rdi], ' '         ; Borra la letra en la posición anterior
+        mov byte [rdi], ' '
 
-        ; Incrementar la posición Y de la letra
         inc byte [rbx + 1]
         movzx r9, byte [rbx + 1]
 
-        ; Verificar si la letra alcanzó el final del tablero
         cmp r9, row_cells - 1
         jl .check_pallet_collision
 
-        ; Desactivar la letra si llega al final
         mov byte [rbx + 3], 0
         jmp .next_letter
 
         .check_pallet_collision:
-            ; Calcular la nueva posición en el tablero
             mov rax, column_cells
             add rax, 2
             mul r9
             add rax, r8
             lea rdi, [board + rax]
 
-            ; Verificar si hay colisión con la paleta (símbolo =)
             mov al, [rdi]
             cmp al, ' '
             je .next_letter
             cmp al, char_equal
             je .capture_letter
 
-            ; Si no hay colisión, dibujar la letra
             mov al, [rbx + 2]
             mov [rdi], al
             jmp .next_letter
 
         .capture_letter:
-            ; Guardar la letra capturada
-            mov al, [rbx + 2]       ; Obtener la letra
-            mov [last_letter], al   ; Guardarla como última letra capturada
+            mov al, [rbx + 2]
+            mov [last_letter], al
             
-            ; Desactivar la letra
-            mov byte [rbx + 3], 0
+            ; Verificar si la letra es 'E'
+            cmp al, 'E'
+            je .extend_pallet
+            
+            ; Si no es 'E', restaurar tamaño normal
+            mov rax, [default_pallet_size]
+            mov [pallet_size], rax
+            jmp .finish_capture
+
+            .extend_pallet:
+                mov rax, [extended_pallet_size]
+                mov [pallet_size], rax
+
+            .finish_capture:
+                mov byte [rbx + 3], 0
 
         .next_letter:
             inc rcx
             jmp .move_loop
 
     .print_last_letter:
-        ; Imprimir el mensaje con la última letra
-        print last_letter_msg, last_letter_msg_len - 3  ; Imprimir hasta antes del salto de línea
-        
-        ; Imprimir la última letra
+        print last_letter_msg, last_letter_msg_len - 3
         mov al, [last_letter]
-        mov [last_letter_msg + 15], al  ; Colocar la letra en el espacio entre corchetes
-        
-        ; Imprimir el salto de línea
+        mov [last_letter_msg + 15], al
         print last_letter_msg + last_letter_msg_len - 3, 3
 
     .end:
@@ -800,33 +790,27 @@ print_ball:
 	
 	;mov rax, board + r8 + r9 * (column_cells + 2)
 	
-
-
-
-;	Function: print_pallet
-; This function moves the pallet in the game
-; Arguments: none
-;
-; Return;
-;	void
 print_pallet:
-	mov r8, [pallet_position]
-	mov rcx, [pallet_size]
-	.write_pallet:
-		mov byte [r8], char_equal
-		inc r8
-		dec rcx
-		jnz .write_pallet
+    ; Primero borrar la paleta anterior completa (usando el tamaño máximo posible)
+    mov r8, [pallet_position]
+    mov rcx, [extended_pallet_size]
+    .clear_pallet:
+        mov byte [r8], char_space
+        inc r8
+        dec rcx
+        jnz .clear_pallet
 
-	ret
-	
-;	Function: move_pallet
-; This function is in charge of moving the pallet in a given direction
-; Arguments:
-;	rdi: left direction or right direction
-;
-; Return:
-;	void
+    ; Luego dibujar la nueva paleta con el tamaño actual
+    mov r8, [pallet_position]
+    mov rcx, [pallet_size]
+    .write_pallet:
+        mov byte [r8], char_equal
+        inc r8
+        dec rcx
+        jnz .write_pallet
+
+    ret
+
 move_pallet:
     
     cmp byte [ball_moving], 0
@@ -1042,6 +1026,9 @@ init_empty_board:
 
 
 init_level:
+
+    mov rax, [default_pallet_size]
+    mov [pallet_size], rax
     ; 1) Copiamos board_template en board para que quede "virgen"
         ; Reiniciar letras activas
     lea rdi, [letters_map]
@@ -1495,21 +1482,7 @@ print_labels:
     ret
 
 
-; Función modificada para detectar colisión
-; Función mejorada para detectar colisión y manejar la física
-; Función corregida para manejar colisiones con bloques completos
-;---------------------------------------------------------
-; check_block_collision:
-;   Detecta si en la posición r10 (que apunta a board[])
-;   hay un bloque ("UUUU","OOOO","DDDD","LLLL","VVVV","8888").
-;   De ser así, localiza qué bloque es, lo "destruye" y
-;   retorna 1 para indicar colisión. Si no encuentra bloque,
-;   retorna 0.
-;---------------------------------------------------------
-;--------------------------------------
-; check_block_collision
-;--------------------------------------
-; Actualizar check_block_collision para usar el nivel actual
+
 check_block_collision:
     push rbp
     mov rbp, rsp
