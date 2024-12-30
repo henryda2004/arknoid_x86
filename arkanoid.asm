@@ -286,7 +286,7 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 58, 7, 3, 1, 'P'    ; Bloque 7
+        db 58, 7, 3, 1, 'S'    ; Bloque 7
         db 61, 9, 3, 1, 'E'    ; Bloque 7
         db 18, 7, 3, 1, 'S'    ; Bloque 7
     level1_blocks_count equ 3   ; Cantidad total de bloques
@@ -388,6 +388,11 @@ section .data
     last_letter_msg_len equ $ - last_letter_msg
     current_power_processed db 0 ; 0 = no procesado, 1 = ya procesado
     max_lives db 7              ; Máximo número de vidas permitidas
+    ball_speed dq 1             ; Velocidad normal de la bola
+    slow_ball_speed dq 2        ; Velocidad lenta (se usará como divisor)
+    speed_counter dq 0          ; Contador para ralentizar el movimiento
+
+
 
 section .text
 
@@ -766,10 +771,14 @@ move_letters:
             ; Verificar si es 'P' para añadir vida
             cmp al, 'P'
             je .check_add_life
+
+            cmp al, 'S'
+            je .slow_ball
             
             ; Si no es ningún power-up, restaurar tamaño normal
             mov rax, [default_pallet_size]
             mov [pallet_size], rax
+            mov qword [ball_speed], 1    ; Restaurar velocidad normal
             jmp .finish_capture
 
             .extend_pallet:
@@ -796,6 +805,12 @@ move_letters:
                 pop rbx
                 pop rcx
                 
+            .slow_ball:
+                mov rax, [default_pallet_size]
+                mov [pallet_size], rax
+                mov qword [ball_speed], 2    ; Activar velocidad lenta
+                jmp .finish_capture
+
             .finish_capture:
                 mov byte [rbx + 3], 0
 
@@ -955,6 +970,17 @@ move_ball:
     cmp byte [ball_moving], 0
     je .end
 
+    ; Incrementar contador de velocidad
+    inc qword [speed_counter]
+    
+    ; Verificar si debemos mover la bola en este ciclo
+    mov rax, [speed_counter]
+    cmp rax, [ball_speed]
+    jl .end
+    
+    ; Resetear contador de velocidad
+    mov qword [speed_counter], 0
+
     ; Borrar la posición actual de la bola
     mov r8, [ball_x_pos]
     mov r9, [ball_y_pos]
@@ -963,13 +989,13 @@ move_ball:
     mov rax, column_cells + 2
     imul rcx
     add r8, rax
-    mov byte [r8], char_space    ; Borrar la bola actual
+    mov byte [r8], char_space
 
     ; Calcular siguiente posición X
     mov r8, [ball_x_pos]
     mov r9, [ball_y_pos]
     mov rax, [ball_direction_x]
-    add r8, rax                  ; Nueva posición X
+    add r8, rax               ; Nueva posición X
 
     ; Calcular la dirección de memoria para la siguiente posición
     mov r10, r8
@@ -1127,6 +1153,8 @@ init_level:
 
     mov rax, [default_pallet_size]
     mov [pallet_size], rax
+    mov qword [ball_speed], 1    ; Restaurar velocidad normal
+
     ; 1) Copiamos board_template en board para que quede "virgen"
         ; Reiniciar letras activas
     lea rdi, [letters_map]
