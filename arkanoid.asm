@@ -286,7 +286,7 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 58, 7, 3, 2, 'D'    ; Bloque 7
+        db 58, 7, 3, 1, 'P'    ; Bloque 7
         db 61, 9, 3, 1, 'E'    ; Bloque 7
         db 18, 7, 3, 1, 'S'    ; Bloque 7
     level1_blocks_count equ 3   ; Cantidad total de bloques
@@ -372,12 +372,12 @@ section .data
         db 4, 30, 1     ; Vida 2 (activa)
         db 6, 30, 1     ; Vida 3 (inactiva)
         db 8, 30, 1     ; Vida 4 (inactiva)
-        db 10, 30, 1    ; Vida 5 (inactiva)
-        db 12, 30, 1    ; Vida 6 (inactiva)
-        db 14, 30, 1    ; Vida 7 (inactiva)
+        db 10, 30, 0    ; Vida 5 (inactiva)
+        db 12, 30, 0    ; Vida 6 (inactiva)
+        db 14, 30, 0    ; Vida 7 (inactiva)
     lives_count equ 7    ; Total de vidas
     life_char db "^"    
-    current_lives db 7   ; Contador de vidas activas actual
+    current_lives db 4   ; Contador de vidas activas actual
 
 ; Estructura para almacenar las letras y sus posiciones
     ; Formato: x, y, letra, activo (1 = activo, 0 = inactivo)
@@ -386,6 +386,9 @@ section .data
     last_letter db ' '    ; Variable para almacenar la última letra
     last_letter_msg db "Poder actual: [ ]", 0xA, 0xD  ; Mensaje para mostrar la última letra
     last_letter_msg_len equ $ - last_letter_msg
+    current_power_processed db 0 ; 0 = no procesado, 1 = ya procesado
+    max_lives db 7              ; Máximo número de vidas permitidas
+
 section .text
 
 
@@ -690,6 +693,10 @@ move_letters:
     push rbx
     push rdi
     push rsi
+    push r8
+    push r9
+    push r10
+    push r11
 
     xor rcx, rcx
 
@@ -738,14 +745,29 @@ move_letters:
             jmp .next_letter
 
         .capture_letter:
+            ; Obtener la nueva letra
             mov al, [rbx + 2]
+            
+            ; Comparar con la última letra
+            cmp al, [last_letter]
+            je .same_letter
+            
+            ; Es una letra diferente, resetear el procesamiento
+            mov byte [current_power_processed], 0
+            
+            .same_letter:
+            ; Guardar la nueva letra
             mov [last_letter], al
             
-            ; Verificar si la letra es 'E'
+            ; Verificar si es 'E' para extender la paleta
             cmp al, 'E'
             je .extend_pallet
             
-            ; Si no es 'E', restaurar tamaño normal
+            ; Verificar si es 'P' para añadir vida
+            cmp al, 'P'
+            je .check_add_life
+            
+            ; Si no es ningún power-up, restaurar tamaño normal
             mov rax, [default_pallet_size]
             mov [pallet_size], rax
             jmp .finish_capture
@@ -753,7 +775,27 @@ move_letters:
             .extend_pallet:
                 mov rax, [extended_pallet_size]
                 mov [pallet_size], rax
+                jmp .finish_capture
 
+            .check_add_life:
+                ; Verificar si ya procesamos este power-up
+                cmp byte [current_power_processed], 0
+                jne .finish_capture
+                
+                ; Preservar registros importantes
+                push rcx
+                push rbx
+                
+                ; Marcar como procesado
+                mov byte [current_power_processed], 1
+                
+                ; Añadir una vida
+                call add_life
+                
+                ; Restaurar registros
+                pop rbx
+                pop rcx
+                
             .finish_capture:
                 mov byte [rbx + 3], 0
 
@@ -768,11 +810,67 @@ move_letters:
         print last_letter_msg + last_letter_msg_len - 3, 3
 
     .end:
+        pop r11
+        pop r10
+        pop r9
+        pop r8
         pop rsi
         pop rdi
         pop rbx
         pop rbp
         ret
+
+add_life:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push rcx
+    push rdi
+    push rsi
+    push r8
+    push r9
+    
+    ; Verificar si ya tenemos el máximo de vidas
+    movzx rax, byte [current_lives]
+    cmp rax, 7          ; Comparar con el máximo de vidas
+    jge .end
+    
+    ; Incrementar el contador de vidas
+    inc byte [current_lives]
+    
+    ; Encontrar la siguiente vida inactiva
+    xor rcx, rcx
+    
+    .find_inactive:
+        cmp rcx, lives_count
+        jge .end
+        
+        ; Calcular offset de la vida actual
+        mov rax, rcx
+        imul rax, 3
+        lea rsi, [lives_data + rax]
+        
+        ; Verificar si está inactiva
+        cmp byte [rsi + 2], 0
+        je .activate_life
+        
+        inc rcx
+        jmp .find_inactive
+        
+    .activate_life:
+        ; Activar la vida
+        mov byte [rsi + 2], 1
+        
+    .end:
+        pop r9
+        pop r8
+        pop rsi
+        pop rdi
+        pop rcx
+        pop rbx
+        pop rbp
+        ret
+
 
 print_ball:
 	mov r8, [ball_x_pos]
