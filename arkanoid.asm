@@ -995,17 +995,17 @@ move_pallet:
     mov r8, rax   ; y
     mov r9, rdx   ; x
     
-    ; Calcular nueva posición derecha ANTES de borrar
+    ; Verificar el límite derecho considerando el tamaño de la paleta
+    ; Necesitamos dejar al menos 2 espacios hasta el borde
     mov rbx, [pallet_size]
-    mov rcx, rbx
-    dec rcx
-    add rcx, r9   ; xDerecha
+    add rbx, r9        ; posición actual + tamaño paleta
+    inc rbx            ; +1 para el movimiento que queremos hacer
     
-    ; Verificar límite ANTES de borrar
-    cmp rcx, 75   ; si xDerecha >= 75 => borde
+    ; Si la siguiente posición estaría a menos de 2 espacios del borde, no mover
+    cmp rbx, column_cells-2
     jge .end
     
-    ; Si llegamos aquí, es seguro borrar y mover
+    ; Si llegamos aquí, es seguro mover
     mov rax, r8
     imul rax, (column_cells+2)
     add rax, r9
@@ -1021,7 +1021,6 @@ move_pallet:
 
 .end:
     ret
-
 
 
 
