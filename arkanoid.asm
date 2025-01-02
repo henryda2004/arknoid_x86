@@ -1009,6 +1009,9 @@ move_ball:
     cmp byte [ball_caught], 1
     je .move_with_pallet
 
+    cmp byte [ball_moving], 0
+    je .end
+
     ; Incrementar contador de velocidad
     inc qword [speed_counter]
     
