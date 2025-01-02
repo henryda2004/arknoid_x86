@@ -951,30 +951,26 @@ move_pallet:
 
         .move_left:
             mov r8, [pallet_position]
-            dec r8              
-            mov al, [r8]       
+            mov al, [r8 - 1]       ; Revisar la siguiente posición antes de mover
             cmp al, 'X'        
             je .end            
             
             mov r8, [pallet_position]
             mov r9, [pallet_size]
-            mov byte [r8 + r9 - 1], char_space  
-            dec r8
-            mov [pallet_position], r8
+            mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter
+            dec qword [pallet_position]         ; Decrementar la posición directamente en memoria
             jmp .end
             
         .move_right:
             mov r8, [pallet_position]
             mov r9, [pallet_size]
-            add r8, r9        
-            mov al, [r8]      
+            mov al, [r8 + r9]      ; Revisar la siguiente posición antes de mover
             cmp al, 'X'       
             je .end           
             
             mov r8, [pallet_position]
-            mov byte [r8], char_space
-            inc r8
-            mov [pallet_position], r8
+            mov byte [r8], char_space          ; Borrar primer carácter
+            inc qword [pallet_position]        ; Incrementar la posición directamente en memoria
             
         .end:
             ret
@@ -2362,38 +2358,43 @@ _start:
 		print board, board_size				
 		;setnonblocking	
 	.read_more:	
-		getchar	
-		
-		cmp rax, 1
-    	jne .done
-		
-		mov al,[input_char]
-
-		cmp al, 'a'
+	    getchar	
+	    cmp rax, 1
+	    jne .done
+	
+	    mov al, [input_char]
+	    mov [last_key], al      ; Registrar la última tecla presionada
+	
+	    cmp al, 'a'
 	    jne .not_left
 	    mov rdi, left_direction
-		call move_pallet
+	    call move_pallet
 	    jmp .done
-		
-		.not_left:
-		 	cmp al, 'd'
-	    	jne .not_right
-			mov rdi, right_direction
-	    	call move_pallet
-    		jmp .done		
+	
+    .not_left:
+	    cmp al, 'd'
+	    jne .not_right
+	    mov rdi, right_direction
+	    call move_pallet
+	    jmp .done
+	
+    .not_right:
+	    cmp al, 'c'             ; Verificar si se presionó la tecla 'c'
+	    je .release_ball        ; Si sí, liberar la bola
+	
+	    cmp al, 'q' 
+	    je exit
+	    jmp .read_more
+	
+    .release_ball:
+	    call process_catch_release
+	    jmp .done
+	
+    .done:
+	    sleeptime
+	    print clear, clear_length
+	    jmp .main_loop
 
-		.not_right:
-
-    		cmp al, 'q'
-    		je exit
-
-			jmp .read_more
-		
-		.done:	
-			;unsetnonblocking		
-			sleeptime	
-			print clear, clear_length
-    		jmp .main_loop
 
 
 
