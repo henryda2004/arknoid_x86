@@ -286,8 +286,8 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 58, 7, 3, 1, 'S'    ; Bloque 7
-        db 61, 9, 3, 1, 'E'    ; Bloque 7
+        db 58, 7, 3, 1, 'C'    ; Bloque 7
+        db 61, 9, 3, 1, 'S'    ; Bloque 7
         db 18, 7, 3, 1, 'S'    ; Bloque 7
     level1_blocks_count equ 3   ; Cantidad total de bloques
 
@@ -392,6 +392,10 @@ section .data
     slow_ball_speed dq 2        ; Velocidad lenta (se usará como divisor)
     speed_counter dq 0          ; Contador para ralentizar el movimiento
 
+    catch_power_active db 0     ; 0 = inactivo, 1 = activo
+    ball_caught db 0           ; 0 = no atrapada, 1 = atrapada
+    ball_catch_offset dq 0     ; Offset respecto a la paleta cuando está atrapada
+    last_key db 0    ; Variable para almacenar la última tecla presionada
 
 
 section .text
@@ -774,19 +778,27 @@ move_letters:
 
             cmp al, 'S'
             je .slow_ball
+
+            cmp al, 'C'
+            je .activate_catch
             
             ; Si no es ningún power-up, restaurar tamaño normal
             mov rax, [default_pallet_size]
             mov [pallet_size], rax
             mov qword [ball_speed], 1    ; Restaurar velocidad normal
+            mov byte [catch_power_active], 0
             jmp .finish_capture
 
             .extend_pallet:
+                mov qword [ball_speed], 1    ; Restaurar velocidad normal
                 mov rax, [extended_pallet_size]
                 mov [pallet_size], rax
                 jmp .finish_capture
 
             .check_add_life:
+                mov rax, [default_pallet_size]
+                mov [pallet_size], rax
+                mov qword [ball_speed], 1 
                 ; Verificar si ya procesamos este power-up
                 cmp byte [current_power_processed], 0
                 jne .finish_capture
@@ -809,6 +821,10 @@ move_letters:
                 mov rax, [default_pallet_size]
                 mov [pallet_size], rax
                 mov qword [ball_speed], 2    ; Activar velocidad lenta
+                jmp .finish_capture
+
+            .activate_catch:
+                mov byte [catch_power_active], 1
                 jmp .finish_capture
 
             .finish_capture:
@@ -925,7 +941,6 @@ print_pallet:
     ret
 
 move_pallet:
-    
     cmp byte [ball_moving], 0
     jne .continue_movement
     mov byte [ball_moving], 1
@@ -935,40 +950,64 @@ move_pallet:
         jne .move_right
 
         .move_left:
-            ; Verificar si la siguiente posición sería una X (borde izquierdo)
             mov r8, [pallet_position]
-            dec r8              ; Verificar la posición a la izquierda
-            mov al, [r8]       ; Cargar el carácter en esa posición
-            cmp al, 'X'        ; Comparar si es una X
-            je .end            ; Si es X, no mover
+            dec r8              
+            mov al, [r8]       
+            cmp al, 'X'        
+            je .end            
             
             mov r8, [pallet_position]
             mov r9, [pallet_size]
-            mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter de la paleta
+            mov byte [r8 + r9 - 1], char_space  
             dec r8
             mov [pallet_position], r8
             jmp .end
             
         .move_right:
-            ; Verificar si la siguiente posición después de la paleta sería una X
             mov r8, [pallet_position]
             mov r9, [pallet_size]
-            add r8, r9         ; Moverse al final de la paleta
-            mov al, [r8]       ; Cargar el carácter en esa posición
-            cmp al, 'X'        ; Comparar si es una X
-            je .end            ; Si es X, no mover
+            add r8, r9        
+            mov al, [r8]      
+            cmp al, 'X'       
+            je .end           
             
             mov r8, [pallet_position]
             mov byte [r8], char_space
             inc r8
             mov [pallet_position], r8
+            
         .end:
             ret
 
+            
+; Nueva función auxiliar para actualizar la posición de la bola atrapada
+update_caught_ball_position:
+    push rbp
+    mov rbp, rsp
+    
+    ; Calcular la nueva posición de la bola basada en la paleta
+    mov r8, [pallet_position]
+    sub r8, board          ; Obtener posición relativa
+    mov rax, column_cells + 2
+    xor rdx, rdx
+    div rax                ; División para obtener X,Y
+    
+    ; rdx contiene X (resto), rax contiene Y (cociente)
+    mov r9, rax            ; Y de la paleta
+    dec r9                 ; Una posición arriba de la paleta
+    
+    ; Añadir el offset guardado a la posición X
+    mov rax, rdx
+    add rax, [ball_catch_offset]
+    mov [ball_x_pos], rax
+    mov [ball_y_pos], r9
+    
+    pop rbp
+    ret
 move_ball:
-    ; Si la bola no está en movimiento, no hacer nada
-    cmp byte [ball_moving], 0
-    je .end
+
+    cmp byte [ball_caught], 1
+    je .move_with_pallet
 
     ; Incrementar contador de velocidad
     inc qword [speed_counter]
@@ -1011,6 +1050,31 @@ move_ball:
     jne .check_block_x
     neg qword [ball_direction_x]  ; Cambiar dirección X si hay una X
     jmp .end
+
+    .move_with_pallet:
+        ; Borrar la posición actual de la bola
+        mov r8, [ball_x_pos]
+        mov r9, [ball_y_pos]
+        mov r10, r8
+        add r10, board
+        mov rcx, r9
+        mov rax, column_cells + 2
+        imul rcx
+        add r10, rax
+        mov byte [r10], char_space
+
+        ; Actualizar posición X basada en la paleta
+        mov r8, [pallet_position]      ; Obtener posición actual de la paleta
+        sub r8, board                  ; Ajustar por el offset del tablero
+        add r8, [ball_catch_offset]    ; Añadir el offset guardado
+        mov [ball_x_pos], r8          ; Guardar nueva posición X
+
+        ; Mantener la bola una posición arriba de la paleta
+        mov r9, [ball_y_pos]          ; Mantener la misma altura
+        mov [ball_y_pos], r9          ; Actualizar posición Y
+
+        jmp .end
+
 
     .check_block_x:
         ; Verificar colisión con bloques en X
@@ -1068,11 +1132,28 @@ move_ball:
         jmp .end
 
     .check_paddle_y:
-    ; Verificar si hay una paleta (=) en la siguiente posición Y
-    cmp byte [r10], char_equal
-    jne .update_position
-    neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una paleta
-    jmp .end
+        ; Verificar si hay una paleta (=) en la siguiente posición Y
+        cmp byte [r10], char_equal
+        jne .update_position
+
+        ; Verificar si el poder catch está activo
+        cmp byte [catch_power_active], 1
+        jne .normal_bounce
+
+        ; Activar el modo "atrapado"
+        mov byte [ball_caught], 1
+        
+        ; Guardar la posición X actual de la bola como offset
+        mov rax, [ball_x_pos]           ; Posición X actual de la bola
+        sub rax, [pallet_position]      ; Restar la posición de la paleta
+        add rax, board                  ; Ajustar por el offset del tablero
+        mov [ball_catch_offset], rax    ; Guardar el offset
+        
+        jmp .end
+
+    .normal_bounce:
+        neg qword [ball_direction_y]  ; Cambiar dirección Y si hay una paleta
+        jmp .end
 
 
     .update_position:
@@ -1082,9 +1163,37 @@ move_ball:
     .end:
         ret
 
-; Función para inicializar el nivel
-; Función para inicializar el nivel
-; Función para mostrar el número de nivel
+; Nueva función para procesar la tecla C cuando la bola está atrapada
+; Procesar la tecla 'c' cuando el poder de atrapar está activo
+process_catch_release:
+    push rbp
+    mov rbp, rsp
+
+    ; Verificar si la bola está atrapada
+    cmp byte [ball_caught], 0
+    je .end
+
+    ; Verificar si el poder catch está activo
+    cmp byte [catch_power_active], 1
+    jne .end
+
+    ; Verificar si se presionó la tecla 'c'
+    cmp byte [last_key], 'c'
+    jne .end
+
+    ; Liberar la bola y asignar dirección inicial
+    mov byte [ball_caught], 0
+    mov qword [ball_direction_x], 1
+    mov qword [ball_direction_y], -1
+
+    ; Limpiar la tecla procesada
+    mov byte [last_key], 0
+
+    .end:
+        pop rbp
+        ret
+
+
 display_level_number:
     push rbp
     mov rbp, rsp
