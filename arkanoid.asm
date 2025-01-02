@@ -287,9 +287,10 @@ section .data
     level1_blocks:
         ; Tercera fila (tipo 3)
         db 58, 7, 3, 1, 'E'    ; Bloque 7
-        db 61, 9, 3, 1, 'S'    ; Bloque 7
+        db 61, 9, 3, 1, 'C'    ; Bloque 7
+        db 35, 9, 3, 1, 'C'    ; Bloque 7
         db 18, 7, 3, 1, 'S'    ; Bloque 7
-    level1_blocks_count equ 3   ; Cantidad total de bloques
+    level1_blocks_count equ 4   ; Cantidad total de bloques
 
     ; Nivel 2: Bloques de prueba
     level2_blocks:
@@ -790,12 +791,14 @@ move_letters:
             jmp .finish_capture
 
             .extend_pallet:
+                mov byte [catch_power_active], 0
                 mov qword [ball_speed], 1    ; Restaurar velocidad normal
                 mov rax, [extended_pallet_size]
                 mov [pallet_size], rax
                 jmp .finish_capture
 
             .check_add_life:
+                mov byte [catch_power_active], 0
                 mov rax, [default_pallet_size]
                 mov [pallet_size], rax
                 mov qword [ball_speed], 1 
@@ -818,12 +821,16 @@ move_letters:
                 pop rcx
                 
             .slow_ball:
+                mov byte [catch_power_active], 0                
                 mov rax, [default_pallet_size]
                 mov [pallet_size], rax
                 mov qword [ball_speed], 2    ; Activar velocidad lenta
                 jmp .finish_capture
 
             .activate_catch:
+                mov rax, [default_pallet_size]
+                mov [pallet_size], rax
+                mov qword [ball_speed], 1
                 mov byte [catch_power_active], 1
                 jmp .finish_capture
 
@@ -941,86 +948,45 @@ print_pallet:
     ret
 
 move_pallet:
-    ; 0) Forzar ball_moving a 1 si era 0
+    
     cmp byte [ball_moving], 0
-    jne .continue
+    jne .continue_movement
     mov byte [ball_moving], 1
-    
-.continue:
-    cmp rdi, left_direction
-    jne .move_right
-    
-    ; --- MOVER IZQUIERDA ---
-    mov rax, [pallet_position]
-    sub rax, board
-    xor rdx, rdx
-    mov rcx, column_cells
-    add rcx, 2
-    div rcx
-    mov r8, rax          ; y
-    mov r9, rdx          ; x
-    
-    ; Verificar límite ANTES de borrar
-    cmp r9, 1
-    jle .end            ; si x <= 1 => no mover
-    
-    ; Si llegamos aquí, es seguro borrar y mover
-    mov rbx, [pallet_size]
-    mov rcx, r9
-    add rcx, rbx         ; xDerecho = x + pal_size
-    dec rcx              ; xDerecho - 1
-    
-    ; Borrar solo si no estamos en el borde
-    mov rax, r8
-    imul rax, (column_cells+2)
-    add rax, rcx
-    add rax, board
-    mov byte [rax], char_space
-    
-    dec r9
-    mov rax, r8
-    imul rax, (column_cells+2)
-    add rax, r9
-    add rax, board
-    mov [pallet_position], rax
-    jmp .end
 
-.move_right:
-    mov rax, [pallet_position]
-    sub rax, board
-    xor rdx, rdx
-    mov rcx, column_cells
-    add rcx, 2
-    div rcx
-    mov r8, rax   ; y
-    mov r9, rdx   ; x
-    
-    ; Verificar el límite derecho considerando el tamaño de la paleta
-    ; Necesitamos dejar al menos 2 espacios hasta el borde
-    mov rbx, [pallet_size]
-    add rbx, r9        ; posición actual + tamaño paleta
-    inc rbx            ; +1 para el movimiento que queremos hacer
-    
-    ; Si la siguiente posición estaría a menos de 2 espacios del borde, no mover
-    cmp rbx, column_cells-2
-    jge .end
-    
-    ; Si llegamos aquí, es seguro mover
-    mov rax, r8
-    imul rax, (column_cells+2)
-    add rax, r9
-    add rax, board
-    mov byte [rax], char_space
-    
-    inc r9
-    mov rax, r8
-    imul rax, (column_cells+2)
-    add rax, r9
-    add rax, board
-    mov [pallet_position], rax
+    .continue_movement:
+        cmp rdi, left_direction
+        jne .move_right
 
-.end:
-    ret
+        .move_left:
+            ; Verificar si la siguiente posición sería una X (borde izquierdo)
+            mov r8, [pallet_position]
+            dec r8              ; Verificar la posición a la izquierda
+            mov al, [r8]       ; Cargar el carácter en esa posición
+            cmp al, 'X'        ; Comparar si es una X
+            je .end            ; Si es X, no mover
+            
+            mov r8, [pallet_position]
+            mov r9, [pallet_size]
+            mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter de la paleta
+            dec r8
+            mov [pallet_position], r8
+            jmp .end
+            
+        .move_right:
+            ; Verificar si la siguiente posición después de la paleta sería una X
+            mov r8, [pallet_position]
+            mov r9, [pallet_size]
+            add r8, r9         ; Moverse al final de la paleta
+            mov al, [r8+2]       ; Cargar el carácter en esa posición
+            cmp al, 'X'        ; Comparar si es una X
+            je .end            ; Si es X, no mover
+            
+            mov r8, [pallet_position]
+            mov byte [r8], char_space
+            inc r8
+            mov [pallet_position], r8
+        .end:
+            ret
 
 
 
