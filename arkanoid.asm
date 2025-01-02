@@ -941,6 +941,7 @@ print_pallet:
     ret
 
 move_pallet:
+    
     cmp byte [ball_moving], 0
     jne .continue_movement
     mov byte [ball_moving], 1
@@ -950,30 +951,36 @@ move_pallet:
         jne .move_right
 
         .move_left:
+            ; Verificar si la siguiente posición sería una X (borde izquierdo)
             mov r8, [pallet_position]
-            mov al, [r8 - 1]       ; Revisar la siguiente posición antes de mover
-            cmp al, 'X'        
-            je .end            
+            dec r8              ; Verificar la posición a la izquierda
+            mov al, [r8]       ; Cargar el carácter en esa posición
+            cmp al, 'X'        ; Comparar si es una X
+            je .end            ; Si es X, no mover
             
             mov r8, [pallet_position]
             mov r9, [pallet_size]
-            mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter
-            dec qword [pallet_position]         ; Decrementar la posición directamente en memoria
+            mov byte [r8 + r9 - 1], char_space  ; Borrar último carácter de la paleta
+            dec r8
+            mov [pallet_position], r8
             jmp .end
             
         .move_right:
+            ; Verificar si la siguiente posición después de la paleta sería una X
             mov r8, [pallet_position]
             mov r9, [pallet_size]
-            mov al, [r8 + r9]      ; Revisar la siguiente posición antes de mover
-            cmp al, 'X'       
-            je .end           
+            add r8, r9         ; Moverse al final de la paleta
+            mov al, [r8]       ; Cargar el carácter en esa posición
+            cmp al, 'X'        ; Comparar si es una X
+            je .end            ; Si es X, no mover
             
             mov r8, [pallet_position]
-            mov byte [r8], char_space          ; Borrar primer carácter
-            inc qword [pallet_position]        ; Incrementar la posición directamente en memoria
-            
+            mov byte [r8], char_space
+            inc r8
+            mov [pallet_position], r8
         .end:
             ret
+
 
             
 ; Nueva función auxiliar para actualizar la posición de la bola atrapada
