@@ -977,6 +977,12 @@ shoot_lasers:
 ; Esta es la parte clave para recorrer los láseres de atrás hacia adelante.
 
 ; Actualizar la función move_lasers para incluir verificación de colisiones
+; ============================================================
+; NUEVA FUNCIÓN move_lasers (todo-en-uno)
+; ============================================================
+; Mueve cada láser hacia arriba, verifica colisiones (bloques/enemigos)
+; y lo elimina inmediatamente si choca, de lo contrario lo dibuja.
+; ============================================================
 move_lasers:
     push rbp
     mov  rbp, rsp
@@ -993,18 +999,19 @@ move_lasers:
     test rcx, rcx
     jz .fin              ; Si es cero, no hay láseres => salir
 
-    ; Ajustamos para que RCX sea el último índice de láser
-    dec rcx              ; Último índice es (laser_count - 1)
+    ; Ajustamos RCX para que sea el último índice (laser_count - 1)
+    dec rcx              ; Empezamos desde el último láser
 
 .loop_lasers:
     ; RSI apunta a lasers + (rcx * 2) => (x, y) del láser
     lea rsi, [lasers + rcx*2]
 
-    ; 2) Cargar x,y actuales
-    movzx r8,  byte [rsi]      ; x
-    movzx r9,  byte [rsi + 1]  ; y
+    ; 2) Cargar x,y actuales del láser
+    movzx r8,  byte [rsi]      ; X
+    movzx r9,  byte [rsi + 1]  ; Y
 
     ; 3) Borrar el láser de su posición actual en pantalla
+    ;    (por si en el ciclo anterior se había dibujado)
     mov rax, column_cells
     add rax, 2
     mul r9
@@ -1015,56 +1022,86 @@ move_lasers:
     ; 4) Mover el láser hacia arriba (y - 1)
     dec r9
 
-    ; Verificar si ya salió de la pantalla (o si y < 1)
+    ; Si y < 1, está fuera de pantalla => eliminarlo
     cmp r9, 1
-    jl .delete_laser           ; Si y < 1 => eliminarlo
+    jl .delete_laser
 
-    ; 5) Si sigue en pantalla => guardar su nueva posición
+    ; Guardamos la posición nueva en el array (aún no lo dibujamos)
     mov byte [rsi + 1], r9b
 
-    ; 6) Dibujar láser en la nueva posición
+    ; 5) Verificamos colisión inmediata con bloques o enemigos
+    ;    - Primero colisión con bloques
+    ; ---------------------------------------------------------
+    ; Calculamos la nueva dirección de memoria para esa posición (r9,r8)
     mov rax, column_cells
     add rax, 2
     mul r9
     add rax, r8
-    lea rdi, [board + rax]
-    
-    ; Verificar colisiones antes de dibujar el láser
+    lea rdi, [board + rax]   ; rdi apunta a la celda donde estaría el láser
+
+    ; Revisar si hay bloque
     push rcx
     push rsi
     push rdi
-    call check_laser_collisions
+    mov r10, rdi    ; En check_block_collision, r10 = posición en board
+    call check_block_collision
     pop rdi
     pop rsi
     pop rcx
 
-    ; Si el láser sigue activo (no fue eliminado por colisión), dibujarlo
+    test rax, rax          ; rax=1 => hubo colisión con bloque
+    jnz .delete_laser      ; si chocó, eliminar ya el láser
+
+    ;    - Luego colisión con enemigos
+    ; ---------------------------------------------------------
+    push rcx
+    push rsi
+    push rdi
+    ; Pasamos (r8=X, r9=Y, r10=punteroEnBoard) a la función
+    ; o podemos crear una versión inlined. A modo de ejemplo:
+    ; Llamamos a check_laser_enemy_collision, que retorna
+    ; rax=1 si hubo colisión con enemigo, 0 si no.
+    ;
+    ; Hacemos algo como:
+    mov r10, rdi
+    call check_laser_enemy_collision
+    pop rdi
+    pop rsi
+    pop rcx
+
+    test rax, rax          ; rax=1 => colisión con un enemigo
+    jnz .delete_laser
+
+    ; 6) Si NO hubo colisión, dibujamos el láser en la nueva posición
     mov al, [laser_symbol]
     mov [rdi], al
 
 .next_laser:
-    ; 7) Pasamos al láser anterior
+    ; Pasamos al láser anterior en el array
     dec rcx
     cmp rcx, -1
     jg .loop_lasers   ; Mientras rcx >= 0, seguir iterando
-
     jmp .fin
 
+; -----------------------------------------------------------------
+; Subrutina interna: .delete_laser
+; -----------------------------------------------------------------
+; Elimina el láser actual del array 'lasers' moviendo el último
+; láser a su posición (si no es el último). Decrementa laser_count.
 .delete_laser:
-    ; 8) Borrar el láser actual del array
     movzx r12, byte [laser_count]
-    dec r12                    ; r12 = último índice
+    dec r12                    ; r12 = índice del último láser
     cmp r12, rcx
-    jbe .just_decrement        ; Si rcx ya apunta al último
+    jbe .just_decrement        ; Si rcx ya apunta al último, no copiamos
 
-    ; Si NO es el último láser => copiamos el último en la posición actual
+    ; Copiamos el último láser a la posición actual
     lea rdi, [lasers + rcx*2]
     lea rsi, [lasers + r12*2]
-    mov ax, [rsi]             ; lee 2 bytes (x,y) del último
-    mov [rdi], ax             ; copy
+    mov ax, [rsi]             ; lee 2 bytes (X,Y) del último láser
+    mov [rdi], ax             ; copiamos X,Y
 
 .just_decrement:
-    dec byte [laser_count]     ; Decrementar el contador total
+    dec byte [laser_count]    ; Decrementar contador de láseres
     jmp .next_laser
 
 .fin:
@@ -1078,90 +1115,6 @@ move_lasers:
     pop rbp
     ret
 
-
-; Nueva función para verificar colisión de láser con bloques y enemigos
-check_laser_collisions:
-    push rbp
-    mov rbp, rsp
-    push rbx
-    push r12
-    push r13
-    push r14
-    push r15
-
-    ; Recorrer todos los láseres activos
-    movzx rcx, byte [laser_count]
-    test rcx, rcx
-    jz .end              ; Si no hay láseres, salir
-
-    xor r12, r12        ; Índice del láser
-
-.check_laser_loop:
-    ; Obtener posición del láser actual
-    lea rsi, [lasers + r12*2]    ; Cada láser usa 2 bytes (x,y)
-    movzx r8, byte [rsi]         ; X del láser
-    movzx r9, byte [rsi + 1]     ; Y del láser
-
-    ; Calcular posición en el tablero
-    mov rax, column_cells
-    add rax, 2
-    mul r9
-    add rax, r8
-    lea r10, [board + rax]       ; r10 = puntero a la posición en el tablero
-
-    ; 1. Verificar colisión con bloques
-    push r8
-    push r9
-    push r10
-    push r12
-    push rcx
-    call check_block_collision    ; Usar la función existente de colisión de bloques
-    pop rcx
-    pop r12
-    pop r10
-    pop r9
-    pop r8
-
-    test rax, rax
-    jz .check_enemies            ; Si no hay colisión con bloque, verificar enemigos
-
-    ; Si hubo colisión con bloque, eliminar el láser
-    call remove_laser
-    jmp .next_laser
-
-.check_enemies:
-    ; 2. Verificar colisión con enemigos
-    push r8
-    push r9
-    push r10
-    push r12
-    push rcx
-    call check_laser_enemy_collision
-    pop rcx
-    pop r12
-    pop r10
-    pop r9
-    pop r8
-
-    test rax, rax
-    jz .next_laser              ; Si no hay colisión con enemigo, continuar
-
-    ; Si hubo colisión con enemigo, eliminar el láser
-    call remove_laser
-
-.next_laser:
-    add r12, 1                  ; Siguiente láser
-    cmp r12, rcx
-    jl .check_laser_loop
-
-.end:
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    pop rbx
-    pop rbp
-    ret
 
 ; Nueva función para verificar colisión entre láser y enemigos
 check_laser_enemy_collision:
