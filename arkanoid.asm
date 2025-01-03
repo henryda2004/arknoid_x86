@@ -303,7 +303,7 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 58, 7, 3, 1, 'L'    ; Bloque 7
+        db 58, 7, 3, 1, 'C'    ; Bloque 7
         db 61, 9, 3, 1, 'D'    ; Bloque 7
         db 35, 9, 3, 1, 'C'    ; Bloque 7
         db 18, 7, 3, 1, 'S'    ; Bloque 7
@@ -503,6 +503,7 @@ print_lives:
 
 ; Función para desactivar una vida
 ; Función modificada para perder una vida
+; Modificar lose_life para reiniciar solo la bola principal
 lose_life:
     push rbp
     mov rbp, rsp
@@ -513,52 +514,50 @@ lose_life:
     
     ; Encontrar la última vida activa
     mov rcx, lives_count
-    dec rcx                     ; Empezar desde la última vida
+    dec rcx
     
     .find_active_life:
         mov rax, rcx
-        imul rax, 3            ; Cada vida ocupa 3 bytes
+        imul rax, 3
         lea rsi, [lives_data + rax]
-        cmp byte [rsi + 2], 1  ; Verificar si está activa
+        cmp byte [rsi + 2], 1
         je .deactivate_life
         dec rcx
-        jns .find_active_life  ; Continuar si no hemos llegado a -1
-        jmp .game_lost         ; Si no encontramos vidas activas
+        jns .find_active_life
+        jmp .game_lost
         
     .deactivate_life:
-        ; Calcular posición correcta en el tablero para borrar la vida
-        movzx r8, byte [rsi]            ; X
-        movzx r9, byte [rsi + 1]        ; Y
-        
-        ; Calcular offset en el tablero: Y * (column_cells + 2) + X
+        ; Borrar vida visualmente y en datos
+        movzx r8, byte [rsi]
+        movzx r9, byte [rsi + 1]
         mov rax, column_cells
-        add rax, 2                      ; Incluir caracteres de nueva línea
+        add rax, 2
         mul r9
         add rax, r8
         lea rdi, [board + rax]
-        
-        ; Borrar visualmente la vida
-        mov byte [rdi], ' '             
-        
-        ; Desactivar la vida en los datos
-        mov byte [rsi + 2], 0          
+        mov byte [rdi], ' '
+        mov byte [rsi + 2], 0
         dec byte [current_lives]
         
-        ; Borrar visualmente la paleta anterior
+        ; Borrar paleta anterior
         mov r8, [pallet_position]
         mov rcx, [pallet_size]
         .erase_pallet_loop:
-            mov byte [r8], ' '          ; Reemplazar cada posición con un espacio
+            mov byte [r8], ' '
             inc r8
             dec rcx
             jnz .erase_pallet_loop
         
-
-        ; Reiniciar posición de la bola y la paleta
+        ; Reiniciar solo la bola principal
         mov qword [ball_x_pos], 40
         mov qword [ball_y_pos], 28
         mov byte [ball_moving], 0
+        mov byte [ball_active], 1       ; Activar bola principal
         mov qword [pallet_position], board + 38 + 29 * (column_cells + 2)
+        
+        ; Asegurarse que las otras bolas están desactivadas
+        mov byte [ball2_active], 0
+        mov byte [ball3_active], 0
         
         jmp .end
         
@@ -574,17 +573,63 @@ check_bottom_collision:
     push rbp
     mov rbp, rsp
     
-    ; Verificar si la bola está en la última fila (row_cells - 1)
+    ; Verificar bola principal
+    cmp byte [ball_active], 1
+    jne .check_ball2
     mov rax, [ball_y_pos]
     cmp rax, row_cells - 2
-    jne .no_collision
+    jne .check_ball2
     
-    ; Si hay colisión, perder una vida
+    ; Borrar visualmente la bola principal
+    mov r8, [ball_x_pos]
+    mov r9, [ball_y_pos]
+    add r8, board
+    mov rcx, r9
+    mov rax, column_cells + 2
+    imul rcx
+    add r8, rax
+    mov byte [r8], char_space    ; Borrar la bola del tablero
+    
+    mov byte [ball_active], 0
+    mov byte [ball_moving], 0
+
+.check_ball2:
+    cmp byte [ball2_active], 1
+    jne .check_ball3
+    mov rax, [ball2_y_pos]
+    cmp rax, row_cells - 2
+    jne .check_ball3
+    mov byte [ball2_active], 0
+    mov byte [ball2_moving], 0
+
+.check_ball3:
+    cmp byte [ball3_active], 1
+    jne .check_active_balls
+    mov rax, [ball3_y_pos]
+    cmp rax, row_cells - 2
+    jne .check_active_balls
+    mov byte [ball3_active], 0
+    mov byte [ball3_moving], 0
+
+.check_active_balls:
+    ; Verificar si quedan bolas activas
+    xor rcx, rcx
+    cmp byte [ball_active], 1
+    je .balls_remain
+    cmp byte [ball2_active], 1
+    je .balls_remain
+    cmp byte [ball3_active], 1
+    je .balls_remain
+    
+    ; Si no quedan bolas activas, perder una vida y reiniciar
     call lose_life
+    mov byte [ball_active], 1    ; Reactivar bola principal
     
-    .no_collision:
-        pop rbp
-        ret
+.balls_remain:
+    pop rbp
+    ret
+
+
 
 ; Nueva función para game over
 game_lost:
@@ -3229,36 +3274,46 @@ _start:
 	jmp .main_loop
 	
 
-	.main_loop:
+    .main_loop:
         call print_labels
         call print_blocks
         call move_letters
         call update_lasers
         call print_letters
+        call print_pallet
+        
+        ; Mover bola principal solo si está activa
+        cmp byte [ball_active], 1
+        jne .skip_ball1
+            call move_ball
+        .skip_ball1:
 
-		call print_pallet
-        call move_ball
-        call check_bottom_collision
-        call print_lives
-
-        ; -- Mover/imprimir bola 2 si está activa --
+        ; Mover bola 2 si está activa
         cmp byte [ball2_active], 1
         jne .skip_ball2
             call move_ball_2
         .skip_ball2:
 
-        ; -- Mover/imprimir bola 3 si está activa --
+        ; Mover bola 3 si está activa
         cmp byte [ball3_active], 1
         jne .skip_ball3
             call move_ball_3
         .skip_ball3:
 
-        ; -- Ahora imprimimos las 3 bolas (si están activas) --
-        call print_ball
+        call check_bottom_collision    ; Nueva función que maneja todas las bolas
+        call print_lives
+
+        ; Imprimir solo las bolas activas
+        cmp byte [ball_active], 1
+        jne .no_pb1
+            call print_ball
+        .no_pb1:
+
         cmp byte [ball2_active], 1
         jne .no_pb2
             call print_ball_2
         .no_pb2:
+
         cmp byte [ball3_active], 1
         jne .no_pb3
             call print_ball_3
