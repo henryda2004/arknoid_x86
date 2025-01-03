@@ -802,9 +802,11 @@ move_letters:
             mov [pallet_size], rax
             mov qword [ball_speed], 1    ; Restaurar velocidad normal
             mov byte [catch_power_active], 0
+            mov byte [laser_power_active], 0
             jmp .finish_capture
 
             .extend_pallet:
+                mov byte [laser_power_active], 0
                 mov byte [catch_power_active], 0
                 mov qword [ball_speed], 1    ; Restaurar velocidad normal
                 mov rax, [extended_pallet_size]
@@ -812,6 +814,7 @@ move_letters:
                 jmp .finish_capture
 
             .check_add_life:
+                mov byte [laser_power_active], 0
                 mov byte [catch_power_active], 0
                 mov rax, [default_pallet_size]
                 mov [pallet_size], rax
@@ -835,6 +838,7 @@ move_letters:
                 pop rcx
                 
             .slow_ball:
+                mov byte [laser_power_active], 0
                 mov byte [catch_power_active], 0                
                 mov rax, [default_pallet_size]
                 mov [pallet_size], rax
@@ -842,6 +846,7 @@ move_letters:
                 jmp .finish_capture
 
             .activate_catch:
+                mov byte [laser_power_active], 0
                 mov rax, [default_pallet_size]
                 mov [pallet_size], rax
                 mov qword [ball_speed], 1
@@ -880,6 +885,44 @@ move_letters:
         pop rbp
         ret
 
+
+clear_lasers:
+    push rbp
+    mov  rbp, rsp
+
+    ; Recorrer el array de láseres
+    xor rcx, rcx                ; Índice del láser
+    movzx rbx, byte [laser_count]  ; Cantidad de láseres activos
+
+    .clear_loop:
+        cmp rcx, rbx
+        jge .done                ; Salir si no quedan láseres
+
+        ; Obtener posición del láser actual
+        lea rsi, [lasers + rcx * 2]
+        movzx r8, byte [rsi]     ; X
+        movzx r9, byte [rsi + 1] ; Y
+
+        ; Calcular posición en el tablero
+        mov rax, column_cells
+        add rax, 2
+        mul r9
+        add rax, r8
+        lea rdi, [board + rax]
+
+        ; Borrar el láser visualmente
+        mov byte [rdi], ' '
+
+        ; Pasar al siguiente láser
+        inc rcx
+        jmp .clear_loop
+
+    .done:
+        ; Resetear contador de láseres
+        mov byte [laser_count], 0
+
+        pop rbp
+        ret
 
 
 ; Nueva función para actualizar los láseres
@@ -1628,7 +1671,8 @@ init_empty_board:
 
 
 init_level:
-
+    mov byte [laser_power_active], 0
+    call clear_lasers
     mov rax, [default_pallet_size]
     mov [pallet_size], rax
     mov qword [ball_speed], 1    ; Restaurar velocidad normal
