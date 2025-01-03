@@ -966,86 +966,99 @@ shoot_lasers:
         pop rbp
         ret
 
+; Función corregida para mover láseres
+; Función corregida para mover láseres
+; Esta es la parte clave para recorrer los láseres de atrás hacia adelante.
+
 move_lasers:
     push rbp
-    mov rbp, rsp
-    
-    xor rcx, rcx                  ; Índice del láser
-    
-    .move_loop:
-        movzx rax, byte [laser_count]
-        cmp rcx, rax
-        jge .end
-        
-        ; Obtener coordenadas del láser actual
-        lea rsi, [lasers + rcx * 2]
-        movzx r8, byte [rsi]      ; x
-        movzx r9, byte [rsi + 1]  ; y
-        
-        ; Validar coordenadas
-        cmp r8, 0
-        jl .delete_laser
-        cmp r8, column_cells
-        jge .delete_laser
-        cmp r9, 0
-        jl .delete_laser
-        cmp r9, row_cells
-        jge .delete_laser
-        
-        ; Borrar láser en posición actual
-        mov rax, column_cells
-        add rax, 2
-        mul r9
-        add rax, r8
-        cmp rax, board_size       ; Verificar límites del tablero
-        jge .delete_laser
-        lea rdi, [board + rax]
-        mov byte [rdi], ' '
-        
-        ; Mover hacia arriba
-        dec r9
-        
-        ; Si alcanza el borde superior, eliminar
-        cmp r9, 0
-        jl .delete_laser
-        
-        ; Actualizar posición
-        mov [rsi + 1], r9b
-        
-        ; Dibujar en nueva posición
-        mov rax, column_cells
-        add rax, 2
-        mul r9
-        add rax, r8
-        cmp rax, board_size       ; Verificar límites del tablero
-        jge .delete_laser
-        lea rdi, [board + rax]
-        mov al, [laser_symbol]
-        mov [rdi], al
-        jmp .next_laser
-        
-    .delete_laser:
-        ; Eliminar láser actual
-        lea rdi, [lasers + rcx * 2]
-        lea rsi, [lasers + (rcx + 1) * 2]
-        movzx rdx, byte [laser_count]
-        sub rdx, rcx
-        dec rdx
-        shl rdx, 1
-        cmp rdx, 0
-        jle .skip_move
-        rep movsb
-    .skip_move:
-        dec byte [laser_count]
-        dec rcx
-        
-    .next_laser:
-        inc rcx
-        jmp .move_loop
-        
-    .end:
-        pop rbp
-        ret
+    mov  rbp, rsp
+    push rbx
+    push rdi
+    push rsi
+    push r12
+    push r13
+    push r14
+    push r15
+
+    ; 1) Tomamos la cantidad de láseres
+    movzx rcx, byte [laser_count]
+    test rcx, rcx
+    jz .fin              ; Si es cero, no hay láseres => salir
+
+    ; Ajustamos para que RCX sea el último índice de láser
+    dec rcx              ; Último índice es (laser_count - 1)
+
+.loop_lasers:
+    ; RSI apunta a lasers + (rcx * 2) => (x, y) del láser
+    lea rsi, [lasers + rcx*2]
+
+    ; 2) Cargar x,y actuales
+    movzx r8,  byte [rsi]      ; x
+    movzx r9,  byte [rsi + 1]  ; y
+
+    ; 3) Borrar el láser de su posición actual en pantalla
+    mov rax, column_cells
+    add rax, 2
+    mul r9
+    add rax, r8
+    lea rdi, [board + rax]
+    mov byte [rdi], ' '        ; Borramos el símbolo anterior (láser)
+
+    ; 4) Mover el láser hacia arriba (y - 1)
+    dec r9
+
+    ; Verificar si ya salió de la pantalla (o si y < 1)
+    cmp r9, 1
+    jl .delete_laser           ; Si y < 1 => eliminarlo
+
+    ; 5) Si sigue en pantalla => guardar su nueva posición
+    mov byte [rsi + 1], r9b
+
+    ; 6) Dibujar láser en la nueva posición
+    mov rax, column_cells
+    add rax, 2
+    mul r9
+    add rax, r8
+    lea rdi, [board + rax]
+    mov al, [laser_symbol]
+    mov [rdi], al
+
+.next_laser:
+    ; 7) Pasamos al láser anterior
+    dec rcx
+    cmp rcx, -1
+    jg .loop_lasers   ; Mientras rcx >= 0, seguir iterando
+
+    jmp .fin
+
+.delete_laser:
+    ; 8) Borrar el láser actual del array
+    movzx r12, byte [laser_count]
+    dec r12                    ; r12 = último índice
+    cmp r12, rcx
+    jbe .just_decrement        ; Si rcx ya apunta al último
+
+    ; Si NO es el último láser => copiamos el último en la posición actual
+    lea rdi, [lasers + rcx*2]
+    lea rsi, [lasers + r12*2]
+    mov ax, [rsi]             ; lee 2 bytes (x,y) del último
+    mov [rdi], ax             ; copy
+
+.just_decrement:
+    dec byte [laser_count]     ; Decrementar el contador total
+    jmp .next_laser
+
+.fin:
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rsi
+    pop rdi
+    pop rbx
+    pop rbp
+    ret
 
 
 add_life:
