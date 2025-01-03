@@ -1117,48 +1117,75 @@ move_lasers:
 
 
 ; Nueva función para verificar colisión entre láser y enemigos
+; ==========================================================
+; NUEVA check_laser_enemy_collision - inlined destroy
+; ==========================================================
 check_laser_enemy_collision:
     push rbp
-    mov rbp, rsp
+    mov  rbp, rsp
     
-    xor r13, r13                    ; Índice del enemigo
-    xor rax, rax                    ; Valor de retorno (0 = no colisión)
-    
-.check_loop:
-    cmp r13, 5                      ; Máximo 5 enemigos
+    xor r13, r13            ; Índice del enemigo
+    xor rax, rax            ; 0 = no colisión
+
+.loop_enemies:
+    cmp r13, 5              ; Máximo 5 enemigos
     jge .end
-    
-    ; Calcular offset del enemigo actual
+
+    ; r13 * 3 => offset del enemigo i
     mov rcx, r13
-    imul rcx, 3                     ; Cada enemigo ocupa 3 bytes
-    lea rsi, [enemies + rcx]
-    
-    ; Verificar si el enemigo está activo
-    cmp byte [rsi + 2], 1
+    imul rcx, 3
+    lea rsi, [enemies + rcx]   ; rsi => &enemies[i]
+
+    ; Verificar si está activo
+    cmp byte [rsi+2], 1
     jne .next_enemy
-    
-    ; Obtener posición del enemigo
-    movzx r14, byte [rsi]           ; X enemigo
-    movzx r15, byte [rsi + 1]       ; Y enemigo
-    
-    ; Verificar colisión
-    cmp r8, r14                     ; Comparar X del láser con X del enemigo
+
+    ; Cargar posición X/Y del enemigo
+    movzx r14, byte [rsi]      ; X
+    movzx r15, byte [rsi+1]    ; Y
+
+    ; Comparar con posición del láser (r8=X, r9=Y)
+    cmp r8, r14
     jne .next_enemy
-    cmp r9, r15                     ; Comparar Y del láser con Y del enemigo
+    cmp r9, r15
     jne .next_enemy
-    
-    ; Colisión detectada
-    call destroy_enemy              ; Destruir enemigo
-    mov rax, 1                      ; Indicar colisión
+
+    ; ==== Colisión detectada con láser ====
+
+    ; 1) Desactivar enemigo
+    mov byte [rsi+2], 0     ; (activo=0)
+
+    ; 2) Sumar puntos
+    mov rax, [enemy_points]
+    add [current_score], rax
+
+    ; 3) (Opcional) Borrar del board, SOLO si no coincide con la paleta
+    ;    Evita crasheos en la fila de la paleta (row_cells - 2).
+    cmp r15, row_cells - 2
+    je .skip_erase
+
+    ; Borrar visualmente del board
+    mov rax, column_cells
+    add rax, 2
+    mul r15
+    add rax, r14
+    lea rdi, [board + rax]
+    mov byte [rdi], ' '
+
+.skip_erase:
+
+    ; 4) Devolver rax=1 => colisión con enemigo
+    mov rax, 1
     jmp .end
-    
+
 .next_enemy:
     inc r13
-    jmp .check_loop
-    
+    jmp .loop_enemies
+
 .end:
     pop rbp
     ret
+
 
 ; Función auxiliar para eliminar un láser específico
 remove_laser:
