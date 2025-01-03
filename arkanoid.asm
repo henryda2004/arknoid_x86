@@ -286,7 +286,7 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 58, 7, 3, 1, 'E'    ; Bloque 7
+        db 58, 7, 3, 1, 'L'    ; Bloque 7
         db 61, 9, 3, 1, 'C'    ; Bloque 7
         db 35, 9, 3, 1, 'C'    ; Bloque 7
         db 18, 7, 3, 1, 'S'    ; Bloque 7
@@ -398,6 +398,11 @@ section .data
     ball_catch_offset dq 0     ; Offset respecto a la paleta cuando está atrapada
     last_key db 0    ; Variable para almacenar la última tecla presionada
 
+    laser_power_active: db 0         ; Flag para indicar si el poder láser está activo
+    laser_symbol: db '|'             ; Símbolo para representar el láser
+    laser_count: db 0                ; Contador de láseres activos
+    lasers: times 200 db 0           ; Array para almacenar posiciones de láseres (x,y)
+    laser_speed: dq 1                ; Velocidad del láser
 
 section .text
 
@@ -783,6 +788,9 @@ move_letters:
             cmp al, 'C'
             je .activate_catch
             
+            cmp al, 'L'
+            je .activate_laser
+
             ; Si no es ningún power-up, restaurar tamaño normal
             mov rax, [default_pallet_size]
             mov [pallet_size], rax
@@ -834,6 +842,14 @@ move_letters:
                 mov byte [catch_power_active], 1
                 jmp .finish_capture
 
+            .activate_laser:
+                mov byte [catch_power_active], 0
+                mov rax, [default_pallet_size]
+                mov [pallet_size], rax
+                mov qword [ball_speed], 1
+                mov byte [laser_power_active], 1    ; Activar el poder láser
+                jmp .finish_capture
+
             .finish_capture:
                 mov byte [rbx + 3], 0
 
@@ -857,6 +873,180 @@ move_letters:
         pop rbx
         pop rbp
         ret
+
+
+
+; Nueva función para actualizar los láseres
+update_lasers:
+    push rbp
+    mov rbp, rsp
+    
+    ; Verificar si el poder láser está activo
+    cmp byte [laser_power_active], 0
+    je .end
+    
+    ; Verificar si se presionó la tecla de espacio
+    cmp byte [last_key], ' '
+    jne .skip_shooting
+    
+    ; Disparar nuevos láseres
+    call shoot_lasers
+    mov byte [last_key], 0    ; Limpiar la tecla procesada
+    
+    .skip_shooting:
+    ; Mover los láseres existentes
+    call move_lasers
+    
+    .end:
+        pop rbp
+        ret
+
+shoot_lasers:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    
+    ; Verificar si hay espacio para más láseres
+    movzx rax, byte [laser_count]
+    cmp rax, 98  ; Asegurar que hay espacio para 2 láseres
+    jge .end
+    
+    ; Obtener posición de la paleta
+    mov r8, [pallet_position]
+    sub r8, board                  ; Offset relativo de la paleta
+    
+    ; Calcular coordenadas x,y
+    mov rax, r8
+    mov r9, column_cells
+    add r9, 2                     ; Ancho total de línea
+    xor rdx, rdx
+    div r9                        ; rax = y, rdx = x
+    
+    ; Guardar coordenadas
+    mov r10, rax                  ; Y en r10
+    mov r11, rdx                  ; X en r11
+    
+    ; Validar coordenadas
+    cmp r10, 0
+    jl .end
+    cmp r10, row_cells
+    jge .end
+    cmp r11, 0
+    jl .end
+    cmp r11, column_cells
+    jge .end
+    
+    ; Calcular índice para el primer láser
+    movzx rbx, byte [laser_count]
+    imul rbx, 2                   ; Cada láser usa 2 bytes
+    
+    ; Primer láser (izquierda)
+    lea rdi, [lasers + rbx]
+    mov [rdi], r11b              ; X
+    mov al, r10b
+    dec al                       ; Y - 1
+    mov [rdi + 1], al           ; Y
+    
+    ; Segundo láser (derecha)
+    mov al, r11b
+    add al, byte [pallet_size]
+    dec al                       ; Ajustar para el último carácter
+    lea rdi, [lasers + rbx + 2]
+    mov [rdi], al               ; X
+    mov al, r10b
+    dec al                      ; Y - 1
+    mov [rdi + 1], al          ; Y
+    
+    ; Incrementar contador de láseres
+    add byte [laser_count], 2
+    
+    
+    .end:
+        pop rbx
+        pop rbp
+        ret
+
+move_lasers:
+    push rbp
+    mov rbp, rsp
+    
+    xor rcx, rcx                  ; Índice del láser
+    
+    .move_loop:
+        movzx rax, byte [laser_count]
+        cmp rcx, rax
+        jge .end
+        
+        ; Obtener coordenadas del láser actual
+        lea rsi, [lasers + rcx * 2]
+        movzx r8, byte [rsi]      ; x
+        movzx r9, byte [rsi + 1]  ; y
+        
+        ; Validar coordenadas
+        cmp r8, 0
+        jl .delete_laser
+        cmp r8, column_cells
+        jge .delete_laser
+        cmp r9, 0
+        jl .delete_laser
+        cmp r9, row_cells
+        jge .delete_laser
+        
+        ; Borrar láser en posición actual
+        mov rax, column_cells
+        add rax, 2
+        mul r9
+        add rax, r8
+        cmp rax, board_size       ; Verificar límites del tablero
+        jge .delete_laser
+        lea rdi, [board + rax]
+        mov byte [rdi], ' '
+        
+        ; Mover hacia arriba
+        dec r9
+        
+        ; Si alcanza el borde superior, eliminar
+        cmp r9, 0
+        jl .delete_laser
+        
+        ; Actualizar posición
+        mov [rsi + 1], r9b
+        
+        ; Dibujar en nueva posición
+        mov rax, column_cells
+        add rax, 2
+        mul r9
+        add rax, r8
+        cmp rax, board_size       ; Verificar límites del tablero
+        jge .delete_laser
+        lea rdi, [board + rax]
+        mov al, [laser_symbol]
+        mov [rdi], al
+        jmp .next_laser
+        
+    .delete_laser:
+        ; Eliminar láser actual
+        lea rdi, [lasers + rcx * 2]
+        lea rsi, [lasers + (rcx + 1) * 2]
+        movzx rdx, byte [laser_count]
+        sub rdx, rcx
+        dec rdx
+        shl rdx, 1
+        cmp rdx, 0
+        jle .skip_move
+        rep movsb
+    .skip_move:
+        dec byte [laser_count]
+        dec rcx
+        
+    .next_laser:
+        inc rcx
+        jmp .move_loop
+        
+    .end:
+        pop rbp
+        ret
+
 
 add_life:
     push rbp
@@ -2359,6 +2549,7 @@ _start:
         call print_labels
         call print_blocks
         call move_letters
+        call update_lasers
         call print_letters
 		call print_pallet
         call move_ball
