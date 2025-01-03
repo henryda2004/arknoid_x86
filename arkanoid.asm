@@ -254,6 +254,23 @@ section .data
     ball_direction_x dq 1    ; 1 = derecha, -1 = izquierda
     ball_direction_y dq -1   ; -1 = arriba, 1 = abajo
     ball_moving db 0         ; 0 = estática, 1 = en movimiento
+    ball_active db 0
+
+    ball2_x_pos:        dq 0
+    ball2_y_pos:        dq 0
+    ball2_direction_x:  dq 0
+    ball2_direction_y:  dq 0
+    ball2_moving:       db 0    ; 0 = estática, 1 = en movimiento
+    ball2_active:       db 0    ; 0 = inactiva, 1 = activa
+
+    ; -- Pelota 3 --
+    ball3_x_pos:        dq 0
+    ball3_y_pos:        dq 0
+    ball3_direction_x:  dq 0
+    ball3_direction_y:  dq 0
+    ball3_moving:       db 0
+    ball3_active:       db 0
+
 
 ; Definir los límites de la pantalla o área de juego
     board_top_left_x equ 1
@@ -287,7 +304,7 @@ section .data
     level1_blocks:
         ; Tercera fila (tipo 3)
         db 58, 7, 3, 1, 'L'    ; Bloque 7
-        db 61, 9, 3, 1, 'C'    ; Bloque 7
+        db 61, 9, 3, 1, 'D'    ; Bloque 7
         db 35, 9, 3, 1, 'C'    ; Bloque 7
         db 18, 7, 3, 1, 'S'    ; Bloque 7
         db 18, 8, 3, 2, 'S'    ; Bloque 7
@@ -409,6 +426,30 @@ section .data
     laser_count: db 0                ; Contador de láseres activos
     lasers: times 200 db 0           ; Array para almacenar posiciones de láseres (x,y)
     laser_speed: dq 1                ; Velocidad del láser
+
+    balls_data:     ; Array para almacenar hasta 3 bolas
+        ; Bola 1 (principal)
+        dq 0        ; x_pos
+        dq 0        ; y_pos
+        dq 1        ; direction_x
+        dq -1       ; direction_y
+        db 1        ; active
+        ; Bola 2
+        dq 0        ; x_pos
+        dq 0        ; y_pos
+        dq -1       ; direction_x
+        dq -1       ; direction_y
+        db 0        ; active
+        ; Bola 3
+        dq 0        ; x_pos
+        dq 0        ; y_pos
+        dq 0        ; direction_x
+        dq -1       ; direction_y
+        db 0        ; active
+    
+    balls_count db 1     ; Contador de bolas activas
+    BALL_STRUCT_SIZE equ 33  ; Tamaño de cada estructura de bola (8*4 + 1)
+
 
 section .text
 
@@ -797,6 +838,9 @@ move_letters:
             cmp al, 'L'
             je .activate_laser
 
+            cmp al, 'D'
+            je .activate_split
+
             ; Si no es ningún power-up, restaurar tamaño normal
             mov rax, [default_pallet_size]
             mov [pallet_size], rax
@@ -859,6 +903,10 @@ move_letters:
                 mov [pallet_size], rax
                 mov qword [ball_speed], 1
                 mov byte [laser_power_active], 1    ; Activar el poder láser
+                jmp .finish_capture
+
+            .activate_split:
+                call activate_split_power
                 jmp .finish_capture
 
             .finish_capture:
@@ -949,6 +997,46 @@ update_lasers:
     .end:
         pop rbp
         ret
+
+activate_split_power:
+    push rbp
+    mov rbp, rsp
+    
+    ; Verificar si la bola2 y bola3 ya están activas
+    cmp byte [ball2_active], 1
+    jne .enable_balls
+    cmp byte [ball3_active], 1
+    jne .enable_balls
+    
+    ; Si ambas ya están activas, no hacemos nada.
+    jmp .end
+
+.enable_balls:
+    ; Copiamos la posición de la bola principal
+    mov rax, [ball_x_pos]
+    mov [ball2_x_pos], rax
+    mov [ball3_x_pos], rax
+
+    mov rax, [ball_y_pos]
+    mov [ball2_y_pos], rax
+    mov [ball3_y_pos], rax
+
+    ; Activamos bola2 y bola3 con direcciones diferentes
+    ; Por ejemplo: una va diagonal izq-arriba, otra diagonal der-arriba
+    mov qword [ball2_direction_x], -1
+    mov qword [ball2_direction_y], -1
+    mov byte [ball2_moving], 1
+    mov byte [ball2_active], 1
+
+    mov qword [ball3_direction_x], 1
+    mov qword [ball3_direction_y], -1
+    mov byte [ball3_moving], 1
+    mov byte [ball3_active], 1
+
+.end:
+    pop rbp
+    ret
+
 
 shoot_lasers:
     push rbp
@@ -1321,7 +1409,28 @@ print_ball:
 	mov byte [r8], char_O
 	ret
 
-	
+print_ball_2:
+    mov r8, [ball2_x_pos]
+    mov r9, [ball2_y_pos]
+    add r8, board
+    mov rcx, r9
+    mov rax, column_cells + 2
+    imul rcx
+    add r8, rax
+    mov byte [r8], char_O
+    ret
+
+print_ball_3:
+    mov r8, [ball3_x_pos]
+    mov r9, [ball3_y_pos]
+    add r8, board
+    mov rcx, r9
+    mov rax, column_cells + 2
+    imul rcx
+    add r8, rax
+    mov byte [r8], char_O
+    ret
+
 	;mov rax, board + r8 + r9 * (column_cells + 2)
 	
 print_pallet:
@@ -1413,6 +1522,47 @@ update_caught_ball_position:
     
     pop rbp
     ret
+
+
+move_all_balls:
+    push rbp
+    mov rbp, rsp
+    push rbx
+    
+    ; Inicializar contador de bolas
+    xor rbx, rbx
+    
+.loop_balls:
+    ; Verificar si hemos procesado todas las bolas
+    cmp bl, byte [balls_count]
+    jge .end
+    
+    ; Calcular offset de la bola actual
+    mov rax, BALL_STRUCT_SIZE
+    mul rbx
+    
+    ; Verificar si la bola está activa
+    cmp byte [balls_data + rax + 32], 1
+    jne .next_ball
+    
+    ; Guardar offset en la pila
+    push rax
+    
+    ; Llamar a move_ball con los parámetros de esta bola
+    call move_ball
+    
+    ; Restaurar offset
+    pop rax
+    
+.next_ball:
+    inc rbx
+    jmp .loop_balls
+    
+.end:
+    pop rbx
+    pop rbp
+    ret
+
 move_ball:
 
     cmp byte [ball_caught], 1
@@ -1571,6 +1721,331 @@ move_ball:
     .update_position:
         mov [ball_x_pos], r8
         mov [ball_y_pos], r9
+
+    .end:
+        ret
+
+
+move_ball_2:
+
+    cmp byte [ball_caught], 1
+    je .move_with_pallet
+
+    cmp byte [ball2_moving], 0
+    je .end
+
+    ; Incrementar contador de velocidad
+    inc qword [speed_counter]
+    
+    ; Verificar si debemos mover la bola en este ciclo
+    mov rax, [speed_counter]
+    cmp rax, [ball_speed]
+    jl .end
+    
+    ; Resetear contador de velocidad
+    mov qword [speed_counter], 0
+
+    ; Borrar la posición actual de la bola
+    mov r8, [ball2_x_pos]
+    mov r9, [ball2_y_pos]
+    add r8, board
+    mov rcx, r9
+    mov rax, column_cells + 2
+    imul rcx
+    add r8, rax
+    mov byte [r8], char_space
+
+    ; Calcular siguiente posición X
+    mov r8, [ball2_x_pos]
+    mov r9, [ball2_y_pos]
+    mov rax, [ball2_direction_x]
+    add r8, rax               ; Nueva posición X
+
+    ; Calcular la dirección de memoria para la siguiente posición
+    mov r10, r8
+    add r10, board
+    mov rcx, r9
+    mov rax, column_cells + 2
+    imul rcx
+    add r10, rax
+
+    ; Verificar si hay una X en la siguiente posición X
+    mov al, [r10]
+    cmp al, 'X'
+    jne .check_block_x
+    neg qword [ball2_direction_x]  ; Cambiar dirección X si hay una X
+    jmp .end
+
+    .move_with_pallet:
+        ; Borrar la posición actual de la bola
+        mov r8, [ball2_x_pos]
+        mov r9, [ball2_y_pos]
+        mov r10, r8
+        add r10, board
+        mov rcx, r9
+        mov rax, column_cells + 2
+        imul rcx
+        add r10, rax
+        mov byte [r10], char_space
+
+        ; Actualizar posición X basada en la paleta
+        mov r8, [pallet_position]      ; Obtener posición actual de la paleta
+        sub r8, board                  ; Ajustar por el offset del tablero
+        add r8, [ball_catch_offset]    ; Añadir el offset guardado
+        mov [ball2_x_pos], r8          ; Guardar nueva posición X
+
+        ; Mantener la bola una posición arriba de la paleta
+        mov r9, [ball2_y_pos]          ; Mantener la misma altura
+        mov [ball2_y_pos], r9          ; Actualizar posición Y
+
+        jmp .end
+
+
+    .check_block_x:
+        ; Verificar colisión con bloques en X
+        push r8     ; Guardar registros que usa check_block_collision
+        push r9
+        push r10
+        call check_block_collision
+        pop r10
+        pop r9
+        pop r8
+        test rax, rax
+        jz .check_paddle_x      ; Si no hay colisión, verificar paleta
+        neg qword [ball2_direction_x]  ; Si hay colisión, rebotar
+        jmp .end
+
+    .check_paddle_x:
+        ; Verificar si hay una paleta (=) en la siguiente posición X
+        cmp byte [r10], char_equal
+        jne .check_y_movement
+        neg qword [ball2_direction_x]  ; Cambiar dirección X si hay una paleta
+        jmp .end
+
+    .check_y_movement:
+        ; Calcular siguiente posición Y
+        mov rax, [ball2_direction_y]
+        add r9, rax                  ; Nueva posición Y
+
+        ; Calcular la dirección de memoria para la siguiente posición Y
+        mov r10, r8
+        add r10, board
+        mov rcx, r9
+        mov rax, column_cells + 2
+        imul rcx
+        add r10, rax
+
+        ; Verificar si hay una X en la siguiente posición Y
+        mov al, [r10]
+        cmp al, 'X'
+        jne .check_block_y
+        neg qword [ball2_direction_y]  ; Cambiar dirección Y si hay una X
+        jmp .end
+
+    .check_block_y:
+        ; Verificar colisión con bloques en Y
+        push r8     ; Guardar registros que usa check_block_collision
+        push r9
+        push r10
+        call check_block_collision
+        pop r10
+        pop r9
+        pop r8
+        test rax, rax
+        jz .check_paddle_y      ; Si no hay colisión, verificar paleta
+        neg qword [ball2_direction_y]  ; Si hay colisión, rebotar
+        jmp .end
+
+    .check_paddle_y:
+        ; Verificar si hay una paleta (=) en la siguiente posición Y
+        cmp byte [r10], char_equal
+        jne .update_position
+
+        ; Verificar si el poder catch está activo
+        cmp byte [catch_power_active], 1
+        jne .normal_bounce
+
+        ; Activar el modo "atrapado"
+        mov byte [ball_caught], 1
+        
+        ; Guardar la posición X actual de la bola como offset
+        mov rax, [ball2_x_pos]           ; Posición X actual de la bola
+        sub rax, [pallet_position]      ; Restar la posición de la paleta
+        add rax, board                  ; Ajustar por el offset del tablero
+        mov [ball_catch_offset], rax    ; Guardar el offset
+        
+        jmp .end
+
+    .normal_bounce:
+        neg qword [ball2_direction_y]  ; Cambiar dirección Y si hay una paleta
+        jmp .end
+
+
+    .update_position:
+        mov [ball2_x_pos], r8
+        mov [ball2_y_pos], r9
+
+    .end:
+        ret
+
+move_ball_3:
+
+    cmp byte [ball_caught], 1
+    je .move_with_pallet
+
+    cmp byte [ball3_moving], 0
+    je .end
+
+    ; Incrementar contador de velocidad
+    inc qword [speed_counter]
+    
+    ; Verificar si debemos mover la bola en este ciclo
+    mov rax, [speed_counter]
+    cmp rax, [ball_speed]
+    jl .end
+    
+    ; Resetear contador de velocidad
+    mov qword [speed_counter], 0
+
+    ; Borrar la posición actual de la bola
+    mov r8, [ball3_x_pos]
+    mov r9, [ball3_y_pos]
+    add r8, board
+    mov rcx, r9
+    mov rax, column_cells + 2
+    imul rcx
+    add r8, rax
+    mov byte [r8], char_space
+
+    ; Calcular siguiente posición X
+    mov r8, [ball3_x_pos]
+    mov r9, [ball3_y_pos]
+    mov rax, [ball3_direction_x]
+    add r8, rax               ; Nueva posición X
+
+    ; Calcular la dirección de memoria para la siguiente posición
+    mov r10, r8
+    add r10, board
+    mov rcx, r9
+    mov rax, column_cells + 2
+    imul rcx
+    add r10, rax
+
+    ; Verificar si hay una X en la siguiente posición X
+    mov al, [r10]
+    cmp al, 'X'
+    jne .check_block_x
+    neg qword [ball3_direction_x]  ; Cambiar dirección X si hay una X
+    jmp .end
+
+    .move_with_pallet:
+        ; Borrar la posición actual de la bola
+        mov r8, [ball3_x_pos]
+        mov r9, [ball3_y_pos]
+        mov r10, r8
+        add r10, board
+        mov rcx, r9
+        mov rax, column_cells + 2
+        imul rcx
+        add r10, rax
+        mov byte [r10], char_space
+
+        ; Actualizar posición X basada en la paleta
+        mov r8, [pallet_position]      ; Obtener posición actual de la paleta
+        sub r8, board                  ; Ajustar por el offset del tablero
+        add r8, [ball_catch_offset]    ; Añadir el offset guardado
+        mov [ball3_x_pos], r8          ; Guardar nueva posición X
+
+        ; Mantener la bola una posición arriba de la paleta
+        mov r9, [ball3_y_pos]          ; Mantener la misma altura
+        mov [ball3_y_pos], r9          ; Actualizar posición Y
+
+        jmp .end
+
+
+    .check_block_x:
+        ; Verificar colisión con bloques en X
+        push r8     ; Guardar registros que usa check_block_collision
+        push r9
+        push r10
+        call check_block_collision
+        pop r10
+        pop r9
+        pop r8
+        test rax, rax
+        jz .check_paddle_x      ; Si no hay colisión, verificar paleta
+        neg qword [ball3_direction_x]  ; Si hay colisión, rebotar
+        jmp .end
+
+    .check_paddle_x:
+        ; Verificar si hay una paleta (=) en la siguiente posición X
+        cmp byte [r10], char_equal
+        jne .check_y_movement
+        neg qword [ball3_direction_x]  ; Cambiar dirección X si hay una paleta
+        jmp .end
+
+    .check_y_movement:
+        ; Calcular siguiente posición Y
+        mov rax, [ball3_direction_y]
+        add r9, rax                  ; Nueva posición Y
+
+        ; Calcular la dirección de memoria para la siguiente posición Y
+        mov r10, r8
+        add r10, board
+        mov rcx, r9
+        mov rax, column_cells + 2
+        imul rcx
+        add r10, rax
+
+        ; Verificar si hay una X en la siguiente posición Y
+        mov al, [r10]
+        cmp al, 'X'
+        jne .check_block_y
+        neg qword [ball3_direction_y]  ; Cambiar dirección Y si hay una X
+        jmp .end
+
+    .check_block_y:
+        ; Verificar colisión con bloques en Y
+        push r8     ; Guardar registros que usa check_block_collision
+        push r9
+        push r10
+        call check_block_collision
+        pop r10
+        pop r9
+        pop r8
+        test rax, rax
+        jz .check_paddle_y      ; Si no hay colisión, verificar paleta
+        neg qword [ball3_direction_y]  ; Si hay colisión, rebotar
+        jmp .end
+
+    .check_paddle_y:
+        ; Verificar si hay una paleta (=) en la siguiente posición Y
+        cmp byte [r10], char_equal
+        jne .update_position
+
+        ; Verificar si el poder catch está activo
+        cmp byte [catch_power_active], 1
+        jne .normal_bounce
+
+        ; Activar el modo "atrapado"
+        mov byte [ball_caught], 1
+        
+        ; Guardar la posición X actual de la bola como offset
+        mov rax, [ball3_x_pos]           ; Posición X actual de la bola
+        sub rax, [pallet_position]      ; Restar la posición de la paleta
+        add rax, board                  ; Ajustar por el offset del tablero
+        mov [ball_catch_offset], rax    ; Guardar el offset
+        
+        jmp .end
+
+    .normal_bounce:
+        neg qword [ball3_direction_y]  ; Cambiar dirección Y si hay una paleta
+        jmp .end
+
+
+    .update_position:
+        mov [ball3_x_pos], r8
+        mov [ball3_y_pos], r9
 
     .end:
         ret
@@ -2760,10 +3235,35 @@ _start:
         call move_letters
         call update_lasers
         call print_letters
+
 		call print_pallet
         call move_ball
         call check_bottom_collision
         call print_lives
+
+        ; -- Mover/imprimir bola 2 si está activa --
+        cmp byte [ball2_active], 1
+        jne .skip_ball2
+            call move_ball_2
+        .skip_ball2:
+
+        ; -- Mover/imprimir bola 3 si está activa --
+        cmp byte [ball3_active], 1
+        jne .skip_ball3
+            call move_ball_3
+        .skip_ball3:
+
+        ; -- Ahora imprimimos las 3 bolas (si están activas) --
+        call print_ball
+        cmp byte [ball2_active], 1
+        jne .no_pb2
+            call print_ball_2
+        .no_pb2:
+        cmp byte [ball3_active], 1
+        jne .no_pb3
+            call print_ball_3
+        .no_pb3:
+
         call check_level_complete
         call check_enemy_spawn
         call move_enemies
