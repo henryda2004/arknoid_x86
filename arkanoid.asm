@@ -452,7 +452,9 @@ section .data
     
     balls_count db 1     ; Contador de bolas activas
     BALL_STRUCT_SIZE equ 33  ; Tamaño de cada estructura de bola (8*4 + 1)
-
+    enemy_last_x:       times 10 db 0
+    enemy_last_y:       times 10 db 0
+    enemy_stuck_count:  times 10 db 0
 
 section .text
 
@@ -2852,6 +2854,122 @@ init_enemies:
     ret
 
 
+random_move_enemy:
+    push rbp
+    mov  rbp, rsp
+    push rbx
+    push rdx
+    push rdi
+
+    ; r12 = índice del enemigo
+    ; 1) obtener puntero al enemigo i
+    mov rax, r12
+    imul rax, 3
+    lea rbx, [enemies + rax]     ; rbx => &enemies[r12]
+
+    ; 2) Cargar X, Y actuales
+    movzx r8, byte [rbx]         ; r8 = X actual
+    movzx r9, byte [rbx + 1]     ; r9 = Y actual
+
+    ; Limpiar posición actual en el tablero antes de mover
+    push r8
+    push r9
+    mov rax, column_cells
+    add rax, 2
+    mul r9
+    add rax, r8
+    lea rdi, [board + rax]
+    mov byte [rdi], ' '         ; Limpiar rastro
+    pop r9
+    pop r8
+
+    ; 3) "Aleatorio" => tomamos [enemy_move_counter] & 3
+    movzx rax, byte [enemy_move_counter]
+    and rax, 3
+
+    cmp rax, 0
+    je .move_left
+    cmp rax, 1
+    je .move_right
+    cmp rax, 2
+    je .move_up
+    ; si es 3 => mover abajo
+.move_down:
+    inc r9
+    jmp .apply
+
+.move_up:
+    dec r9
+    jmp .apply
+
+.move_right:
+    inc r8
+    jmp .apply
+
+.move_left:
+    dec r8
+
+.apply:
+    ; Verificar límites del tablero antes de aplicar el movimiento
+    cmp r8, 1                    ; Borde izquierdo
+    jle .invalid_move
+    cmp r8, column_cells        ; Borde derecho
+    jge .invalid_move
+    cmp r9, 1                    ; Borde superior
+    jle .invalid_move
+    cmp r9, row_cells          ; Borde inferior
+    jge .invalid_move
+
+    ; Verificar colisión con bloques
+    push r8
+    push r9
+    mov rax, column_cells
+    add rax, 2
+    mul r9
+    add rax, r8
+    lea rdi, [board + rax]
+    mov al, [rdi]
+    
+    ; Verificar si hay un bloque en la nueva posición
+    cmp al, 'U'
+    je .pop_and_invalid
+    cmp al, 'O'
+    je .pop_and_invalid
+    cmp al, 'D'
+    je .pop_and_invalid
+    cmp al, 'L'
+    je .pop_and_invalid
+    cmp al, 'V'
+    je .pop_and_invalid
+    cmp al, '8'
+    je .pop_and_invalid
+    cmp al, 'X'
+    je .pop_and_invalid
+    
+    pop r9
+    pop r8
+    
+    ; Si llegamos aquí, el movimiento es válido
+    mov byte [rbx], r8b
+    mov byte [rbx + 1], r9b
+    jmp .end
+
+.pop_and_invalid:
+    pop r9
+    pop r8
+
+.invalid_move:
+    ; Restaurar posición original
+    movzx r8, byte [rbx]
+    movzx r9, byte [rbx + 1]
+
+.end:
+    pop rdi
+    pop rdx
+    pop rbx
+    pop rbp
+    ret
+
 ; Función para mover enemigos
 move_enemies:
     push rbp
@@ -2885,7 +3003,64 @@ move_enemies:
         movzx r8, byte [rsi]            ; X
         movzx r9, byte [rsi + 1]        ; Y
         
+        lea rdi, [enemy_last_x]
+        add rdi, r12
+        mov al, [rdi]             ; al = last_x
+
+        lea rdx, [enemy_last_y]
+        add rdx, r12
+        mov ah, [rdx]             ; ah = last_y
+
+        ; r8 = X actual del enemigo
+        ; r9 = Y actual del enemigo
+
+        ; *** En lugar de cmp ah, r9b => hacemos lo siguiente:
+        mov dl, ah      ; dl = old_Y
+        mov bl, r9b     ; bl = new_Y
+        cmp dl, bl
+        jne .not_stuck
+
+        ; => SI son iguales => pasa al siguiente check
+        mov dl, al      ; dl = old_X
+        mov bl, r8b     ; bl = new_X
+        cmp dl, bl
+        jne .not_stuck
+
+        ; => MISMA POSICIÓN (STUCK)
+        lea rbx, [enemy_stuck_count]
+        add rbx, r12
+        inc byte [rbx]              ; Aumentar contador de “pegarse”
+
+        ; Verificar si supera umbral, digamos 3
+        movzx rcx, byte [rbx]
+        cmp rcx, 2
+        jl .check_normal_move       ; Si aún no llega a 3, seguir normal
+
+        ; SI LLEGA A 3, FORZAR UN MOVIMIENTO ALEATORIO:
+        ;  1) resetear el stuck_count
+        mov byte [rbx], 0
+
+        ;  2) cambiar random
+        call random_move_enemy        ; (Ver ejemplo de abajo)
+        jmp .next_enemy
+
+    .not_stuck:
+        ; => Se movió
+        lea rbx, [enemy_stuck_count]
+        add rbx, r12
+        mov byte [rbx], 0            ; Resetear
+
+        ; Guardar su nueva posición en “last_x, last_y”
+        lea rdi, [enemy_last_x]
+        add rdi, r12
+        mov [rdi], r8b
+        
+        lea rdi, [enemy_last_y]
+        add rdi, r12
+        mov [rdi], r9b
+
         ; Limpiar posición actual antes de mover
+    .check_normal_move:
         push r8
         push r9
         mov rax, column_cells
