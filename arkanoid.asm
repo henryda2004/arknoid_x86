@@ -17,7 +17,7 @@ O_NONBLOCK: equ 0x0004
 
 ;screen clean definition
 row_cells:	equ 32	; set to any (reasonable) value you wish
-column_cells: 	equ 78 ; set to any (reasonable) value you wish
+column_cells: 	equ 80 ; set to any (reasonable) value you wish
 array_length:	equ row_cells * column_cells + row_cells ; cells are mapped to bytes in the array and a new line char ends each row
 
 ;This is regarding the sleep time
@@ -303,17 +303,91 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 58, 7, 3, 1, 'S'    ; Bloque 7
-        db 61, 9, 3, 1, 'D'    ; Bloque 7
-        db 35, 9, 3, 1, 'C'    ; Bloque 7
-        db 18, 7, 3, 1, 'S'    ; Bloque 7
-        db 18, 8, 3, 2, 'S'    ; Bloque 7
-        db 18, 10, 4, 1, ' '    ; Bloque 7
-        db 30, 10, 4, 1, ' '    ; Bloque 7
-        db 18, 14, 4, 1, ' '    ; Bloque 7
+        db 1, 5, 5, 1, ' '   
+        db 7, 5, 5, 1, ' '    
+        db 13, 5, 5, 1, ' '   
+        db 19, 5, 5, 1, ' '   
+        db 25, 5, 5, 1, ' '   
+        db 31, 5, 5, 1, ' '   
+        db 37, 5, 5, 1, ' '   
+        db 43, 5, 5, 1, ' '   
+        db 49, 5, 5, 1, ' '   
+        db 55, 5, 5, 1, ' '   
+        db 61, 5, 5, 1, ' '  
+        db 67, 5, 5, 1, ' '   
+        db 73, 5, 5, 1, ' '   
 
+        db 1, 6, 4, 1, ' '   
+        db 7, 6, 2, 1, ' '    
+        db 13, 6, 4, 1, ' '   
+        db 19, 6, 2, 1, ' '   
+        db 25, 6, 4, 1, ' '   
+        db 31, 6, 2, 1, ' '   
+        db 37, 6, 4, 1, ' '   
+        db 43, 6, 2, 1, ' '   
+        db 49, 6, 4, 1, ' '   
+        db 55, 6, 2, 1, ' '   
+        db 61, 6, 4, 1, ' '  
+        db 67, 6, 2, 1, ' '   
+        db 73, 6, 4, 1, ' ' 
 
-    level1_blocks_count equ 8   ; Cantidad total de bloques
+        db 1, 7, 1, 1, ' '   
+        db 7, 7, 3, 1, ' '    
+        db 13, 7, 1, 1, ' '   
+        db 19, 7, 3, 1, ' '   
+        db 25, 7, 1, 1, ' '   
+        db 31, 7, 3, 1, ' '   
+        db 37, 7, 1, 1, ' '   
+        db 43, 7, 3, 1, ' '   
+        db 49, 7, 1, 1, ' '   
+        db 55, 7, 3, 1, ' '   
+        db 61, 7, 1, 1, ' '  
+        db 67, 7, 3, 1, ' '   
+        db 73, 7, 1, 1, ' ' 
+
+        db 1, 8, 4, 1, ' '   
+        db 7, 8, 2, 1, ' '    
+        db 13, 8, 4, 1, ' '   
+        db 19, 8, 2, 1, ' '   
+        db 25, 8, 4, 1, ' '   
+        db 31, 8, 2, 1, ' '   
+        db 37, 8, 4, 1, ' '   
+        db 43, 8, 2, 1, ' '   
+        db 49, 8, 4, 1, ' '   
+        db 55, 8, 2, 1, ' '   
+        db 61, 8, 4, 1, ' '  
+        db 67, 8, 2, 1, ' '   
+        db 73, 8, 4, 1, ' ' 
+
+        db 1, 9, 1, 1, ' '   
+        db 7, 9, 3, 1, ' '    
+        db 13, 9, 1, 1, ' '   
+        db 19, 9, 3, 1, ' '   
+        db 25, 9, 1, 1, ' '   
+        db 31, 9, 3, 1, ' '   
+        db 37, 9, 1, 1, ' '   
+        db 43, 9, 3, 1, ' '   
+        db 49, 9, 1, 1, ' '   
+        db 55, 9, 3, 1, ' '   
+        db 61, 9, 1, 1, ' '  
+        db 67, 9, 3, 1, ' '   
+        db 73, 9, 1, 1, ' ' 
+
+        db 1, 10, 4, 1, ' '   
+        db 7, 10, 2, 1, ' '    
+        db 13, 10, 4, 1, ' '   
+        db 19, 10, 2, 1, ' '   
+        db 25, 10, 4, 1, ' '   
+        db 31, 10, 2, 1, ' '   
+        db 37, 10, 4, 1, ' '   
+        db 43, 10, 2, 1, ' '   
+        db 49, 10, 4, 1, ' '   
+        db 55, 10, 2, 1, ' '   
+        db 61, 10, 4, 1, ' '  
+        db 67, 10, 2, 1, ' '   
+        db 73, 10, 4, 1, ' ' 
+
+    level1_blocks_count equ 78   ; Cantidad total de bloques
 
     ; Nivel 2: Bloques de prueba
     level2_blocks:
@@ -2867,60 +2941,48 @@ random_move_enemy:
     imul rax, 3
     lea rbx, [enemies + rax]     ; rbx => &enemies[r12]
 
-    ; 2) Cargar X, Y actuales
+    ; 2) Cargar X, Y actuales (NO SE BORRA AQUÍ TODAVÍA)
     movzx r8, byte [rbx]         ; r8 = X actual
     movzx r9, byte [rbx + 1]     ; r9 = Y actual
 
-    ; Limpiar posición actual en el tablero antes de mover
-    push r8
-    push r9
-    mov rax, column_cells
-    add rax, 2
-    mul r9
-    add rax, r8
-    lea rdi, [board + rax]
-    mov byte [rdi], ' '         ; Limpiar rastro
-    pop r9
-    pop r8
-
-    ; 3) "Aleatorio" => tomamos [enemy_move_counter] & 3
+    ; 3) Generar "movimiento aleatorio" => tomamos [enemy_move_counter] & 3
     movzx rax, byte [enemy_move_counter]
     and rax, 3
 
     cmp rax, 0
-    je .move_left
+    je .try_left
     cmp rax, 1
-    je .move_right
+    je .try_right
     cmp rax, 2
-    je .move_up
+    je .try_up
     ; si es 3 => mover abajo
-.move_down:
+.try_down:
     inc r9
-    jmp .apply
+    jmp .check_valid
 
-.move_up:
+.try_up:
     dec r9
-    jmp .apply
+    jmp .check_valid
 
-.move_right:
+.try_right:
     inc r8
-    jmp .apply
+    jmp .check_valid
 
-.move_left:
+.try_left:
     dec r8
 
-.apply:
-    ; Verificar límites del tablero antes de aplicar el movimiento
-    cmp r8, 1                    ; Borde izquierdo
+.check_valid:
+    ; 4) Verificar límites
+    cmp r8, 1                    
     jle .invalid_move
-    cmp r8, column_cells        ; Borde derecho
+    cmp r8, column_cells        
     jge .invalid_move
-    cmp r9, 1                    ; Borde superior
+    cmp r9, 1                    
     jle .invalid_move
-    cmp r9, row_cells          ; Borde inferior
+    cmp r9, row_cells          
     jge .invalid_move
 
-    ; Verificar colisión con bloques
+    ; 5) Verificar colisión con bloques/enemigos
     push r8
     push r9
     mov rax, column_cells
@@ -2929,8 +2991,8 @@ random_move_enemy:
     add rax, r8
     lea rdi, [board + rax]
     mov al, [rdi]
-    
-    ; Verificar si hay un bloque en la nueva posición
+
+    ; Revisa si es bloque o borde
     cmp al, 'U'
     je .pop_and_invalid
     cmp al, 'O'
@@ -2945,30 +3007,61 @@ random_move_enemy:
     je .pop_and_invalid
     cmp al, 'X'
     je .pop_and_invalid
-    
+
+    ; Revisa si hay enemigo
+    cmp al, '@'
+    je .pop_and_invalid
+    cmp al, '#'
+    je .pop_and_invalid
+    cmp al, '$'
+    je .pop_and_invalid
+    cmp al, '&'
+    je .pop_and_invalid
+
+    call check_enemy_at_position
+    cmp rax, 1
+    je .pop_and_invalid
+
+    ; ------------------------------
+    ; SI LLEGAMOS AQUI => POSICIÓN NUEVA ES VÁLIDA
+    ; AHORA SÍ BORRAMOS LA POSICIÓN ANTIGUA:
+    ; ------------------------------
     pop r9
     pop r8
-    
-    ; Si llegamos aquí, el movimiento es válido
+
+    ; (A) Borrar la posición antigua en el board
+    ;    (X,Y) originales estaban en [rbx], [rbx+1].
+    movzx r10, byte [rbx]   ; oldX
+    movzx r11, byte [rbx+1] ; oldY
+    mov rax, column_cells
+    add rax, 2
+    mul r11
+    add rax, r10
+    lea rdi, [board + rax]
+    mov byte [rdi], ' '     ; BORRA la posición vieja
+
+    ; (B) Guardar la nueva X,Y en la estructura
     mov byte [rbx], r8b
     mov byte [rbx + 1], r9b
-    jmp .end
+
+    jmp .done
 
 .pop_and_invalid:
     pop r9
     pop r8
 
 .invalid_move:
-    ; Restaurar posición original
+    ; Restablecer la posición X,Y en [rbx], [rbx+1] (no se borró la vieja)
     movzx r8, byte [rbx]
     movzx r9, byte [rbx + 1]
-
-.end:
+    ; Se queda donde estaba
+.done:
     pop rdi
     pop rdx
     pop rbx
     pop rbp
     ret
+
 
 ; Función para mover enemigos
 move_enemies:
@@ -3217,7 +3310,18 @@ move_enemies:
         je .invalid_move
         cmp al, 'X'
         je .invalid_move
+        cmp al, '@'                 ; Enemigo nivel 1 y 5
+        je .invalid_move
+        cmp al, '#'                 ; Enemigo nivel 2
+        je .invalid_move
+        cmp al, '$'                 ; Enemigo nivel 3
+        je .invalid_move
+        cmp al, '&'                 ; Enemigo nivel 4
+        je .invalid_move
         
+        call check_enemy_at_position
+        cmp rax, 1
+        je .invalid_move
         pop r10
         pop r9
         pop r8
@@ -3239,6 +3343,38 @@ move_enemies:
     .end:
         pop rbp
         ret
+
+check_enemy_at_position:
+    push rbp
+    mov rbp, rsp
+    
+    ; Parámetros esperados en r8 (X) y r9 (Y)
+    mov rax, column_cells
+    add rax, 2
+    mul r9
+    add rax, r8
+    lea rdi, [board + rax]
+    movzx rax, byte [rdi]
+    
+    ; Verificar todos los caracteres de enemigos
+    cmp al, '@'
+    je .enemy_found
+    cmp al, '#'
+    je .enemy_found
+    cmp al, '$'
+    je .enemy_found
+    cmp al, '&'
+    je .enemy_found
+    
+    xor rax, rax    ; No hay enemigo (retorna 0)
+    jmp .end
+    
+.enemy_found:
+    mov rax, 1      ; Hay enemigo (retorna 1)
+    
+.end:
+    pop rbp
+    ret
 
 get_current_spawn_points:
     push rbp
