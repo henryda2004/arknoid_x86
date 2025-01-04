@@ -418,6 +418,9 @@ section .data
 
     catch_power_active db 0     ; 0 = inactivo, 1 = activo
     ball_caught db 0           ; 0 = no atrapada, 1 = atrapada
+    ball_caught_2 db 0           ; 0 = no atrapada, 1 = atrapada
+    ball_caught_3 db 0           ; 0 = no atrapada, 1 = atrapada
+
     ball_catch_offset dq 0     ; Offset respecto a la paleta cuando está atrapada
     last_key db 0    ; Variable para almacenar la última tecla presionada
 
@@ -1773,7 +1776,7 @@ move_ball:
 
 move_ball_2:
 
-    cmp byte [ball_caught], 1
+    cmp byte [ball_caught_2], 1
     je .move_with_pallet
 
     cmp byte [ball2_moving], 0
@@ -1911,7 +1914,7 @@ move_ball_2:
         jne .normal_bounce
 
         ; Activar el modo "atrapado"
-        mov byte [ball_caught], 1
+        mov byte [ball_caught_2], 1
         
         ; Guardar la posición X actual de la bola como offset
         mov rax, [ball2_x_pos]           ; Posición X actual de la bola
@@ -1935,7 +1938,7 @@ move_ball_2:
 
 move_ball_3:
 
-    cmp byte [ball_caught], 1
+    cmp byte [ball_caught_3], 1
     je .move_with_pallet
 
     cmp byte [ball3_moving], 0
@@ -2073,7 +2076,7 @@ move_ball_3:
         jne .normal_bounce
 
         ; Activar el modo "atrapado"
-        mov byte [ball_caught], 1
+        mov byte [ball_caught_3], 1
         
         ; Guardar la posición X actual de la bola como offset
         mov rax, [ball3_x_pos]           ; Posición X actual de la bola
@@ -2099,31 +2102,50 @@ move_ball_3:
 ; Procesar la tecla 'c' cuando el poder de atrapar está activo
 process_catch_release:
     push rbp
-    mov rbp, rsp
+    mov  rbp, rsp
 
-    ; Verificar si la bola está atrapada
-    cmp byte [ball_caught], 0
-    je .end
-
-    ; Verificar si el poder catch está activo
+    ; Verificar si el poder está activo
     cmp byte [catch_power_active], 1
-    jne .end
+    jne .no_catch_power
 
-    ; Verificar si se presionó la tecla 'c'
+    ; Verificar si se presionó 'c'
     cmp byte [last_key], 'c'
-    jne .end
+    jne .no_catch_power
 
-    ; Liberar la bola y asignar dirección inicial
+    ; Ahora revisamos bola 1
+    cmp byte [ball_caught], 1
+    jne .check_ball2
+    ; Suelta la bola 1
     mov byte [ball_caught], 0
     mov qword [ball_direction_x], 1
     mov qword [ball_direction_y], -1
+    jmp .finish
 
-    ; Limpiar la tecla procesada
+.check_ball2:
+    cmp byte [ball_caught_2], 1
+    jne .check_ball3
+    ; Suelta la bola 2
+    mov byte [ball_caught_2], 0
+    mov qword [ball2_direction_x], 1
+    mov qword [ball2_direction_y], -1
+    jmp .finish
+
+.check_ball3:
+    cmp byte [ball_caught_3], 1
+    jne .finish
+    ; Suelta la bola 3
+    mov byte [ball_caught_3], 0
+    mov qword [ball3_direction_x], 1
+    mov qword [ball3_direction_y], -1
+
+.finish:
+    ; Limpiar la tecla
     mov byte [last_key], 0
 
-    .end:
-        pop rbp
-        ret
+.no_catch_power:
+    pop rbp
+    ret
+
 
 
 display_level_number:
