@@ -3324,7 +3324,6 @@ _start:
         call move_enemies
         call check_enemy_collision
         call print_enemies
-		call print_ball
 		print board, board_size				
 		;setnonblocking	
 	.read_more:	

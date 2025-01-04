@@ -856,7 +856,7 @@
    100 00000460 31F6                <1>  xor esi, esi
    101 00000462 0F05                <1>  syscall
    659                                      
-   660 00000464 E9B41A0000                  jmp exit
+   660 00000464 E9AF1A0000                  jmp exit
    661                                  
    662                                  
    663                                  ; Función para registrar una nueva letra en el mapa
@@ -2657,7 +2657,7 @@
    100 0000159C 31F6                <1>  xor esi, esi
    101 0000159E 0F05                <1>  syscall
   2377                                      
-  2378 000015A0 E978090000                  jmp exit
+  2378 000015A0 E973090000                  jmp exit
   2379                                  
   2380                                  ; Función para imprimir los bloques
   2381                                  ; Función modificada para imprimir bloques
@@ -3570,7 +3570,7 @@
   3268                                  
   3269                                  _start:
   3270 00001D48 E8DEE3FFFF              	call canonical_off
-  3271 00001D4D E858010000              	call start_screen
+  3271 00001D4D E853010000              	call start_screen
   3272 00001D52 E8ADF5FFFF                  call init_level
   3273 00001D57 E8FFFBFFFF                  call init_enemies
   3274 00001D5C EB00                    	jmp .main_loop
@@ -3626,112 +3626,111 @@
   3324 00001DE4 E8A6FBFFFF                      call move_enemies
   3325 00001DE9 E848FEFFFF                      call check_enemy_collision
   3326 00001DEE E8E9FDFFFF                      call print_enemies
-  3327 00001DF3 E80FEDFFFF              		call print_ball
-  3328                                  		print board, board_size				
-    82 00001DF8 B801000000          <1>  mov eax, sys_write
-    83 00001DFD BF01000000          <1>  mov edi, 1
-    84 00001E02 48BE-               <1>  mov rsi, %1
-    84 00001E04 [000A000000000000]  <1>
-    85 00001E0C BA000A0000          <1>  mov edx, %2
-    86 00001E11 0F05                <1>  syscall
-  3329                                  		;setnonblocking	
-  3330                                  	.read_more:	
-  3331                                  	    getchar	
-    90 00001E13 B800000000          <1>  mov rax, sys_read
-    91 00001E18 BF00000000          <1>  mov rdi, STDIN_FILENO
-    92 00001E1D 48BE-               <1>  mov rsi, input_char
-    92 00001E1F [0000000000000000]  <1>
-    93 00001E27 BA01000000          <1>  mov rdx, 1
-    94 00001E2C 0F05                <1>  syscall
-  3332 00001E2E 4883F801                	    cmp rax, 1
-  3333 00001E32 7543                    	    jne .done
-  3334                                  	
-  3335 00001E34 8A05(00000000)          	    mov al, [input_char]
-  3336 00001E3A 8805(62180000)          	    mov [last_key], al      ; Registrar la última tecla presionada
-  3337                                  	
-  3338 00001E40 3C61                    	    cmp al, 'a'
-  3339 00001E42 750E                    	    jne .not_left
-  3340 00001E44 48C7C7FFFFFFFF          	    mov rdi, left_direction
-  3341 00001E4B E864EDFFFF              	    call move_pallet
-  3342 00001E50 EB25                    	    jmp .done
-  3343                                  	
-  3344                                      .not_left:
-  3345 00001E52 3C64                    	    cmp al, 'd'
-  3346 00001E54 750C                    	    jne .not_right
-  3347 00001E56 BF01000000              	    mov rdi, right_direction
-  3348 00001E5B E854EDFFFF              	    call move_pallet
-  3349 00001E60 EB15                    	    jmp .done
-  3350                                  	
-  3351                                      .not_right:
-  3352 00001E62 3C63                    	    cmp al, 'c'             ; Verificar si se presionó la tecla 'c'
-  3353 00001E64 740A                    	    je .release_ball        ; Si sí, liberar la bola
-  3354                                  	
-  3355 00001E66 3C71                    	    cmp al, 'q' 
-  3356 00001E68 0F84AF000000            	    je exit
-  3357 00001E6E EBA3                    	    jmp .read_more
-  3358                                  	
-  3359                                      .release_ball:
-  3360 00001E70 E89BF3FFFF              	    call process_catch_release
-  3361 00001E75 EB00                    	    jmp .done
-  3362                                  	
-  3363                                      .done:
-  3364                                  	    sleeptime
-    98 00001E77 B823000000          <1>  mov eax, sys_nanosleep
-    99 00001E7C 48BF-               <1>  mov rdi, timespec
-    99 00001E7E [0000000000000000]  <1>
-   100 00001E86 31F6                <1>  xor esi, esi
-   101 00001E88 0F05                <1>  syscall
-  3365                                  	    print clear, clear_length
-    82 00001E8A B801000000          <1>  mov eax, sys_write
-    83 00001E8F BF01000000          <1>  mov edi, 1
-    84 00001E94 48BE-               <1>  mov rsi, %1
-    84 00001E96 [1000000000000000]  <1>
-    85 00001E9E BA07000000          <1>  mov edx, %2
-    86 00001EA3 0F05                <1>  syscall
-  3366 00001EA5 E9B4FEFFFF              	    jmp .main_loop
+  3327                                  		print board, board_size				
+    82 00001DF3 B801000000          <1>  mov eax, sys_write
+    83 00001DF8 BF01000000          <1>  mov edi, 1
+    84 00001DFD 48BE-               <1>  mov rsi, %1
+    84 00001DFF [000A000000000000]  <1>
+    85 00001E07 BA000A0000          <1>  mov edx, %2
+    86 00001E0C 0F05                <1>  syscall
+  3328                                  		;setnonblocking	
+  3329                                  	.read_more:	
+  3330                                  	    getchar	
+    90 00001E0E B800000000          <1>  mov rax, sys_read
+    91 00001E13 BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 00001E18 48BE-               <1>  mov rsi, input_char
+    92 00001E1A [0000000000000000]  <1>
+    93 00001E22 BA01000000          <1>  mov rdx, 1
+    94 00001E27 0F05                <1>  syscall
+  3331 00001E29 4883F801                	    cmp rax, 1
+  3332 00001E2D 7543                    	    jne .done
+  3333                                  	
+  3334 00001E2F 8A05(00000000)          	    mov al, [input_char]
+  3335 00001E35 8805(62180000)          	    mov [last_key], al      ; Registrar la última tecla presionada
+  3336                                  	
+  3337 00001E3B 3C61                    	    cmp al, 'a'
+  3338 00001E3D 750E                    	    jne .not_left
+  3339 00001E3F 48C7C7FFFFFFFF          	    mov rdi, left_direction
+  3340 00001E46 E869EDFFFF              	    call move_pallet
+  3341 00001E4B EB25                    	    jmp .done
+  3342                                  	
+  3343                                      .not_left:
+  3344 00001E4D 3C64                    	    cmp al, 'd'
+  3345 00001E4F 750C                    	    jne .not_right
+  3346 00001E51 BF01000000              	    mov rdi, right_direction
+  3347 00001E56 E859EDFFFF              	    call move_pallet
+  3348 00001E5B EB15                    	    jmp .done
+  3349                                  	
+  3350                                      .not_right:
+  3351 00001E5D 3C63                    	    cmp al, 'c'             ; Verificar si se presionó la tecla 'c'
+  3352 00001E5F 740A                    	    je .release_ball        ; Si sí, liberar la bola
+  3353                                  	
+  3354 00001E61 3C71                    	    cmp al, 'q' 
+  3355 00001E63 0F84AF000000            	    je exit
+  3356 00001E69 EBA3                    	    jmp .read_more
+  3357                                  	
+  3358                                      .release_ball:
+  3359 00001E6B E8A0F3FFFF              	    call process_catch_release
+  3360 00001E70 EB00                    	    jmp .done
+  3361                                  	
+  3362                                      .done:
+  3363                                  	    sleeptime
+    98 00001E72 B823000000          <1>  mov eax, sys_nanosleep
+    99 00001E77 48BF-               <1>  mov rdi, timespec
+    99 00001E79 [0000000000000000]  <1>
+   100 00001E81 31F6                <1>  xor esi, esi
+   101 00001E83 0F05                <1>  syscall
+  3364                                  	    print clear, clear_length
+    82 00001E85 B801000000          <1>  mov eax, sys_write
+    83 00001E8A BF01000000          <1>  mov edi, 1
+    84 00001E8F 48BE-               <1>  mov rsi, %1
+    84 00001E91 [1000000000000000]  <1>
+    85 00001E99 BA07000000          <1>  mov edx, %2
+    86 00001E9E 0F05                <1>  syscall
+  3365 00001EA0 E9B9FEFFFF              	    jmp .main_loop
+  3366                                  
   3367                                  
   3368                                  
   3369                                  
-  3370                                  
-  3371                                  start_screen:
-  3372                                      print clear, clear_length    ; Limpiamos la pantalla primero
-    82 00001EAA B801000000          <1>  mov eax, sys_write
-    83 00001EAF BF01000000          <1>  mov edi, 1
-    84 00001EB4 48BE-               <1>  mov rsi, %1
-    84 00001EB6 [1000000000000000]  <1>
-    85 00001EBE BA07000000          <1>  mov edx, %2
-    86 00001EC3 0F05                <1>  syscall
-  3373                                      print msg1, msg1_length
-    82 00001EC5 B801000000          <1>  mov eax, sys_write
-    83 00001ECA BF01000000          <1>  mov edi, 1
-    84 00001ECF 48BE-               <1>  mov rsi, %1
-    84 00001ED1 [1700000000000000]  <1>
-    85 00001ED9 BA14010000          <1>  mov edx, %2
-    86 00001EDE 0F05                <1>  syscall
-  3374                                      
-  3375                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
-  3376                                          getchar                 ; Esperamos una tecla
-    90 00001EE0 B800000000          <1>  mov rax, sys_read
-    91 00001EE5 BF00000000          <1>  mov rdi, STDIN_FILENO
-    92 00001EEA 48BE-               <1>  mov rsi, input_char
-    92 00001EEC [0000000000000000]  <1>
-    93 00001EF4 BA01000000          <1>  mov rdx, 1
-    94 00001EF9 0F05                <1>  syscall
-  3377 00001EFB 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
-  3378 00001EFF 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
-  3379                                          
-  3380                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
-    82 00001F01 B801000000          <1>  mov eax, sys_write
-    83 00001F06 BF01000000          <1>  mov edi, 1
-    84 00001F0B 48BE-               <1>  mov rsi, %1
-    84 00001F0D [1000000000000000]  <1>
-    85 00001F15 BA07000000          <1>  mov edx, %2
-    86 00001F1A 0F05                <1>  syscall
-  3381 00001F1C C3                          ret
-  3382                                  
-  3383                                  exit: 
-  3384 00001F1D E84BE2FFFF              	call canonical_on
-  3385 00001F22 B83C000000              	mov    rax, 60
-  3386 00001F27 BF00000000                  mov    rdi, 0
-  3387 00001F2C 0F05                        syscall
-  3388                                  
+  3370                                  start_screen:
+  3371                                      print clear, clear_length    ; Limpiamos la pantalla primero
+    82 00001EA5 B801000000          <1>  mov eax, sys_write
+    83 00001EAA BF01000000          <1>  mov edi, 1
+    84 00001EAF 48BE-               <1>  mov rsi, %1
+    84 00001EB1 [1000000000000000]  <1>
+    85 00001EB9 BA07000000          <1>  mov edx, %2
+    86 00001EBE 0F05                <1>  syscall
+  3372                                      print msg1, msg1_length
+    82 00001EC0 B801000000          <1>  mov eax, sys_write
+    83 00001EC5 BF01000000          <1>  mov edi, 1
+    84 00001ECA 48BE-               <1>  mov rsi, %1
+    84 00001ECC [1700000000000000]  <1>
+    85 00001ED4 BA14010000          <1>  mov edx, %2
+    86 00001ED9 0F05                <1>  syscall
+  3373                                      
+  3374                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
+  3375                                          getchar                 ; Esperamos una tecla
+    90 00001EDB B800000000          <1>  mov rax, sys_read
+    91 00001EE0 BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 00001EE5 48BE-               <1>  mov rsi, input_char
+    92 00001EE7 [0000000000000000]  <1>
+    93 00001EEF BA01000000          <1>  mov rdx, 1
+    94 00001EF4 0F05                <1>  syscall
+  3376 00001EF6 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
+  3377 00001EFA 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
+  3378                                          
+  3379                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
+    82 00001EFC B801000000          <1>  mov eax, sys_write
+    83 00001F01 BF01000000          <1>  mov edi, 1
+    84 00001F06 48BE-               <1>  mov rsi, %1
+    84 00001F08 [1000000000000000]  <1>
+    85 00001F10 BA07000000          <1>  mov edx, %2
+    86 00001F15 0F05                <1>  syscall
+  3380 00001F17 C3                          ret
+  3381                                  
+  3382                                  exit: 
+  3383 00001F18 E850E2FFFF              	call canonical_on
+  3384 00001F1D B83C000000              	mov    rax, 60
+  3385 00001F22 BF00000000                  mov    rdi, 0
+  3386 00001F27 0F05                        syscall
+  3387                                  
