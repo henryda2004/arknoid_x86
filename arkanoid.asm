@@ -361,7 +361,7 @@ section .data
     MOVEMENT_THRESHOLD db 20   ; Número de movimientos antes de cambiar objetivo
  ;Formato: número de bloques destruidos necesario para que aparezca cada enemigo
     ; Añade esto en la sección .dataa
-    level1_spawn_points: db 0, 1, 2, 6, 8, 10, 12, 14, 16, 18    ; 10 enemigos, cada 2 bloques
+    level1_spawn_points: db 0, 0, 0, 6, 8, 10, 12, 14, 16, 18    ; 10 enemigos, cada 2 bloques
     level2_spawn_points: db 1, 3, 5, 7, 9, 11, 13, 15, 17, 19    ; 10 enemigos, cada 2 bloques
     level3_spawn_points: db 0, 3, 6, 9, 12, 15, 18, 21, 24, 27   ; 10 enemigos, cada 3 bloques
     level4_spawn_points: db 1, 4, 7, 10, 13, 16, 19, 22, 25, 28  ; 10 enemigos, cada 3 bloques
@@ -3107,10 +3107,12 @@ check_enemy_spawn:
         mov byte [enemy_spawns_triggered + rcx], 1
         
         ; Spawner nuevo enemigo
-        mov byte [rsi], 4             ; X inicial
-        mov byte [rsi + 1], 2          ; Y inicial
-        mov byte [rsi + 2], 1          ; Activar enemigo
-        
+        mov al, 4
+        add al, cl       ; con 'rcx' como índice
+        mov [rsi], al
+        mov byte [rsi+1], 2
+        mov byte [rsi+2], 1
+
         ; Inicializar comportamiento
         mov rax, rcx
         and rax, 1                     ; Alternar comportamiento basado en índice par/impar
