@@ -954,6 +954,11 @@ move_letters:
                 jmp .finish_capture
 
             .activate_split:
+                mov byte [laser_power_active], 0
+                mov byte [catch_power_active], 0
+                mov rax, [default_pallet_size]
+                mov [pallet_size], rax
+                mov qword [ball_speed], 1 
                 call activate_split_power
                 jmp .finish_capture
 
@@ -2213,6 +2218,9 @@ init_empty_board:
 
 
 init_level:
+          ; Asegurarse que las otras bolas están desactivadas
+    mov byte [ball2_active], 0
+    mov byte [ball3_active], 0
     mov byte [laser_power_active], 0
     call clear_lasers
     mov rax, [default_pallet_size]
