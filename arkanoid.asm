@@ -303,7 +303,7 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 58, 7, 3, 1, 'C'    ; Bloque 7
+        db 58, 7, 3, 1, 'S'    ; Bloque 7
         db 61, 9, 3, 1, 'D'    ; Bloque 7
         db 35, 9, 3, 1, 'C'    ; Bloque 7
         db 18, 7, 3, 1, 'S'    ; Bloque 7
@@ -3107,7 +3107,7 @@ check_enemy_spawn:
         mov byte [enemy_spawns_triggered + rcx], 1
         
         ; Spawner nuevo enemigo
-        mov byte [rsi], 40             ; X inicial
+        mov byte [rsi], 4             ; X inicial
         mov byte [rsi + 1], 2          ; Y inicial
         mov byte [rsi + 2], 1          ; Activar enemigo
         
