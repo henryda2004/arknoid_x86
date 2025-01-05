@@ -296,26 +296,26 @@ section .data
     block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
-    current_level db 1
+    current_level db 2
     blocks_remaining db 0
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 1, 5, 5, 1, ' '   
-        db 7, 5, 5, 1, ' '    
-        db 13, 5, 5, 1, ' '   
-        db 19, 5, 5, 1, ' '   
-        db 25, 5, 5, 1, ' '   
-        db 31, 5, 5, 1, ' '   
-        db 37, 5, 5, 1, ' '   
-        db 43, 5, 5, 1, ' '   
-        db 49, 5, 5, 1, ' '   
-        db 55, 5, 5, 1, ' '   
-        db 61, 5, 5, 1, ' '  
-        db 67, 5, 5, 1, ' '   
-        db 73, 5, 5, 1, ' '   
+        db 1, 5, 5, 2, ' '   
+        db 7, 5, 5, 2, ' '    
+        db 13, 5, 5, 2, ' '   
+        db 19, 5, 5, 2, ' '   
+        db 25, 5, 5, 2, ' '   
+        db 31, 5, 5, 2, ' '   
+        db 37, 5, 5, 2, ' '   
+        db 43, 5, 5, 2, ' '   
+        db 49, 5, 5, 2, ' '   
+        db 55, 5, 5, 2, ' '   
+        db 61, 5, 5, 2, ' '  
+        db 67, 5, 5, 2, ' '   
+        db 73, 5, 5, 2, ' '   
 
         db 1, 6, 4, 1, ' '   
         db 7, 6, 2, 1, ' '    
@@ -382,7 +382,7 @@ section .data
         db 37, 10, 4, 1, ' '   
         db 43, 10, 2, 1, ' '   
         db 49, 10, 4, 1, ' '   
-        db 55, 10, 2, 1, ' '   
+        db 55, 10, 2, 1, 'L'   
         db 61, 10, 4, 1, ' '  
         db 67, 10, 2, 1, ' '   
         db 73, 10, 4, 1, ' ' 
@@ -391,8 +391,112 @@ section .data
 
     ; Nivel 2: Bloques de prueba
     level2_blocks:
-        db 60, 7, 1, 1, 'E'    ; Un bloque simple en el nivel 2   ; Un bloque simple en el nivel 2
-    level2_blocks_count equ 1
+        db 1, 3, 4, 1, ' '
+
+        db 1, 4, 3, 1, ' '   
+        db 7, 4, 4, 1, ' '   
+                
+        db 1, 5, 2, 1, ' '   
+        db 7, 5, 3, 1, ' '
+        db 13, 5, 4, 1, ' '
+
+        db 1, 6, 1, 1, ' '   
+        db 7, 6, 2, 1, ' '
+        db 13, 6, 3, 1, ' '
+        db 19, 6, 4, 1, ' '   
+
+        db 1, 7, 4, 1, ' '   
+        db 7, 7, 1, 1, ' '
+        db 13, 7, 2, 1, ' '
+        db 19, 7, 3, 1, ' '  
+        db 25, 7, 4, 1, ' '   
+
+        db 1, 8, 3, 1, ' '   
+        db 7, 8, 4, 1, ' '
+        db 13, 8, 1, 1, ' '
+        db 19, 8, 2, 1, ' '  
+        db 25, 8, 3, 1, ' ' 
+        db 31, 8, 4, 1, ' '   
+
+        db 1, 9, 2, 1, ' '   
+        db 7, 9, 3, 1, ' '
+        db 13, 9, 4, 1, ' '
+        db 19, 9, 1, 1, ' '  
+        db 25, 9, 2, 1, ' ' 
+        db 31, 9, 3, 1, ' ' 
+        db 37, 9, 4, 1, ' '   
+
+        db 1, 10, 1, 1, ' '   
+        db 7, 10, 2, 1, ' '
+        db 13, 10, 3, 1, ' '
+        db 19, 10, 4, 1, ' '  
+        db 25, 10, 1, 1, ' ' 
+        db 31, 10, 2, 1, ' ' 
+        db 37, 10, 3, 1, ' '  
+        db 43, 10, 4, 1, ' '   
+
+        db 1, 11, 4, 1, ' '   
+        db 7, 11, 1, 1, ' '
+        db 13, 11, 2, 1, ' '
+        db 19, 11, 3, 1, ' '  
+        db 25, 11, 4, 1, ' ' 
+        db 31, 11, 1, 1, ' ' 
+        db 37, 11, 2, 1, ' '  
+        db 43, 11, 3, 1, ' ' 
+        db 49, 11, 4, 1, ' '   
+
+        db 1, 12, 3, 1, ' '   
+        db 7, 12, 4, 1, ' '
+        db 13, 12, 1, 1, ' '
+        db 19, 12, 2, 1, ' '  
+        db 25, 12, 3, 1, ' ' 
+        db 31, 12, 4, 1, ' ' 
+        db 37, 12, 1, 1, ' '  
+        db 43, 12, 2, 1, ' ' 
+        db 49, 12, 3, 1, ' '
+        db 55, 12, 4, 1, ' '   
+
+        db 1, 13, 2, 1, ' '   
+        db 7, 13, 3, 1, ' '
+        db 13, 13, 4, 1, ' '
+        db 19, 13, 1, 1, ' '  
+        db 25, 13, 2, 1, ' ' 
+        db 31, 13, 3, 1, ' ' 
+        db 37, 13, 4, 1, ' '  
+        db 43, 13, 1, 1, ' ' 
+        db 49, 13, 2, 1, ' '
+        db 55, 13, 3, 1, ' ' 
+        db 61, 13, 4, 1, ' '   
+
+        db 1, 14, 1, 1, ' '   
+        db 7, 14, 2, 1, ' '
+        db 13, 14, 3, 1, ' '
+        db 19, 14, 4, 1, ' '  
+        db 25, 14, 1, 1, ' ' 
+        db 31, 14, 2, 1, ' ' 
+        db 37, 14, 3, 1, ' '  
+        db 43, 14, 4, 1, ' ' 
+        db 49, 14, 1, 1, ' '
+        db 55, 14, 2, 1, ' ' 
+        db 61, 14, 3, 1, ' '  
+        db 67, 14, 4, 1, ' '   
+
+        db 1, 15, 5, 2, ' '   
+        db 7, 15, 5, 2, ' '
+        db 13, 15, 5, 2, ' '
+        db 19, 15, 5, 2, ' '  
+        db 25, 15, 5, 2, ' ' 
+        db 31, 15, 5, 2, ' ' 
+        db 37, 15, 5, 2, ' '  
+        db 43, 15, 5, 2, ' ' 
+        db 49, 15, 5, 2, ' '
+        db 55, 15, 5, 2, ' ' 
+        db 61, 15, 5, 2, ' '  
+        db 67, 15, 5, 2, ' '
+        db 73, 15, 4, 1, ' '   
+       
+
+    level2_blocks_count equ 91
 
     ; Nivel 3
     level3_blocks:
@@ -470,12 +574,12 @@ section .data
         db 4, 30, 1     ; Vida 2 (activa)
         db 6, 30, 1     ; Vida 3 (inactiva)
         db 8, 30, 1     ; Vida 4 (inactiva)
-        db 10, 30, 0    ; Vida 5 (inactiva)
-        db 12, 30, 0    ; Vida 6 (inactiva)
-        db 14, 30, 0    ; Vida 7 (inactiva)
+        db 10, 30, 1    ; Vida 5 (inactiva)
+        db 12, 30, 1    ; Vida 6 (inactiva)
+        db 14, 30, 1    ; Vida 7 (inactiva)
     lives_count equ 7    ; Total de vidas
     life_char db "^"    
-    current_lives db 4   ; Contador de vidas activas actual
+    current_lives db 7   ; Contador de vidas activas actual
 
 ; Estructura para almacenar las letras y sus posiciones
     ; Formato: x, y, letra, activo (1 = activo, 0 = inactivo)
