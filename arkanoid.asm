@@ -989,6 +989,8 @@ section .data
     ball_speed dq 1             ; Velocidad normal de la bola
     slow_ball_speed dq 2        ; Velocidad lenta (se usará como divisor)
     speed_counter dq 0          ; Contador para ralentizar el movimiento
+   
+    initial_catch_active db 0   ; 0 = inactivo, 1 = activo
 
     catch_power_active db 0     ; 0 = inactivo, 1 = activo
     ball_caught db 0           ; 0 = no atrapada, 1 = atrapada
@@ -2685,7 +2687,7 @@ process_catch_release:
     push rbp
     mov  rbp, rsp
 
-    ; Verificar si el poder está activo
+    ; Verificar si el poder de catch está activo
     cmp byte [catch_power_active], 1
     jne .no_catch_power
 
@@ -2693,36 +2695,38 @@ process_catch_release:
     cmp byte [last_key], 'c'
     jne .no_catch_power
 
-    ; Ahora revisamos bola 1
+    ; Liberar la bola principal si está atrapada
     cmp byte [ball_caught], 1
     jne .check_ball2
-    ; Suelta la bola 1
     mov byte [ball_caught], 0
     mov qword [ball_direction_x], 1
     mov qword [ball_direction_y], -1
-    jmp .finish
+    jmp .release_complete
 
 .check_ball2:
     cmp byte [ball_caught_2], 1
     jne .check_ball3
-    ; Suelta la bola 2
     mov byte [ball_caught_2], 0
     mov qword [ball2_direction_x], 1
     mov qword [ball2_direction_y], -1
-    jmp .finish
+    jmp .release_complete
 
 .check_ball3:
     cmp byte [ball_caught_3], 1
-    jne .finish
-    ; Suelta la bola 3
+    jne .release_complete
     mov byte [ball_caught_3], 0
     mov qword [ball3_direction_x], 1
     mov qword [ball3_direction_y], -1
 
-.finish:
-    ; Limpiar la tecla
-    mov byte [last_key], 0
+.release_complete:
+    ; Si era el catch inicial, desactivarlo
+    cmp byte [initial_catch_active], 1
+    jne .finish
+    mov byte [initial_catch_active], 0
+    mov byte [catch_power_active], 0  ; Desactivar poder de catch después de la 1ra vez
 
+.finish:
+    mov byte [last_key], 0  ; Limpiar la tecla
 .no_catch_power:
     pop rbp
     ret
@@ -2814,6 +2818,16 @@ init_level:
     mov qword [ball_direction_x], 1    ; Dirección hacia la derecha (1 = derecha, -1 = izquierda)
     mov qword [ball_direction_y], -1   ; Dirección hacia arriba (-1 = arriba, 1 = abajo)
 
+    ; En init_level, después de inicializar las direcciones
+    mov byte [catch_power_active], 1    ; Activar el poder catch
+    mov byte [ball_caught], 1           ; Marcar la bola como atrapada
+    mov byte [initial_catch_active], 1  ; Marcar que es el catch inicial
+
+    ; Calcular y guardar el offset inicial de la bola respecto a la paleta
+    mov rax, [ball_x_pos]              ; Posición X actual de la bola
+    sub rax, [pallet_position]         ; Restar la posición de la paleta
+    add rax, board                     ; Ajustar por el offset del tablero
+    mov [ball_catch_offset], rax       ; Guardar el offset
 
     ; Reiniciar contador de letras activas
     xor rax, rax
