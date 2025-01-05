@@ -296,7 +296,7 @@ section .data
     block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
-    current_level db 5
+    current_level db 3
     blocks_remaining db 0
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
@@ -553,12 +553,12 @@ section .data
         db 43, 10, 6, 60, ' '   
         db 49, 10, 6, 60, ' '   
         db 55, 10, 6, 60, ' '   
-        db 61, 10, 3, 1, ' '  
+        db 61, 10, 3, 1, 'D'  
         db 67, 10, 3, 1, ' '   
         db 73, 10, 3, 1, ' ' 
 
         db 1, 12, 1, 1, ' '   
-        db 7, 12, 2, 1, ' '    
+        db 7, 12, 2, 1, 'P'    
         db 13, 12, 1, 1, ' '   
         db 19, 12, 2, 1, ' '   
         db 25, 12, 1, 1, ' '   
@@ -596,7 +596,7 @@ section .data
         db 49, 16, 2, 1, ' '   
         db 55, 16, 3, 1, ' '   
         db 61, 16, 2, 1, ' '  
-        db 67, 16, 3, 1, ' '   
+        db 67, 16, 3, 1, 'C'   
         db 73, 16, 2, 1, ' ' 
 
 
@@ -611,7 +611,7 @@ section .data
         db 49, 18, 6, 60, ' '   
         db 55, 18, 6, 60, ' '   
         db 61, 18, 1, 1, ' '  
-        db 67, 18, 1, 1, ' '   
+        db 67, 18, 1, 1, 'S'   
         db 73, 18, 1, 1, ' ' 
 
     level3_blocks_count equ 104
@@ -2691,31 +2691,63 @@ process_catch_release:
     cmp byte [catch_power_active], 1
     jne .no_catch_power
 
-    ; Verificar si se presionó 'c'
+    ; Verificar si se presionó 'c' (derecha y arriba)
     cmp byte [last_key], 'c'
-    jne .no_catch_power
+    je .release_right
+    
+    ; Verificar si se presionó 'x' (izquierda y arriba)
+    cmp byte [last_key], 'x'
+    je .release_left
+    
+    jmp .no_catch_power
 
-    ; Liberar la bola principal si está atrapada
+.release_right:
+    ; Liberar la bola hacia la derecha
     cmp byte [ball_caught], 1
-    jne .check_ball2
+    jne .check_ball2_right
     mov byte [ball_caught], 0
-    mov qword [ball_direction_x], 1
-    mov qword [ball_direction_y], -1
+    mov qword [ball_direction_x], 1    ; Derecha
+    mov qword [ball_direction_y], -1   ; Arriba
     jmp .release_complete
 
-.check_ball2:
+.check_ball2_right:
     cmp byte [ball_caught_2], 1
-    jne .check_ball3
+    jne .check_ball3_right
     mov byte [ball_caught_2], 0
     mov qword [ball2_direction_x], 1
     mov qword [ball2_direction_y], -1
     jmp .release_complete
 
-.check_ball3:
+.check_ball3_right:
     cmp byte [ball_caught_3], 1
     jne .release_complete
     mov byte [ball_caught_3], 0
     mov qword [ball3_direction_x], 1
+    mov qword [ball3_direction_y], -1
+    jmp .release_complete
+
+.release_left:
+    ; Liberar la bola hacia la izquierda
+    cmp byte [ball_caught], 1
+    jne .check_ball2_left
+    mov byte [ball_caught], 0
+    mov qword [ball_direction_x], -1   ; Izquierda
+    mov qword [ball_direction_y], -1   ; Arriba
+    jmp .release_complete
+
+.check_ball2_left:
+    cmp byte [ball_caught_2], 1
+    jne .check_ball3_left
+    mov byte [ball_caught_2], 0
+    mov qword [ball2_direction_x], -1
+    mov qword [ball2_direction_y], -1
+    jmp .release_complete
+
+.check_ball3_left:
+    cmp byte [ball_caught_3], 1
+    jne .release_complete
+    mov byte [ball_caught_3], 0
+    mov qword [ball3_direction_x], -1
     mov qword [ball3_direction_y], -1
 
 .release_complete:
@@ -2901,7 +2933,7 @@ init_level:
             inc rcx
             jmp .init_loop2
     .level3:
-        mov byte [blocks_remaining], level3_blocks_count
+        mov byte [blocks_remaining], 64
         xor rcx, rcx             
         .init_loop3:
             cmp rcx, level3_blocks_count
@@ -4208,6 +4240,10 @@ _start:
 	    cmp al, 'c'             ; Verificar si se presionó la tecla 'c'
 	    je .release_ball        ; Si sí, liberar la bola
 	
+        cmp al, 'x'             ; Verificar si se presionó la tecla 'c'
+	    je .release_ball        ; Si sí, liberar la bola
+	
+
 	    cmp al, 'q' 
 	    je exit
 	    jmp .read_more
