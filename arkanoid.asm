@@ -296,96 +296,96 @@ section .data
     block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
-    current_level db 3
+    current_level db 1
     blocks_remaining db 0
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 1, 5, 5, 2, ' '   
-        db 7, 5, 5, 2, ' '    
-        db 13, 5, 5, 2, ' '   
-        db 19, 5, 5, 2, ' '   
-        db 25, 5, 5, 2, ' '   
-        db 31, 5, 5, 2, ' '   
-        db 37, 5, 5, 2, ' '   
-        db 43, 5, 5, 2, ' '   
-        db 49, 5, 5, 2, ' '   
-        db 55, 5, 5, 2, ' '   
-        db 61, 5, 5, 2, ' '  
-        db 67, 5, 5, 2, ' '   
-        db 73, 5, 5, 2, ' '   
+        db 1, 6, 5, 2, ' '   
+        db 7, 6, 5, 2, ' '    
+        db 13, 6, 5, 2, ' '   
+        db 19, 6, 5, 2, ' '   
+        db 25, 6, 5, 2, ' '   
+        db 31, 6, 5, 2, ' '   
+        db 37, 6, 5, 2, ' '   
+        db 43, 6, 5, 2, ' '   
+        db 49, 6, 5, 2, ' '   
+        db 55, 6, 5, 2, ' '   
+        db 61, 6, 5, 2, ' '  
+        db 67, 6, 5, 2, ' '   
+        db 73, 6, 5, 2, ' '   
 
-        db 1, 6, 4, 1, ' '   
-        db 7, 6, 2, 1, ' '    
-        db 13, 6, 4, 1, ' '   
-        db 19, 6, 2, 1, ' '   
-        db 25, 6, 4, 1, ' '   
-        db 31, 6, 2, 1, ' '   
-        db 37, 6, 4, 1, ' '   
-        db 43, 6, 2, 1, ' '   
-        db 49, 6, 4, 1, ' '   
-        db 55, 6, 2, 1, ' '   
-        db 61, 6, 4, 1, ' '  
-        db 67, 6, 2, 1, ' '   
-        db 73, 6, 4, 1, ' ' 
+        db 1, 7, 4, 1, 'E'   
+        db 7, 7, 2, 1, 'S'    
+        db 13, 7, 4, 1, 'S'   
+        db 19, 7, 2, 1, 'S'   
+        db 25, 7, 4, 1, ' '   
+        db 31, 7, 2, 1, ' '   
+        db 37, 7, 4, 1, ' '   
+        db 43, 7, 2, 1, 'C'   
+        db 49, 7, 4, 1, ' '   
+        db 55, 7, 2, 1, ' '   
+        db 61, 7, 4, 1, ' '  
+        db 67, 7, 2, 1, ' '   
+        db 73, 7, 4, 1, ' ' 
 
-        db 1, 7, 1, 1, ' '   
-        db 7, 7, 3, 1, ' '    
-        db 13, 7, 1, 1, ' '   
-        db 19, 7, 3, 1, ' '   
-        db 25, 7, 1, 1, ' '   
-        db 31, 7, 3, 1, ' '   
-        db 37, 7, 1, 1, ' '   
-        db 43, 7, 3, 1, ' '   
-        db 49, 7, 1, 1, ' '   
-        db 55, 7, 3, 1, ' '   
-        db 61, 7, 1, 1, ' '  
-        db 67, 7, 3, 1, ' '   
-        db 73, 7, 1, 1, ' ' 
+        db 1, 8, 1, 1, ' '   
+        db 7, 8, 3, 1, ' '    
+        db 13, 8, 1, 1, ' '   
+        db 19, 8, 3, 1, ' '   
+        db 25, 8, 1, 1, ' '   
+        db 31, 8, 3, 1, ' '   
+        db 37, 8, 1, 1, ' '   
+        db 43, 8, 3, 1, ' '   
+        db 49, 8, 1, 1, ' '   
+        db 55, 8, 3, 1, ' '   
+        db 61, 8, 1, 1, ' '  
+        db 67, 8, 3, 1, ' '   
+        db 73, 8, 1, 1, ' ' 
 
-        db 1, 8, 4, 1, ' '   
-        db 7, 8, 2, 1, ' '    
-        db 13, 8, 4, 1, ' '   
-        db 19, 8, 2, 1, ' '   
-        db 25, 8, 4, 1, ' '   
-        db 31, 8, 2, 1, ' '   
-        db 37, 8, 4, 1, ' '   
-        db 43, 8, 2, 1, ' '   
-        db 49, 8, 4, 1, ' '   
-        db 55, 8, 2, 1, ' '   
-        db 61, 8, 4, 1, ' '  
-        db 67, 8, 2, 1, ' '   
-        db 73, 8, 4, 1, ' ' 
+        db 1, 9, 4, 1, ' '   
+        db 7, 9, 2, 1, ' '    
+        db 13, 9, 4, 1, 'P'   
+        db 19, 9, 2, 1, ' '   
+        db 25, 9, 4, 1, ' '   
+        db 31, 9, 2, 1, ' '   
+        db 37, 9, 4, 1, 'E'   
+        db 43, 9, 2, 1, 'C'   
+        db 49, 9, 4, 1, ' '   
+        db 55, 9, 2, 1, ' '   
+        db 61, 9, 4, 1, ' '  
+        db 67, 9, 2, 1, ' '   
+        db 73, 9, 4, 1, ' ' 
 
-        db 1, 9, 1, 1, ' '   
-        db 7, 9, 3, 1, ' '    
-        db 13, 9, 1, 1, ' '   
-        db 19, 9, 3, 1, ' '   
-        db 25, 9, 1, 1, ' '   
-        db 31, 9, 3, 1, ' '   
-        db 37, 9, 1, 1, ' '   
-        db 43, 9, 3, 1, ' '   
-        db 49, 9, 1, 1, ' '   
-        db 55, 9, 3, 1, ' '   
-        db 61, 9, 1, 1, ' '  
-        db 67, 9, 3, 1, ' '   
-        db 73, 9, 1, 1, ' ' 
+        db 1, 10, 1, 1, ' '   
+        db 7, 10, 3, 1, ' '    
+        db 13, 10, 1, 1, ' '   
+        db 19, 10, 3, 1, ' '   
+        db 25, 10, 1, 1, ' '   
+        db 31, 10, 3, 1, ' '   
+        db 37, 10, 1, 1, ' '   
+        db 43, 10, 3, 1, ' '   
+        db 49, 10, 1, 1, ' '   
+        db 55, 10, 3, 1, ' '   
+        db 61, 10, 1, 1, ' '  
+        db 67, 10, 3, 1, ' '   
+        db 73, 10, 1, 1, ' ' 
 
-        db 1, 10, 4, 1, ' '   
-        db 7, 10, 2, 1, ' '    
-        db 13, 10, 4, 1, ' '   
-        db 19, 10, 2, 1, ' '   
-        db 25, 10, 4, 1, ' '   
-        db 31, 10, 2, 1, ' '   
-        db 37, 10, 4, 1, ' '   
-        db 43, 10, 2, 1, ' '   
-        db 49, 10, 4, 1, ' '   
-        db 55, 10, 2, 1, 'L'   
-        db 61, 10, 4, 1, ' '  
-        db 67, 10, 2, 1, ' '   
-        db 73, 10, 4, 1, ' ' 
+        db 1, 11, 4, 1, 'E'   
+        db 7, 11, 2, 1, ' '    
+        db 13, 11, 4, 1, ' '   
+        db 19, 11, 2, 1, ' '   
+        db 25, 11, 4, 1, ' '   
+        db 31, 11, 2, 1, ' '   
+        db 37, 11, 4, 1, 'C'   
+        db 43, 11, 2, 1, ' '   
+        db 49, 11, 4, 1, ' '   
+        db 55, 11, 2, 1, 'L'   
+        db 61, 11, 4, 1, ' '  
+        db 67, 11, 2, 1, ' '   
+        db 73, 11, 4, 1, ' ' 
 
     level1_blocks_count equ 78   ; Cantidad total de bloques
 
@@ -501,118 +501,118 @@ section .data
     ; Nivel 3
     level3_blocks:
 
-        db 1, 4, 1, 1, ' '   
-        db 7, 4, 2, 1, ' '    
-        db 13, 4, 1, 1, ' '   
-        db 19, 4, 2, 1, ' '   
-        db 25, 4, 1, 1, ' '   
-        db 31, 4, 2, 1, ' '   
-        db 37, 4, 1, 1, ' '   
-        db 43, 4, 2, 1, ' '   
-        db 49, 4, 1, 1, ' '   
-        db 55, 4, 2, 1, ' '   
-        db 61, 4, 1, 1, ' '  
-        db 67, 4, 2, 1, ' '   
-        db 73, 4, 1, 1, ' ' 
+        db 1, 5, 1, 1, ' '   
+        db 7, 5, 2, 1, ' '    
+        db 13, 5, 1, 1, ' '   
+        db 19, 5, 2, 1, ' '   
+        db 25, 5, 1, 1, ' '   
+        db 31, 5, 2, 1, ' '   
+        db 37, 5, 1, 1, ' '   
+        db 43, 5, 2, 1, ' '   
+        db 49, 5, 1, 1, ' '   
+        db 55, 5, 2, 1, ' '   
+        db 61, 5, 1, 1, ' '  
+        db 67, 5, 2, 1, ' '   
+        db 73, 5, 1, 1, ' ' 
 
-        db 1, 6, 4, 1, ' '   
-        db 7, 6, 4, 1, ' '    
-        db 13, 6, 4, 1, ' '   
-        db 19, 6, 6, 60, ' '   
-        db 25, 6, 6, 60, ' '   
-        db 31, 6, 6, 60, ' '   
-        db 37, 6, 6, 60, ' '   
-        db 43, 6, 6, 60, ' '   
-        db 49, 6, 6, 60, ' '   
-        db 55, 6, 6, 60, ' '   
-        db 61, 6, 6, 60, ' '  
-        db 67, 6, 6, 60, ' '   
-        db 73, 6, 6, 60, ' ' 
+        db 1, 7, 4, 1, ' '   
+        db 7, 7, 4, 1, ' '    
+        db 13, 7, 4, 1, ' '   
+        db 19, 7, 6, 60, ' '   
+        db 25, 7, 6, 60, ' '   
+        db 31, 7, 6, 60, ' '   
+        db 37, 7, 6, 60, ' '   
+        db 43, 7, 6, 60, ' '   
+        db 49, 7, 6, 60, ' '   
+        db 55, 7, 6, 60, ' '   
+        db 61, 7, 6, 60, ' '  
+        db 67, 7, 6, 60, ' '   
+        db 73, 7, 6, 60, ' ' 
 
-        db 1, 8, 4, 1, ' '   
-        db 7, 8, 3, 1, ' '    
-        db 13, 8, 4, 1, ' '   
-        db 19, 8, 3, 1, ' '   
-        db 25, 8, 4, 1, ' '   
-        db 31, 8, 3, 1, ' '   
-        db 37, 8, 4, 1, ' '   
-        db 43, 8, 3, 1, ' '   
-        db 49, 8, 4, 1, ' '   
-        db 55, 8, 3, 1, ' '   
-        db 61, 8, 4, 1, ' '  
-        db 67, 8, 3, 1, ' '   
-        db 73, 8, 4, 1, ' ' 
+        db 1, 9, 4, 1, ' '   
+        db 7, 9, 3, 1, ' '    
+        db 13, 9, 4, 1, ' '   
+        db 19, 9, 3, 1, ' '   
+        db 25, 9, 4, 1, ' '   
+        db 31, 9, 3, 1, ' '   
+        db 37, 9, 4, 1, ' '   
+        db 43, 9, 3, 1, ' '   
+        db 49, 9, 4, 1, ' '   
+        db 55, 9, 3, 1, ' '   
+        db 61, 9, 4, 1, ' '  
+        db 67, 9, 3, 1, ' '   
+        db 73, 9, 4, 1, ' ' 
 
-        db 1, 10, 6, 60, ' '   
-        db 7, 10, 6, 60, ' '    
-        db 13, 10, 6, 60, ' '   
-        db 19, 10, 6, 60, ' '   
-        db 25, 10, 6, 60, ' '   
-        db 31, 10, 6, 60, ' '   
-        db 37, 10, 6, 60, ' '   
-        db 43, 10, 6, 60, ' '   
-        db 49, 10, 6, 60, ' '   
-        db 55, 10, 6, 60, ' '   
-        db 61, 10, 3, 1, 'D'  
-        db 67, 10, 3, 1, ' '   
-        db 73, 10, 3, 1, ' ' 
+        db 1, 11, 6, 60, ' '   
+        db 7, 11, 6, 60, ' '    
+        db 13, 11, 6, 60, ' '   
+        db 19, 11, 6, 60, ' '   
+        db 25, 11, 6, 60, ' '   
+        db 31, 11, 6, 60, ' '   
+        db 37, 11, 6, 60, ' '   
+        db 43, 11, 6, 60, ' '   
+        db 49, 11, 6, 60, ' '   
+        db 55, 11, 6, 60, ' '   
+        db 61, 11, 3, 1, 'D'  
+        db 67, 11, 3, 1, ' '   
+        db 73, 11, 3, 1, ' ' 
 
-        db 1, 12, 1, 1, ' '   
-        db 7, 12, 2, 1, 'P'    
-        db 13, 12, 1, 1, ' '   
-        db 19, 12, 2, 1, ' '   
-        db 25, 12, 1, 1, ' '   
-        db 31, 12, 2, 1, ' '   
-        db 37, 12, 1, 1, ' '   
-        db 43, 12, 2, 1, ' '   
-        db 49, 12, 1, 1, ' '   
-        db 55, 12, 2, 1, ' '   
-        db 61, 12, 1, 1, ' '  
-        db 67, 12, 2, 1, ' '   
-        db 73, 12, 1, 1, ' ' 
+        db 1, 13, 1, 1, ' '   
+        db 7, 13, 2, 1, 'P'    
+        db 13, 13, 1, 1, ' '   
+        db 19, 13, 2, 1, ' '   
+        db 25, 13, 1, 1, ' '   
+        db 31, 13, 2, 1, ' '   
+        db 37, 13, 1, 1, ' '   
+        db 43, 13, 2, 1, ' '   
+        db 49, 13, 1, 1, ' '   
+        db 55, 13, 2, 1, ' '   
+        db 61, 13, 1, 1, ' '  
+        db 67, 13, 2, 1, ' '   
+        db 73, 13, 1, 1, ' ' 
 
-        db 1, 14, 2, 1, ' '   
-        db 7, 14, 2, 1, ' '    
-        db 13, 14, 2, 1, ' '   
-        db 19, 14, 6, 60, ' '   
-        db 25, 14, 6, 60, ' '   
-        db 31, 14, 6, 60, ' '   
-        db 37, 14, 6, 60, ' '   
-        db 43, 14, 6, 60, ' '   
-        db 49, 14, 6, 60, ' '   
-        db 55, 14, 6, 60, ' '   
-        db 61, 14, 6, 60, ' '  
-        db 67, 14, 6, 60, ' '   
-        db 73, 14, 6, 60, ' ' 
+        db 1, 15, 2, 1, ' '   
+        db 7, 15, 2, 1, ' '    
+        db 13, 15, 2, 1, ' '   
+        db 19, 15, 6, 60, ' '   
+        db 25, 15, 6, 60, ' '   
+        db 31, 15, 6, 60, ' '   
+        db 37, 15, 6, 60, ' '   
+        db 43, 15, 6, 60, ' '   
+        db 49, 15, 6, 60, ' '   
+        db 55, 15, 6, 60, ' '   
+        db 61, 15, 6, 60, ' '  
+        db 67, 15, 6, 60, ' '   
+        db 73, 15, 6, 60, ' ' 
 
-        db 1, 16, 2, 1, ' '   
-        db 7, 16, 3, 1, ' '    
-        db 13, 16, 2, 1, ' '   
-        db 19, 16, 3, 1, ' '   
-        db 25, 16, 2, 1, ' '   
-        db 31, 16, 3, 1, ' '   
-        db 37, 16, 2, 1, ' '   
-        db 43, 16, 3, 1, ' '   
-        db 49, 16, 2, 1, ' '   
-        db 55, 16, 3, 1, ' '   
-        db 61, 16, 2, 1, ' '  
-        db 67, 16, 3, 1, 'C'   
-        db 73, 16, 2, 1, ' ' 
+        db 1, 17, 2, 1, ' '   
+        db 7, 17, 3, 1, ' '    
+        db 13, 17, 2, 1, ' '   
+        db 19, 17, 3, 1, ' '   
+        db 25, 17, 2, 1, ' '   
+        db 31, 17, 3, 1, ' '   
+        db 37, 17, 2, 1, ' '   
+        db 43, 17, 3, 1, ' '   
+        db 49, 17, 2, 1, ' '   
+        db 55, 17, 3, 1, ' '   
+        db 61, 17, 2, 1, ' '  
+        db 67, 17, 3, 1, 'C'   
+        db 73, 17, 2, 1, ' ' 
 
 
-        db 1, 18, 6, 60, ' '   
-        db 7, 18, 6, 60, ' '    
-        db 13, 18, 6, 60, ' '   
-        db 19, 18, 6, 60, ' '   
-        db 25, 18, 6, 60, ' '   
-        db 31, 18, 6, 60, ' '   
-        db 37, 18, 6, 60, ' '   
-        db 43, 18, 6, 60, ' '   
-        db 49, 18, 6, 60, ' '   
-        db 55, 18, 6, 60, ' '   
-        db 61, 18, 1, 1, ' '  
-        db 67, 18, 1, 1, 'S'   
-        db 73, 18, 1, 1, ' ' 
+        db 1, 19, 6, 60, ' '   
+        db 7, 19, 6, 60, ' '    
+        db 13, 19, 6, 60, ' '   
+        db 19, 19, 6, 60, ' '   
+        db 25, 19, 6, 60, ' '   
+        db 31, 19, 6, 60, ' '   
+        db 37, 19, 6, 60, ' '   
+        db 43, 19, 6, 60, ' '   
+        db 49, 19, 6, 60, ' '   
+        db 55, 19, 6, 60, ' '   
+        db 61, 19, 1, 1, ' '  
+        db 67, 19, 1, 1, 'S'   
+        db 73, 19, 1, 1, ' ' 
 
     level3_blocks_count equ 104
 
@@ -935,9 +935,9 @@ section .data
     MOVEMENT_THRESHOLD db 20   ; Número de movimientos antes de cambiar objetivo
  ;Formato: número de bloques destruidos necesario para que aparezca cada enemigo
     ; Añade esto en la sección .dataa
-    level1_spawn_points: db 0, 0, 0, 6, 8, 10, 12, 14, 16, 18    ; 10 enemigos, cada 2 bloques
+    level1_spawn_points: db 70, 71, 72, 73, 74, 76, 120, 140, 160, 180    ; 10 enemigos, cada 2 bloques
     level2_spawn_points: db 1, 3, 5, 7, 9, 11, 13, 15, 17, 19    ; 10 enemigos, cada 2 bloques
-    level3_spawn_points: db 0, 3, 6, 9, 12, 15, 18, 21, 24, 27   ; 10 enemigos, cada 3 bloques
+    level3_spawn_points: db 0, 0, 0, 50, 55, 60, 100, 100, 100, 100   ; 10 enemigos, cada 3 bloques
     level4_spawn_points: db 1, 4, 7, 10, 13, 16, 19, 22, 25, 28  ; 10 enemigos, cada 3 bloques
     level5_spawn_points: db 0, 5, 10, 15, 20, 25, 30, 35, 40, 45 ; 10 enemigos, cada 5 bloques
         ; Arreglo de punteros a los spawn points de cada nivel
@@ -1031,6 +1031,7 @@ section .data
     enemy_last_x:       times 10 db 0
     enemy_last_y:       times 10 db 0
     enemy_stuck_count:  times 10 db 0
+    letter_move_counter db 0
 
 section .text
 
@@ -1388,6 +1389,12 @@ move_letters:
 
     xor rcx, rcx
 
+    ; Verificar si debemos mover la letra en este frame
+    inc byte [letter_move_counter]    ; Incrementar contador
+    cmp byte [letter_move_counter], 3 ; Ajusta este número para cambiar velocidad
+    jl .skip_all                         ; Si no es momento de mover, terminar
+    mov byte [letter_move_counter], 0 ; Resetear contador
+
     .move_loop:
         cmp rcx, 100
         jge .print_last_letter
@@ -1548,10 +1555,20 @@ move_letters:
             jmp .move_loop
 
     .print_last_letter:
-        print last_letter_msg, last_letter_msg_len - 3
-        mov al, [last_letter]
-        mov [last_letter_msg + 15], al
-        print last_letter_msg + last_letter_msg_len - 3, 3
+        ; ;; en vez de imprimir, saltamos
+        jmp .end
+
+
+    .skip_all:                        ; Nueva etiqueta para saltar todo cuando no movemos
+        pop r11
+        pop r10
+        pop r9
+        pop r8
+        pop rsi
+        pop rdi
+        pop rbx
+        pop rbp
+        ret
 
     .end:
         pop r11
@@ -1563,6 +1580,32 @@ move_letters:
         pop rbx
         pop rbp
         ret
+
+print_power_label:
+    push rbp
+    mov  rbp, rsp
+    
+    ; Crear buffer temporal
+    sub rsp, 32
+    
+    ; Copiar el mensaje base al buffer
+    mov rdi, rsp
+    mov rsi, last_letter_msg
+    mov rcx, last_letter_msg_len
+    rep movsb
+    
+    ; Insertar la última letra capturada
+    mov al, [last_letter]
+    mov byte [rsp + 15], al    ; Asumiendo que 15 es la posición correcta
+    
+    ; Imprimir el buffer completo
+    print rsp, last_letter_msg_len
+    
+    ; Restaurar stack
+    add rsp, 32
+    pop rbp
+    ret
+
 
 
 clear_lasers:
@@ -2830,7 +2873,7 @@ init_empty_board:
 
 
 init_level:
-          ; Asegurarse que las otras bolas están desactivadas
+
     mov byte [ball2_active], 0
     mov byte [ball3_active], 0
     mov byte [laser_power_active], 0
@@ -4213,6 +4256,7 @@ _start:
         call move_enemies
         call check_enemy_collision
         call print_enemies
+        call print_power_label
 		print board, board_size				
 		;setnonblocking	
 	.read_more:	
