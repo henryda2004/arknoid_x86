@@ -296,7 +296,7 @@ section .data
     block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
-    current_level db 1
+    current_level db 2
     blocks_remaining db 0
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
@@ -398,7 +398,7 @@ section .data
                 
         db 1, 5, 2, 1, ' '   
         db 7, 5, 3, 1, ' '
-        db 13, 5, 4, 1, ' '
+        db 13, 5, 4, 1, 'D'
 
         db 1, 6, 1, 1, ' '   
         db 7, 6, 2, 1, ' '
@@ -423,7 +423,7 @@ section .data
         db 13, 9, 4, 1, ' '
         db 19, 9, 1, 1, ' '  
         db 25, 9, 2, 1, ' ' 
-        db 31, 9, 3, 1, ' ' 
+        db 31, 9, 3, 1, 'C' 
         db 37, 9, 4, 1, ' '   
 
         db 1, 10, 1, 1, ' '   
@@ -432,13 +432,13 @@ section .data
         db 19, 10, 4, 1, ' '  
         db 25, 10, 1, 1, ' ' 
         db 31, 10, 2, 1, ' ' 
-        db 37, 10, 3, 1, ' '  
+        db 37, 10, 3, 1, 'L'  
         db 43, 10, 4, 1, ' '   
 
         db 1, 11, 4, 1, ' '   
         db 7, 11, 1, 1, ' '
         db 13, 11, 2, 1, ' '
-        db 19, 11, 3, 1, ' '  
+        db 19, 11, 3, 1, 'D'  
         db 25, 11, 4, 1, ' ' 
         db 31, 11, 1, 1, ' ' 
         db 37, 11, 2, 1, ' '  
@@ -459,7 +459,7 @@ section .data
         db 1, 13, 2, 1, ' '   
         db 7, 13, 3, 1, ' '
         db 13, 13, 4, 1, ' '
-        db 19, 13, 1, 1, ' '  
+        db 19, 13, 1, 1, 'D'  
         db 25, 13, 2, 1, ' ' 
         db 31, 13, 3, 1, ' ' 
         db 37, 13, 4, 1, ' '  
@@ -936,7 +936,7 @@ section .data
  ;Formato: número de bloques destruidos necesario para que aparezca cada enemigo
     ; Añade esto en la sección .dataa
     level1_spawn_points: db 70, 71, 72, 73, 74, 76, 120, 140, 160, 180    ; 10 enemigos, cada 2 bloques
-    level2_spawn_points: db 1, 3, 5, 7, 9, 11, 13, 15, 17, 19    ; 10 enemigos, cada 2 bloques
+    level2_spawn_points: db 0, 30, 50, 70, 85, 110, 130, 150, 170, 190    ; 10 enemigos, cada 2 bloques
     level3_spawn_points: db 0, 0, 0, 50, 55, 60, 100, 100, 100, 100   ; 10 enemigos, cada 3 bloques
     level4_spawn_points: db 1, 4, 7, 10, 13, 16, 19, 22, 25, 28  ; 10 enemigos, cada 3 bloques
     level5_spawn_points: db 0, 5, 10, 15, 20, 25, 30, 35, 40, 45 ; 10 enemigos, cada 5 bloques
