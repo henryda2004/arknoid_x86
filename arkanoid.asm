@@ -296,7 +296,7 @@ section .data
     block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
-    current_level db 1
+    current_level db 5
     blocks_remaining db 0
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
@@ -501,65 +501,65 @@ section .data
     ; Nivel 3
     level3_blocks:
 
-        db 1, 5, 1, 1, ' '   
-        db 7, 5, 2, 1, ' '    
-        db 13, 5, 1, 1, ' '   
-        db 19, 5, 2, 1, ' '   
-        db 25, 5, 1, 1, ' '   
-        db 31, 5, 2, 1, ' '   
-        db 37, 5, 1, 1, ' '   
-        db 43, 5, 2, 1, ' '   
-        db 49, 5, 1, 1, ' '   
-        db 55, 5, 2, 1, ' '   
-        db 61, 5, 1, 1, ' '  
-        db 67, 5, 2, 1, ' '   
-        db 73, 5, 1, 1, ' ' 
+        db 1, 3, 1, 1, ' '   
+        db 7, 3, 2, 1, ' '    
+        db 13, 3, 1, 1, ' '   
+        db 19, 3, 2, 1, ' '   
+        db 25, 3, 1, 1, ' '   
+        db 31, 3, 2, 1, ' '   
+        db 37, 3, 1, 1, ' '   
+        db 43, 3, 2, 1, ' '   
+        db 49, 3, 1, 1, ' '   
+        db 55, 3, 2, 1, ' '   
+        db 61, 3, 1, 1, ' '  
+        db 67, 3, 2, 1, ' '   
+        db 73, 3, 1, 1, ' ' 
 
-        db 1, 7, 4, 1, ' '   
-        db 7, 7, 4, 1, ' '    
-        db 13, 7, 4, 1, ' '   
-        db 19, 7, 6, 60, ' '   
-        db 25, 7, 6, 60, ' '   
-        db 31, 7, 6, 60, ' '   
-        db 37, 7, 6, 60, ' '   
-        db 43, 7, 6, 60, ' '   
-        db 49, 7, 6, 60, ' '   
-        db 55, 7, 6, 60, ' '   
-        db 61, 7, 6, 60, ' '  
-        db 67, 7, 6, 60, ' '   
-        db 73, 7, 6, 60, ' ' 
+        db 1, 5, 4, 1, ' '   
+        db 7, 5, 4, 1, ' '    
+        db 13, 5, 4, 1, ' '   
+        db 19, 5, 6, 600, ' '   
+        db 25, 5, 6, 600, ' '   
+        db 31, 5, 6, 600, ' '   
+        db 37, 5, 6, 600, ' '   
+        db 43, 5, 6, 600, ' '   
+        db 49, 5, 6, 600, ' '   
+        db 55, 5, 6, 600, ' '   
+        db 61, 5, 6, 600, ' '  
+        db 67, 5, 6, 600, ' '   
+        db 73, 5, 6, 600, ' ' 
 
-        db 1, 9, 4, 1, ' '   
-        db 7, 9, 3, 1, ' '    
-        db 13, 9, 4, 1, ' '   
-        db 19, 9, 3, 1, ' '   
-        db 25, 9, 4, 1, ' '   
-        db 31, 9, 3, 1, ' '   
-        db 37, 9, 4, 1, ' '   
-        db 43, 9, 3, 1, ' '   
-        db 49, 9, 4, 1, ' '   
-        db 55, 9, 3, 1, ' '   
-        db 61, 9, 4, 1, ' '  
-        db 67, 9, 3, 1, ' '   
-        db 73, 9, 4, 1, ' ' 
+        db 1, 8, 4, 1, ' '   
+        db 7, 8, 3, 1, ' '    
+        db 13, 8, 4, 1, ' '   
+        db 19, 8, 3, 1, ' '   
+        db 25, 8, 4, 1, ' '   
+        db 31, 8, 3, 1, ' '   
+        db 37, 8, 4, 1, ' '   
+        db 43, 8, 3, 1, ' '   
+        db 49, 8, 4, 1, ' '   
+        db 55, 8, 3, 1, ' '   
+        db 61, 8, 4, 1, ' '  
+        db 67, 8, 3, 1, ' '   
+        db 73, 8, 4, 1, ' ' 
 
-        db 1, 11, 6, 60, ' '   
-        db 7, 11, 6, 60, ' '    
-        db 13, 11, 6, 60, ' '   
-        db 19, 11, 6, 60, ' '   
-        db 25, 11, 6, 60, ' '   
-        db 31, 11, 6, 60, ' '   
-        db 37, 11, 6, 60, ' '   
-        db 43, 11, 6, 60, ' '   
-        db 49, 11, 6, 60, ' '   
-        db 55, 11, 6, 60, ' '   
+        db 1, 11, 6, 600, ' '   
+        db 7, 11, 6, 600, ' '    
+        db 13, 11, 6, 600, ' '   
+        db 19, 11, 6, 600, ' '   
+        db 25, 11, 6, 600, ' '   
+        db 31, 11, 6, 600, ' '   
+        db 37, 11, 6, 600, ' '   
+        db 43, 11, 6, 600, ' '   
+        db 49, 11, 6, 600, ' '   
+        db 55, 11, 6, 600, ' '   
         db 61, 11, 3, 1, 'D'  
         db 67, 11, 3, 1, ' '   
         db 73, 11, 3, 1, ' ' 
 
-        db 1, 13, 1, 1, ' '   
+        db 1, 13, 1, 1, 'D'   
         db 7, 13, 2, 1, 'P'    
-        db 13, 13, 1, 1, ' '   
+        db 13, 13, 1, 1, 'C'   
         db 19, 13, 2, 1, ' '   
         db 25, 13, 1, 1, ' '   
         db 31, 13, 2, 1, ' '   
@@ -574,45 +574,45 @@ section .data
         db 1, 15, 2, 1, ' '   
         db 7, 15, 2, 1, ' '    
         db 13, 15, 2, 1, ' '   
-        db 19, 15, 6, 60, ' '   
-        db 25, 15, 6, 60, ' '   
-        db 31, 15, 6, 60, ' '   
-        db 37, 15, 6, 60, ' '   
-        db 43, 15, 6, 60, ' '   
-        db 49, 15, 6, 60, ' '   
-        db 55, 15, 6, 60, ' '   
-        db 61, 15, 6, 60, ' '  
-        db 67, 15, 6, 60, ' '   
-        db 73, 15, 6, 60, ' ' 
+        db 19, 15, 6, 600, ' '   
+        db 25, 15, 6, 600, ' '   
+        db 31, 15, 6, 600, ' '   
+        db 37, 15, 6, 600, ' '   
+        db 43, 15, 6, 600, ' '   
+        db 49, 15, 6, 600, ' '   
+        db 55, 15, 6, 600, ' '   
+        db 61, 15, 6, 600, ' '  
+        db 67, 15, 6, 600, ' '   
+        db 73, 15, 6, 600, ' ' 
 
-        db 1, 17, 2, 1, ' '   
-        db 7, 17, 3, 1, ' '    
-        db 13, 17, 2, 1, ' '   
-        db 19, 17, 3, 1, ' '   
-        db 25, 17, 2, 1, ' '   
-        db 31, 17, 3, 1, ' '   
-        db 37, 17, 2, 1, ' '   
-        db 43, 17, 3, 1, ' '   
-        db 49, 17, 2, 1, ' '   
-        db 55, 17, 3, 1, ' '   
-        db 61, 17, 2, 1, ' '  
-        db 67, 17, 3, 1, 'C'   
-        db 73, 17, 2, 1, ' ' 
+        db 1, 18, 2, 1, ' '   
+        db 7, 18, 3, 1, ' '    
+        db 13, 18, 2, 1, 'D'   
+        db 19, 18, 3, 1, ' '   
+        db 25, 18, 2, 1, ' '   
+        db 31, 18, 3, 1, ' '   
+        db 37, 18, 2, 1, ' '   
+        db 43, 18, 3, 1, ' '   
+        db 49, 18, 2, 1, ' '   
+        db 55, 18, 3, 1, 'D'   
+        db 61, 18, 2, 1, ' '  
+        db 67, 18, 3, 1, 'C'   
+        db 73, 18, 2, 1, ' ' 
 
 
-        db 1, 19, 6, 60, ' '   
-        db 7, 19, 6, 60, ' '    
-        db 13, 19, 6, 60, ' '   
-        db 19, 19, 6, 60, ' '   
-        db 25, 19, 6, 60, ' '   
-        db 31, 19, 6, 60, ' '   
-        db 37, 19, 6, 60, ' '   
-        db 43, 19, 6, 60, ' '   
-        db 49, 19, 6, 60, ' '   
-        db 55, 19, 6, 60, ' '   
-        db 61, 19, 1, 1, ' '  
-        db 67, 19, 1, 1, 'S'   
-        db 73, 19, 1, 1, ' ' 
+        db 1, 20, 6, 600, ' '   
+        db 7, 20, 6, 600, ' '    
+        db 13, 20, 6, 600, ' '   
+        db 19, 20, 6, 600, ' '   
+        db 25, 20, 6, 600, ' '   
+        db 31, 20, 6, 600, ' '   
+        db 37, 20, 6, 600, ' '   
+        db 43, 20, 6, 600, ' '   
+        db 49, 20, 6, 600, ' '   
+        db 55, 20, 6, 600, ' '   
+        db 61, 20, 1, 1, ' '  
+        db 67, 20, 1, 1, 'S'   
+        db 73, 20, 1, 1, 'C' 
 
     level3_blocks_count equ 104
 
@@ -969,13 +969,13 @@ section .data
         db 2, 30, 1     ; Vida 1 (activa)
         db 4, 30, 1     ; Vida 2 (activa)
         db 6, 30, 1     ; Vida 3 (inactiva)
-        db 8, 30, 1     ; Vida 4 (inactiva)
-        db 10, 30, 1    ; Vida 5 (inactiva)
-        db 12, 30, 1    ; Vida 6 (inactiva)
-        db 14, 30, 1    ; Vida 7 (inactiva)
+        db 8, 30, 0     ; Vida 4 (inactiva)
+        db 10, 30, 0    ; Vida 5 (inactiva)
+        db 12, 30, 0    ; Vida 6 (inactiva)
+        db 14, 30, 0    ; Vida 7 (inactiva)
     lives_count equ 7    ; Total de vidas
     life_char db "^"    
-    current_lives db 7   ; Contador de vidas activas actual
+    current_lives db 3   ; Contador de vidas activas actual
 
 ; Estructura para almacenar las letras y sus posiciones
     ; Formato: x, y, letra, activo (1 = activo, 0 = inactivo)
@@ -1393,7 +1393,7 @@ move_letters:
 
     ; Verificar si debemos mover la letra en este frame
     inc byte [letter_move_counter]    ; Incrementar contador
-    cmp byte [letter_move_counter], 9 ; Ajusta este número para cambiar velocidad
+    cmp byte [letter_move_counter], 11 ; Ajusta este número para cambiar velocidad
     jl .skip_all                         ; Si no es momento de mover, terminar
     mov byte [letter_move_counter], 0 ; Resetear contador
 
@@ -2874,38 +2874,79 @@ init_empty_board:
     ret
 
 clear_enemies_from_board:
-
     push rbp
     mov rbp, rsp
+    push rsi
+    push rdi
 
-    mov rcx, board_size   ; 32 filas * (80 chars + 2 newlines) ...
-    lea rsi, [board]
+    ; Primero limpiar board
+    mov rcx, board_size      
+    lea rsi, [board]         
+
 .clear_loop:
-    cmp byte [rsi], '@'
+    cmp rcx, 0              
+    je .clear_template      ; En vez de terminar, vamos a limpiar template
+    
+    mov al, [rsi]           
+    cmp al, '@'             
     je .make_space
-    cmp byte [rsi], '#'
+    cmp al, '#'             
     je .make_space
-    cmp byte [rsi], '$'
+    cmp al, '$'             
     je .make_space
-    cmp byte [rsi], '&'
+    cmp al, '&'             
     je .make_space
-
-    jmp .next
+    
+    jmp .next               
 
 .make_space:
-    mov byte [rsi], ' '
-.next:
-    inc rsi
-    loop .clear_loop
+    mov byte [rsi], ' '     
 
+.next:
+    inc rsi                 
+    dec rcx                
+    jmp .clear_loop        
+
+.clear_template:
+    ; Ahora limpiar board_template
+    mov rcx, board_template_size
+    lea rsi, [board_template]
+
+.template_loop:
+    cmp rcx, 0
+    je .end
+    
+    mov al, [rsi]
+    cmp al, '@'
+    je .make_space_template
+    cmp al, '#'
+    je .make_space_template
+    cmp al, '$'
+    je .make_space_template
+    cmp al, '&'
+    je .make_space_template
+    
+    jmp .next_template
+
+.make_space_template:
+    mov byte [rsi], ' '
+
+.next_template:
+    inc rsi
+    dec rcx
+    jmp .template_loop
+
+.end:
+    pop rdi
+    pop rsi
     pop rbp
     ret
 
 
 
+
 init_level:
     call clear_enemies_from_board
-    call init_enemies
     mov byte [ball2_active], 0
     mov byte [ball3_active], 0
     mov byte [laser_power_active], 0
@@ -2947,8 +2988,7 @@ init_level:
     mov byte [destroyed_blocks], 0 
     call init_empty_board
     call display_level_number
-    call init_enemies
-    
+
     push rsi
     push rdi
     push rcx
@@ -2967,7 +3007,8 @@ init_level:
     mov rcx, 10
     xor rax, rax
     lea rdi, [enemy_spawns_triggered]
-    rep stosb      
+    rep stosb   
+    call init_enemies   
 
     ; Verificar el nivel actual y cargar los bloques correspondientes
     cmp byte [current_level], 1
@@ -3064,6 +3105,8 @@ check_level_complete:
     cmp byte [current_level], 6
     je game_win
     
+
+    call clear_enemies_from_board
     ; Primero establecer las posiciones seguras
     mov qword [pallet_position], board + 38 + 29 * (column_cells + 2)
     mov qword [ball_x_pos], 40
@@ -3537,21 +3580,22 @@ check_block_collision:
 init_enemies:
     push rbp
     mov rbp, rsp
+    
     ; Reiniciar contadores de movimiento
     mov byte [enemy_move_total], 0
-    mov byte [enemy_target], 0 ; Inicialmente persigue la bola
-    ; Limpiar estado previo de enemigos
-    mov rcx, 10 ; Máximo 10 enemigos
+    mov byte [enemy_target], 0
+    
+    ; Limpiar completamente el array de enemigos
+    mov rcx, 30  ; 10 enemigos * 3 bytes cada uno
     lea rdi, [enemies]
     xor al, al
-    rep stosb ; Limpiar datos de enemigos
+    rep stosb    ; Llenar todo con ceros
     
-    ; Marcar todos los enemigos como inactivos
+    ; Marcar todos los spawns como no activados
     lea rdi, [enemy_spawns_triggered]
-    xor al, al
     mov rcx, 10
-    rep stosb ; Todos los enemigos no han sido activados aún
-
+    rep stosb
+    
     pop rbp
     ret
 
@@ -4241,7 +4285,6 @@ _start:
 	call canonical_off
 	call start_screen
     call init_level
-    call init_enemies
 	jmp .main_loop
 	
 
