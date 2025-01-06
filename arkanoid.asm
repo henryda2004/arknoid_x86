@@ -296,7 +296,7 @@ section .data
     block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
-    current_level db 5
+    current_level db 1
     blocks_remaining db 0
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
@@ -518,16 +518,16 @@ section .data
         db 1, 5, 4, 1, ' '   
         db 7, 5, 4, 1, ' '    
         db 13, 5, 4, 1, ' '   
-        db 19, 5, 6, 600, ' '   
-        db 25, 5, 6, 600, ' '   
-        db 31, 5, 6, 600, ' '   
-        db 37, 5, 6, 600, ' '   
-        db 43, 5, 6, 600, ' '   
-        db 49, 5, 6, 600, ' '   
-        db 55, 5, 6, 600, ' '   
-        db 61, 5, 6, 600, ' '  
-        db 67, 5, 6, 600, ' '   
-        db 73, 5, 6, 600, ' ' 
+        db 19, 5, 6, 99, ' '   
+        db 25, 5, 6, 99, ' '   
+        db 31, 5, 6, 99, ' '   
+        db 37, 5, 6, 99, ' '   
+        db 43, 5, 6, 99, ' '   
+        db 49, 5, 6, 99, ' '   
+        db 55, 5, 6, 99, ' '   
+        db 61, 5, 6, 99, ' '  
+        db 67, 5, 6, 99, ' '   
+        db 73, 5, 6, 99, ' ' 
 
         db 1, 8, 4, 1, ' '   
         db 7, 8, 3, 1, ' '    
@@ -543,16 +543,16 @@ section .data
         db 67, 8, 3, 1, ' '   
         db 73, 8, 4, 1, ' ' 
 
-        db 1, 11, 6, 600, ' '   
-        db 7, 11, 6, 600, ' '    
-        db 13, 11, 6, 600, ' '   
-        db 19, 11, 6, 600, ' '   
-        db 25, 11, 6, 600, ' '   
-        db 31, 11, 6, 600, ' '   
-        db 37, 11, 6, 600, ' '   
-        db 43, 11, 6, 600, ' '   
-        db 49, 11, 6, 600, ' '   
-        db 55, 11, 6, 600, ' '   
+        db 1, 11, 6, 99, ' '   
+        db 7, 11, 6, 99, ' '    
+        db 13, 11, 6, 99, ' '   
+        db 19, 11, 6, 99, ' '   
+        db 25, 11, 6, 99, ' '   
+        db 31, 11, 6, 99, ' '   
+        db 37, 11, 6, 99, ' '   
+        db 43, 11, 6, 99, ' '   
+        db 49, 11, 6, 99, ' '   
+        db 55, 11, 6, 99, ' '   
         db 61, 11, 3, 1, 'D'  
         db 67, 11, 3, 1, ' '   
         db 73, 11, 3, 1, ' ' 
@@ -574,16 +574,16 @@ section .data
         db 1, 15, 2, 1, ' '   
         db 7, 15, 2, 1, ' '    
         db 13, 15, 2, 1, ' '   
-        db 19, 15, 6, 600, ' '   
-        db 25, 15, 6, 600, ' '   
-        db 31, 15, 6, 600, ' '   
-        db 37, 15, 6, 600, ' '   
-        db 43, 15, 6, 600, ' '   
-        db 49, 15, 6, 600, ' '   
-        db 55, 15, 6, 600, ' '   
-        db 61, 15, 6, 600, ' '  
-        db 67, 15, 6, 600, ' '   
-        db 73, 15, 6, 600, ' ' 
+        db 19, 15, 6, 99, ' '   
+        db 25, 15, 6, 99, ' '   
+        db 31, 15, 6, 99, ' '   
+        db 37, 15, 6, 99, ' '   
+        db 43, 15, 6, 99, ' '   
+        db 49, 15, 6, 99, ' '   
+        db 55, 15, 6, 99, ' '   
+        db 61, 15, 6, 99, ' '  
+        db 67, 15, 6, 99, ' '   
+        db 73, 15, 6, 99, ' ' 
 
         db 1, 18, 2, 1, ' '   
         db 7, 18, 3, 1, ' '    
@@ -600,16 +600,16 @@ section .data
         db 73, 18, 2, 1, ' ' 
 
 
-        db 1, 20, 6, 600, ' '   
-        db 7, 20, 6, 600, ' '    
-        db 13, 20, 6, 600, ' '   
-        db 19, 20, 6, 600, ' '   
-        db 25, 20, 6, 600, ' '   
-        db 31, 20, 6, 600, ' '   
-        db 37, 20, 6, 600, ' '   
-        db 43, 20, 6, 600, ' '   
-        db 49, 20, 6, 600, ' '   
-        db 55, 20, 6, 600, ' '   
+        db 1, 20, 6, 99, ' '   
+        db 7, 20, 6, 99, ' '    
+        db 13, 20, 6, 99, ' '   
+        db 19, 20, 6, 99, ' '   
+        db 25, 20, 6, 99, ' '   
+        db 31, 20, 6, 99, ' '   
+        db 37, 20, 6, 99, ' '   
+        db 43, 20, 6, 99, ' '   
+        db 49, 20, 6, 99, ' '   
+        db 55, 20, 6, 99, ' '   
         db 61, 20, 1, 1, ' '  
         db 67, 20, 1, 1, 'S'   
         db 73, 20, 1, 1, 'C' 
@@ -1157,6 +1157,10 @@ check_bottom_collision:
     push rbp
     mov rbp, rsp
     
+    ; Verificar si el nivel está completo (no quedan bloques)
+    cmp byte [blocks_remaining], 0
+    je .balls_remain            ; Si no quedan bloques, no perder vidas
+    
     ; Verificar bola principal
     cmp byte [ball_active], 1
     jne .check_ball2
@@ -1198,22 +1202,28 @@ check_bottom_collision:
 .check_active_balls:
     ; Verificar si quedan bolas activas
     xor rcx, rcx
-    cmp byte [ball_active], 1
-    je .balls_remain
-    cmp byte [ball2_active], 1
-    je .balls_remain
-    cmp byte [ball3_active], 1
-    je .balls_remain
     
-    ; Si no quedan bolas activas, perder una vida y reiniciar
+    ; Contar bolas activas
+    mov al, byte [ball_active]
+    add rcx, rax
+    mov al, byte [ball2_active]
+    add rcx, rax
+    mov al, byte [ball3_active]
+    add rcx, rax
+    
+    ; Si no hay bolas activas y quedan bloques, perder vida
+    test rcx, rcx
+    jnz .balls_remain
+    
+    cmp byte [blocks_remaining], 0  ; Verificar si quedan bloques
+    je .balls_remain               ; Si no quedan bloques, no perder vida
+    
     call lose_life
-    mov byte [ball_active], 1    ; Reactivar bola principal
+    mov byte [ball_active], 1      ; Reactivar bola principal
     
 .balls_remain:
     pop rbp
     ret
-
-
 
 ; Nueva función para game over
 game_lost:
