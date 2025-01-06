@@ -1450,7 +1450,7 @@
    100 0000047B 31F6                <1>  xor esi, esi
    101 0000047D 0F05                <1>  syscall
   1253                                      
-  1254 0000047F E9051F0000                  jmp exit
+  1254 0000047F E96D1F0000                  jmp exit
   1255                                  
   1256                                  
   1257                                  ; Función para registrar una nueva letra en el mapa
@@ -3492,7 +3492,7 @@
    100 00001835 31F6                <1>  xor esi, esi
    101 00001837 0F05                <1>  syscall
   3207                                      
-  3208 00001839 E94B0B0000                  jmp exit
+  3208 00001839 E9B30B0000                  jmp exit
   3209                                  
   3210                                  ; Función para imprimir los bloques
   3211                                  ; Función modificada para imprimir bloques
@@ -4050,7 +4050,7 @@
   3743 00001CE0 3C26                        cmp al, '&'
   3744 00001CE2 743A                        je .pop_and_invalid
   3745                                  
-  3746 00001CE4 E8A0020000                  call check_enemy_at_position
+  3746 00001CE4 E808030000                  call check_enemy_at_position
   3747 00001CE9 4883F801                    cmp rax, 1
   3748 00001CED 742F                        je .pop_and_invalid
   3749                                  
@@ -4104,7 +4104,7 @@
   3797 00001D34 FE05(87200000)              inc byte [enemy_move_counter]
   3798 00001D3A 480FB605(87200000)          movzx rax, byte [enemy_move_counter]
   3799 00001D42 3A05(88200000)              cmp al, [enemy_move_delay]
-  3800 00001D48 0F8539020000                jne .end
+  3800 00001D48 0F85A1020000                jne .end
   3801                                      
   3802                                      ; Resetear contador
   3803 00001D4E C605(87200000)00            mov byte [enemy_move_counter], 0
@@ -4113,7 +4113,7 @@
   3806                                      
   3807                                      .enemy_loop:
   3808 00001D58 4983FC0A                        cmp r12, 10                     ; Máximo 10 enemigos
-  3809 00001D5C 0F8D25020000                    jge .end
+  3809 00001D5C 0F8D8D020000                    jge .end
   3810                                          
   3811                                          ; Calcular offset del enemigo actual
   3812 00001D62 4C89E0                          mov rax, r12
@@ -4122,7 +4122,7 @@
   3815                                          
   3816                                          ; Verificar si el enemigo está activo
   3817 00001D70 807E0201                        cmp byte [rsi + 2], 1
-  3818 00001D74 0F8505020000                    jne .next_enemy
+  3818 00001D74 0F856D020000                    jne .next_enemy
   3819                                          
   3820                                          ; Obtener posición actual
   3821 00001D7A 4C0FB606                        movzx r8, byte [rsi]            ; X
@@ -4167,7 +4167,7 @@
   3860                                  
   3861                                          ;  2) cambiar random
   3862 00001DC6 E85BFEFFFF                      call random_move_enemy        ; (Ver ejemplo de abajo)
-  3863 00001DCB E9AF010000                      jmp .next_enemy
+  3863 00001DCB E917020000                      jmp .next_enemy
   3864                                  
   3865                                      .not_stuck:
   3866                                          ; => Se movió
@@ -4201,613 +4201,663 @@
   3894 00001E18 4C89E0                          mov rax, r12
   3895 00001E1B 4883E001                        and rax, 1                      ; 0 para índices pares, 1 para impares
   3896 00001E1F 4885C0                          test rax, rax
-  3897 00001E22 7402                            jz .chase_ball
-  3898 00001E24 EB31                            jmp .chase_paddle             ; Si es 1, perseguir paleta
+  3897 00001E22 7405                            jz .chase_ball
+  3898 00001E24 E996000000                      jmp .chase_paddle             ; Si es 1, perseguir paleta
   3899                                          
   3900                                          ; Perseguir bola (comportamiento original)
   3901                                      .chase_ball:
-  3902 00001E26 4C8B15(DF140000)                mov r10, [ball_x_pos]
-  3903 00001E2D 4D39D0                          cmp r8, r10
-  3904 00001E30 0F8F96000000                    jg .move_left
-  3905 00001E36 0F8C95000000                    jl .move_right
-  3906                                          
-  3907 00001E3C 4C8B15(E7140000)                mov r10, [ball_y_pos]
-  3908 00001E43 4D39D1                          cmp r9, r10
-  3909 00001E46 0F8F8A000000                    jg .move_up
-  3910 00001E4C 0F8C89000000                    jl .move_down
-  3911 00001E52 E9A5000000                      jmp .check_collision
-  3912                                          
-  3913                                      .chase_paddle:
-  3914                                          ; Obtener la posición X actual de la paleta
-  3915 00001E57 4C8B15(BF140000)                mov r10, [pallet_position]
-  3916 00001E5E 4981EA[400A0000]                sub r10, board              ; Convertir a offset relativo
-  3917                                          
-  3918                                          ; Calcular la posición X real de la paleta
-  3919 00001E65 4C89D0                          mov rax, r10
-  3920 00001E68 BB50000000                      mov rbx, column_cells
-  3921 00001E6D 4883C302                        add rbx, 2                  ; Añadir newline chars
-  3922 00001E71 4831D2                          xor rdx, rdx
-  3923 00001E74 48F7F3                          div rbx                     ; rax = y, rdx = x
-  3924                                          
-  3925                                          ; rdx ahora contiene la posición X de la paleta
-  3926                                          ; Añadir la mitad del tamaño de la paleta para apuntar al centro
-  3927 00001E77 488B0D(C7140000)                mov rcx, [pallet_size]
-  3928 00001E7E 48D1E9                          shr rcx, 1                  ; Dividir por 2
-  3929 00001E81 4801CA                          add rdx, rcx
-  3930                                          
-  3931                                          ; Comparar con posición X del enemigo y mover gradualmente
-  3932 00001E84 4939D0                          cmp r8, rdx
-  3933 00001E87 7404                            je .check_y_paddle          ; Si está en la misma X, verificar Y
-  3934 00001E89 7F41                            jg .move_left              ; Si está a la derecha, mover izquierda
-  3935 00001E8B 7C44                            jl .move_right             ; Si está a la izquierda, mover derecha
-  3936                                  
-  3937                                      .check_y_paddle:
-  3938                                          ; La Y de la paleta siempre es row_cells - 2
-  3939 00001E8D 41BA20000000                    mov r10, row_cells
-  3940 00001E93 4983EA02                        sub r10, 2
-  3941                                          
-  3942                                          ; Comparar con posición Y del enemigo y mover gradualmente
-  3943 00001E97 4D39D1                          cmp r9, r10
-  3944 00001E9A 7404                            je .no_movement            ; Si está en la misma Y, no mover
-  3945 00001E9C 7F38                            jg .move_up               ; Si está abajo, mover arriba
-  3946 00001E9E 7C3B                            jl .move_down             ; Si está arriba, mover abajo
-  3947                                          
-  3948                                      .no_movement:
-  3949 00001EA0 EB5A                            jmp .check_collision
-  3950                                  
-  3951                                      ; También agregar una nueva sección para el movimiento suave
-  3952                                      .smooth_transition:
-  3953                                          ; Si el enemigo está muy lejos de su objetivo, limitar el movimiento
-  3954 00001EA2 8A05(8A200000)                  mov al, [enemy_target]
-  3955 00001EA8 84C0                            test al, al
-  3956 00001EAA 7450                            jz .check_collision        ; Si persigue la bola, movimiento normal
-  3957                                          
-  3958                                          ; Verificar distancia en X
-  3959 00001EAC 4989D2                          mov r10, rdx              ; Posición X objetivo
-  3960 00001EAF 4D29C2                          sub r10, r8               ; Calcular diferencia
-  3961 00001EB2 4983FA05                        cmp r10, 5               ; Si la diferencia es mayor a 5
-  3962 00001EB6 7F08                            jg .limit_right_movement  ; Limitar movimiento a la derecha
-  3963 00001EB8 4983FAFB                        cmp r10, -5              ; Si la diferencia es menor a -5
-  3964 00001EBC 7C08                            jl .limit_left_movement   ; Limitar movimiento a la izquierda
-  3965 00001EBE EB3C                            jmp .check_collision
-  3966                                          
-  3967                                      .limit_right_movement:
-  3968 00001EC0 4983C002                        add r8, 2                ; Mover solo 2 unidades a la derecha
-  3969 00001EC4 EB36                            jmp .check_collision
-  3970                                          
-  3971                                      .limit_left_movement:
-  3972 00001EC6 4983E802                        sub r8, 2                ; Mover solo 2 unidades a la izquierda
-  3973 00001ECA EB30                            jmp .check_collision
-  3974                                      .move_left:
-  3975 00001ECC 49FFC8                          dec r8
-  3976 00001ECF EB0F                            jmp .check_vertical
-  3977                                          
-  3978                                      .move_right:
-  3979 00001ED1 49FFC0                          inc r8
-  3980 00001ED4 EB0A                            jmp .check_vertical
-  3981                                          
-  3982                                      .move_up:
-  3983 00001ED6 49FFC9                          dec r9
-  3984 00001ED9 EB21                            jmp .check_collision
-  3985                                          
-  3986                                      .move_down:
-  3987 00001EDB 49FFC1                          inc r9
-  3988 00001EDE EB1C                            jmp .check_collision
-  3989                                          
-  3990                                      .check_vertical:
-  3991 00001EE0 8A05(8A200000)                  mov al, [enemy_target]
-  3992 00001EE6 84C0                            test al, al
-  3993 00001EE8 0F8569FFFFFF                    jnz .chase_paddle         ; Si persigue paleta, volver a su lógica
-  3994 00001EEE 4C8B15(E7140000)                mov r10, [ball_y_pos]     ; Si no, seguir persiguiendo la bola
-  3995 00001EF5 4D39D1                          cmp r9, r10
-  3996 00001EF8 7FDC                            jg .move_up
-  3997 00001EFA 7CDF                            jl .move_down
-  3998                                          
-  3999                                      .check_collision:
-  4000                                          ; Verificar colisión con bordes
-  4001 00001EFC 4983F801                        cmp r8, 1                       ; Borde izquierdo
-  4002 00001F00 7E7D                            jle .next_enemy
-  4003 00001F02 4983F850                        cmp r8, column_cells
-  4004 00001F06 7D77                            jge .next_enemy
-  4005 00001F08 4983F901                        cmp r9, 1                       ; Borde superior
-  4006 00001F0C 7E71                            jle .next_enemy
-  4007 00001F0E 4983F920                        cmp r9, row_cells
-  4008 00001F12 7D6B                            jge .next_enemy
-  4009                                          
-  4010                                          ; Verificar colisión con bloques antes de moverse
-  4011 00001F14 4150                            push r8
-  4012 00001F16 4151                            push r9
-  4013 00001F18 4152                            push r10
-  4014                                          
-  4015                                          ; Calcular posición en el tablero para verificar
-  4016 00001F1A B850000000                      mov rax, column_cells
-  4017 00001F1F 4883C002                        add rax, 2
-  4018 00001F23 49F7E1                          mul r9
-  4019 00001F26 4C01C0                          add rax, r8
-  4020 00001F29 4C8D90[400A0000]                lea r10, [board + rax]
-  4021                                          
-  4022                                          ; Verificar si hay un bloque en la nueva posición
-  4023 00001F30 418A02                          mov al, [r10]
-  4024 00001F33 3C55                            cmp al, 'U'
-  4025 00001F35 7442                            je .invalid_move
-  4026 00001F37 3C4F                            cmp al, 'O'
-  4027 00001F39 743E                            je .invalid_move
-  4028 00001F3B 3C44                            cmp al, 'D'
-  4029 00001F3D 743A                            je .invalid_move
-  4030 00001F3F 3C4C                            cmp al, 'L'
-  4031 00001F41 7436                            je .invalid_move
-  4032 00001F43 3C56                            cmp al, 'V'
-  4033 00001F45 7432                            je .invalid_move
-  4034 00001F47 3C38                            cmp al, '8'
-  4035 00001F49 742E                            je .invalid_move
-  4036 00001F4B 3C58                            cmp al, 'X'
-  4037 00001F4D 742A                            je .invalid_move
-  4038 00001F4F 3C40                            cmp al, '@'                 ; Enemigo nivel 1 y 5
-  4039 00001F51 7426                            je .invalid_move
-  4040 00001F53 3C23                            cmp al, '#'                 ; Enemigo nivel 2
-  4041 00001F55 7422                            je .invalid_move
-  4042 00001F57 3C24                            cmp al, '$'                 ; Enemigo nivel 3
-  4043 00001F59 741E                            je .invalid_move
-  4044 00001F5B 3C26                            cmp al, '&'                 ; Enemigo nivel 4
-  4045 00001F5D 741A                            je .invalid_move
-  4046                                          
-  4047 00001F5F E825000000                      call check_enemy_at_position
-  4048 00001F64 4883F801                        cmp rax, 1
-  4049 00001F68 740F                            je .invalid_move
-  4050 00001F6A 415A                            pop r10
-  4051 00001F6C 4159                            pop r9
-  4052 00001F6E 4158                            pop r8
-  4053                                          
-  4054                                          ; Guardar nueva posición si es válida
-  4055 00001F70 448806                          mov [rsi], r8b
-  4056 00001F73 44884E01                        mov [rsi + 1], r9b
-  4057 00001F77 EB06                            jmp .next_enemy
-  4058                                          
-  4059                                      .invalid_move:
-  4060 00001F79 415A                            pop r10
-  4061 00001F7B 4159                            pop r9
-  4062 00001F7D 4158                            pop r8
-  4063                                          
-  4064                                      .next_enemy:
-  4065 00001F7F 49FFC4                          inc r12
-  4066 00001F82 E9D1FDFFFF                      jmp .enemy_loop
-  4067                                          
-  4068                                      .end:
-  4069 00001F87 5D                              pop rbp
-  4070 00001F88 C3                              ret
-  4071                                  
-  4072                                  check_enemy_at_position:
-  4073 00001F89 55                          push rbp
-  4074 00001F8A 4889E5                      mov rbp, rsp
-  4075                                      
-  4076                                      ; Parámetros esperados en r8 (X) y r9 (Y)
-  4077 00001F8D B850000000                  mov rax, column_cells
-  4078 00001F92 4883C002                    add rax, 2
-  4079 00001F96 49F7E1                      mul r9
-  4080 00001F99 4C01C0                      add rax, r8
-  4081 00001F9C 488DB8[400A0000]            lea rdi, [board + rax]
-  4082 00001FA3 480FB607                    movzx rax, byte [rdi]
-  4083                                      
-  4084                                      ; Verificar todos los caracteres de enemigos
-  4085 00001FA7 3C40                        cmp al, '@'
-  4086 00001FA9 7411                        je .enemy_found
-  4087 00001FAB 3C23                        cmp al, '#'
-  4088 00001FAD 740D                        je .enemy_found
-  4089 00001FAF 3C24                        cmp al, '$'
-  4090 00001FB1 7409                        je .enemy_found
-  4091 00001FB3 3C26                        cmp al, '&'
-  4092 00001FB5 7405                        je .enemy_found
-  4093                                      
-  4094 00001FB7 4831C0                      xor rax, rax    ; No hay enemigo (retorna 0)
-  4095 00001FBA EB05                        jmp .end
-  4096                                      
-  4097                                  .enemy_found:
-  4098 00001FBC B801000000                  mov rax, 1      ; Hay enemigo (retorna 1)
-  4099                                      
-  4100                                  .end:
-  4101 00001FC1 5D                          pop rbp
-  4102 00001FC2 C3                          ret
-  4103                                  
-  4104                                  get_current_spawn_points:
-  4105 00001FC3 55                          push rbp
-  4106 00001FC4 4889E5                      mov rbp, rsp
-  4107                                      
-  4108 00001FC7 480FB605(79150000)          movzx rax, byte [current_level]
-  4109 00001FCF 48FFC8                      dec rax                         ; Ajustar para índice base 0
-  4110 00001FD2 488B04C5[BE200000]          mov rax, [spawn_points_table + rax * 8]
-  4111                                      
-  4112 00001FDA 5D                          pop rbp
-  4113 00001FDB C3                          ret
-  4114                                  
-  4115                                  ; Función para verificar si debe aparecer un nuevo enemigo
-  4116                                  check_enemy_spawn:
-  4117 00001FDC 55                          push rbp
-  4118 00001FDD 4889E5                      mov rbp, rsp
-  4119                                      
-  4120                                      ; Obtener spawn points del nivel actual
-  4121 00001FE0 E8DEFFFFFF                  call get_current_spawn_points
-  4122 00001FE5 4989C4                      mov r12, rax                    ; r12 = puntero a spawn points
-  4123                                      
-  4124                                      ; Obtener cantidad de bloques destruidos
-  4125 00001FE8 4C0FB62D(46200000)          movzx r13, byte [destroyed_blocks]
-  4126                                      
-  4127                                      ; Verificar cada punto de spawn
-  4128 00001FF0 4831C9                      xor rcx, rcx                    ; Índice del enemigo
-  4129                                      
-  4130                                      .check_loop:
-  4131 00001FF3 4883F90A                        cmp rcx, 10                     ; Máximo 10 enemigos
-  4132 00001FF7 7D4E                            jge .end
-  4133                                          
-  4134                                          ; Verificar si este spawn point ya fue usado
-  4135 00001FF9 80B9[E9200000]01                cmp byte [enemy_spawns_triggered + rcx], 1
-  4136 00002000 7440                            je .next_enemy
-  4137                                          
-  4138                                          ; Verificar si este enemigo ya está activo
-  4139 00002002 4889C8                          mov rax, rcx
-  4140 00002005 486BC003                        imul rax, 3                     ; Cada enemigo ocupa 3 bytes
-  4141 00002009 488DB0[60200000]                lea rsi, [enemies + rax]
-  4142 00002010 807E0201                        cmp byte [rsi + 2], 1          ; Verificar si está activo
-  4143 00002014 742C                            je .next_enemy
-  4144                                          
-  4145                                          ; Verificar si debemos spawnear este enemigo
-  4146 00002016 490FB6040C                      movzx rax, byte [r12 + rcx]    ; Obtener punto de spawn
-  4147 0000201B 4939C5                          cmp r13, rax                   ; Comparar con bloques destruidos
-  4148 0000201E 7522                            jne .next_enemy
-  4149                                          
-  4150                                          ; Marcar este spawn point como usado
-  4151 00002020 C681[E9200000]01                mov byte [enemy_spawns_triggered + rcx], 1
-  4152                                          
-  4153                                          ; Spawner nuevo enemigo
-  4154 00002027 B004                            mov al, 4
-  4155 00002029 00C8                            add al, cl       ; con 'rcx' como índice
-  4156 0000202B 8806                            mov [rsi], al
-  4157 0000202D C6460102                        mov byte [rsi+1], 2
-  4158 00002031 C6460201                        mov byte [rsi+2], 1
-  4159                                  
-  4160                                          ; Inicializar comportamiento
-  4161 00002035 4889C8                          mov rax, rcx
-  4162 00002038 4883E001                        and rax, 1                     ; Alternar comportamiento basado en índice par/impar
-  4163 0000203C 8805(E8200000)                  mov [current_behavior], al      ; 0 = persigue bola, 1 = persigue paleta
-  4164                                          
-  4165                                      .next_enemy:
-  4166 00002042 48FFC1                          inc rcx
-  4167 00002045 EBAC                            jmp .check_loop
-  4168                                          
-  4169                                      .end:
-  4170 00002047 5D                              pop rbp
-  4171 00002048 C3                              ret
-  4172                                  
-  4173                                  
-  4174                                  ; Función para dibujar enemigos
-  4175                                  print_enemies:
-  4176 00002049 55                          push rbp
-  4177 0000204A 4889E5                      mov rbp, rsp
-  4178                                      
-  4179 0000204D 4D31E4                      xor r12, r12                    ; Índice del enemigo
-  4180                                      
-  4181                                      .print_loop:
-  4182 00002050 4983FC0A                        cmp r12, 10                      ; Máximo 5 enemigos
-  4183 00002054 7D4B                            jge .end
-  4184                                          
-  4185                                          ; Calcular offset del enemigo actual
-  4186 00002056 4C89E0                          mov rax, r12
-  4187 00002059 486BC003                        imul rax, 3                     ; Cada enemigo ocupa 3 bytes
-  4188 0000205D 488DB0[60200000]                lea rsi, [enemies + rax]
-  4189                                          
-  4190                                          ; Verificar si el enemigo está activo
-  4191 00002064 807E0201                        cmp byte [rsi + 2], 1
-  4192 00002068 7532                            jne .next_enemy
-  4193                                          
-  4194                                          ; Calcular posición en el tablero
-  4195 0000206A 4C0FB606                        movzx r8, byte [rsi]            ; X
-  4196 0000206E 4C0FB64E01                      movzx r9, byte [rsi + 1]        ; Y
-  4197                                          
-  4198                                          ; Calcular offset en el tablero
-  4199 00002073 B850000000                      mov rax, column_cells
-  4200 00002078 4883C002                        add rax, 2                      ; Incluir caracteres de nueva línea
-  4201 0000207C 49F7E1                          mul r9
-  4202 0000207F 4C01C0                          add rax, r8
-  4203 00002082 488DB8[400A0000]                lea rdi, [board + rax]
-  4204                                          
-  4205                                          ; Obtener carácter del enemigo según el nivel
-  4206 00002089 480FB605(79150000)              movzx rax, byte [current_level]
-  4207 00002091 48FFC8                          dec rax                         ; Ajustar para índice base 0
-  4208 00002094 8A80[5B200000]                  mov al, [enemy_chars + rax]
-  4209                                          
-  4210                                          ; Dibujar enemigo
-  4211 0000209A 8807                            mov [rdi], al
-  4212                                          
-  4213                                      .next_enemy:
-  4214 0000209C 49FFC4                          inc r12
-  4215 0000209F EBAF                            jmp .print_loop
-  4216                                          
-  4217                                      .end:
-  4218 000020A1 5D                              pop rbp
-  4219 000020A2 C3                              ret
-  4220                                  
-  4221                                  ; Función para verificar colisión con enemigos
-  4222                                  ; Función para verificar colisión con enemigos
-  4223                                  check_enemy_collision:
-  4224 000020A3 55                          push rbp
-  4225 000020A4 4889E5                      mov rbp, rsp
-  4226                                      
-  4227 000020A7 4D31E4                      xor r12, r12                    ; Índice del enemigo
-  4228 000020AA 4831C0                      xor rax, rax                    ; Valor de retorno (0 = no colisión)
-  4229                                      
-  4230                                      .check_loop:
-  4231 000020AD 4983FC05                        cmp r12, 5                      ; Máximo 5 enemigos
-  4232 000020B1 0F8DE9000000                    jge .end
-  4233                                          
-  4234                                          ; Calcular offset del enemigo actual
-  4235 000020B7 4C89E1                          mov rcx, r12
-  4236 000020BA 486BC903                        imul rcx, 3                     ; Cada enemigo ocupa 3 bytes
-  4237 000020BE 488DB1[60200000]                lea rsi, [enemies + rcx]
-  4238                                          
-  4239                                          ; Verificar si el enemigo está activo
-  4240 000020C5 807E0201                        cmp byte [rsi + 2], 1
-  4241 000020C9 0F85C9000000                    jne .next_enemy
-  4242                                          
-  4243                                          ; Verificar colisión con la bola
-  4244 000020CF 4C0FB606                        movzx r8, byte [rsi]            ; X enemigo
-  4245 000020D3 4C0FB64E01                      movzx r9, byte [rsi + 1]        ; Y enemigo
-  4246                                          
-  4247                                          ; Verificar si la bola está en el rango del enemigo (considerando el enemigo como un área)
-  4248 000020D8 4C8B15(DF140000)                mov r10, [ball_x_pos]
-  4249 000020DF 4C8B1D(E7140000)                mov r11, [ball_y_pos]
-  4250                                          
-  4251                                          ; Comprobar colisión vertical (misma columna)
-  4252 000020E6 4D39C2                          cmp r10, r8
-  4253 000020E9 7525                            jne .check_horizontal
-  4254 000020EB 4D29CB                          sub r11, r9
-  4255 000020EE 4983FB01                        cmp r11, 1
-  4256 000020F2 7F1C                            jg .check_horizontal
-  4257 000020F4 4983FBFF                        cmp r11, -1
-  4258 000020F8 7C16                            jl .check_horizontal
+  3902                                          ; Primero intentar con la bola principal
+  3903 00001E29 803D(00150000)01                cmp byte [ball_active], 1
+  3904 00001E30 7414                            je .use_ball1
+  3905                                          
+  3906                                          ; Si no está activa, probar con ball2
+  3907 00001E32 803D(22150000)01                cmp byte [ball2_active], 1
+  3908 00001E39 7414                            je .use_ball2
+  3909                                          
+  3910                                          ; Si no está activa, probar con ball3
+  3911 00001E3B 803D(44150000)01                cmp byte [ball3_active], 1
+  3912 00001E42 7414                            je .use_ball3
+  3913                                          
+  3914                                          ; Si no hay bolas activas, perseguir la paleta
+  3915 00001E44 EB79                            jmp .chase_paddle
+  3916                                  
+  3917                                      .use_ball1:
+  3918 00001E46 4C8B15(DF140000)                mov r10, [ball_x_pos]
+  3919 00001E4D EB12                            jmp .compare_positions
+  3920                                  
+  3921                                      .use_ball2:
+  3922 00001E4F 4C8B15(01150000)                mov r10, [ball2_x_pos]
+  3923 00001E56 EB09                            jmp .compare_positions
+  3924                                  
+  3925                                      .use_ball3:
+  3926 00001E58 4C8B15(23150000)                mov r10, [ball3_x_pos]
+  3927 00001E5F EB00                            jmp .compare_positions
+  3928                                  
+  3929                                      .compare_positions:
+  3930                                          ; Comparar X
+  3931 00001E61 4D39D0                          cmp r8, r10
+  3932 00001E64 0F8FCA000000                    jg .move_left
+  3933 00001E6A 0F8CC9000000                    jl .move_right
+  3934                                          
+  3935                                          ; Si llegamos aquí, las X son iguales
+  3936                                          ; Ahora comparar Y según qué bola estemos siguiendo
+  3937 00001E70 803D(00150000)01                cmp byte [ball_active], 1
+  3938 00001E77 7417                            je .check_ball1_y
+  3939 00001E79 803D(22150000)01                cmp byte [ball2_active], 1
+  3940 00001E80 7417                            je .check_ball2_y
+  3941 00001E82 803D(44150000)01                cmp byte [ball3_active], 1
+  3942 00001E89 7417                            je .check_ball3_y
+  3943 00001E8B E9D4000000                      jmp .check_collision
+  3944                                  
+  3945                                      .check_ball1_y:
+  3946 00001E90 4C8B15(E7140000)                mov r10, [ball_y_pos]
+  3947 00001E97 EB12                            jmp .compare_y
+  3948                                  
+  3949                                      .check_ball2_y:
+  3950 00001E99 4C8B15(09150000)                mov r10, [ball2_y_pos]
+  3951 00001EA0 EB09                            jmp .compare_y
+  3952                                  
+  3953                                      .check_ball3_y:
+  3954 00001EA2 4C8B15(2B150000)                mov r10, [ball3_y_pos]
+  3955 00001EA9 EB00                            jmp .compare_y
+  3956                                  
+  3957                                      .compare_y:
+  3958 00001EAB 4D39D1                          cmp r9, r10
+  3959 00001EAE 0F8F8A000000                    jg .move_up
+  3960 00001EB4 0F8C89000000                    jl .move_down
+  3961 00001EBA E9A5000000                      jmp .check_collision
+  3962                                          
+  3963                                      .chase_paddle:
+  3964                                          ; Obtener la posición X actual de la paleta
+  3965 00001EBF 4C8B15(BF140000)                mov r10, [pallet_position]
+  3966 00001EC6 4981EA[400A0000]                sub r10, board              ; Convertir a offset relativo
+  3967                                          
+  3968                                          ; Calcular la posición X real de la paleta
+  3969 00001ECD 4C89D0                          mov rax, r10
+  3970 00001ED0 BB50000000                      mov rbx, column_cells
+  3971 00001ED5 4883C302                        add rbx, 2                  ; Añadir newline chars
+  3972 00001ED9 4831D2                          xor rdx, rdx
+  3973 00001EDC 48F7F3                          div rbx                     ; rax = y, rdx = x
+  3974                                          
+  3975                                          ; rdx ahora contiene la posición X de la paleta
+  3976                                          ; Añadir la mitad del tamaño de la paleta para apuntar al centro
+  3977 00001EDF 488B0D(C7140000)                mov rcx, [pallet_size]
+  3978 00001EE6 48D1E9                          shr rcx, 1                  ; Dividir por 2
+  3979 00001EE9 4801CA                          add rdx, rcx
+  3980                                          
+  3981                                          ; Comparar con posición X del enemigo y mover gradualmente
+  3982 00001EEC 4939D0                          cmp r8, rdx
+  3983 00001EEF 7404                            je .check_y_paddle          ; Si está en la misma X, verificar Y
+  3984 00001EF1 7F41                            jg .move_left              ; Si está a la derecha, mover izquierda
+  3985 00001EF3 7C44                            jl .move_right             ; Si está a la izquierda, mover derecha
+  3986                                  
+  3987                                      .check_y_paddle:
+  3988                                          ; La Y de la paleta siempre es row_cells - 2
+  3989 00001EF5 41BA20000000                    mov r10, row_cells
+  3990 00001EFB 4983EA02                        sub r10, 2
+  3991                                          
+  3992                                          ; Comparar con posición Y del enemigo y mover gradualmente
+  3993 00001EFF 4D39D1                          cmp r9, r10
+  3994 00001F02 7404                            je .no_movement            ; Si está en la misma Y, no mover
+  3995 00001F04 7F38                            jg .move_up               ; Si está abajo, mover arriba
+  3996 00001F06 7C3B                            jl .move_down             ; Si está arriba, mover abajo
+  3997                                          
+  3998                                      .no_movement:
+  3999 00001F08 EB5A                            jmp .check_collision
+  4000                                  
+  4001                                      ; También agregar una nueva sección para el movimiento suave
+  4002                                      .smooth_transition:
+  4003                                          ; Si el enemigo está muy lejos de su objetivo, limitar el movimiento
+  4004 00001F0A 8A05(8A200000)                  mov al, [enemy_target]
+  4005 00001F10 84C0                            test al, al
+  4006 00001F12 7450                            jz .check_collision        ; Si persigue la bola, movimiento normal
+  4007                                          
+  4008                                          ; Verificar distancia en X
+  4009 00001F14 4989D2                          mov r10, rdx              ; Posición X objetivo
+  4010 00001F17 4D29C2                          sub r10, r8               ; Calcular diferencia
+  4011 00001F1A 4983FA05                        cmp r10, 5               ; Si la diferencia es mayor a 5
+  4012 00001F1E 7F08                            jg .limit_right_movement  ; Limitar movimiento a la derecha
+  4013 00001F20 4983FAFB                        cmp r10, -5              ; Si la diferencia es menor a -5
+  4014 00001F24 7C08                            jl .limit_left_movement   ; Limitar movimiento a la izquierda
+  4015 00001F26 EB3C                            jmp .check_collision
+  4016                                          
+  4017                                      .limit_right_movement:
+  4018 00001F28 4983C002                        add r8, 2                ; Mover solo 2 unidades a la derecha
+  4019 00001F2C EB36                            jmp .check_collision
+  4020                                          
+  4021                                      .limit_left_movement:
+  4022 00001F2E 4983E802                        sub r8, 2                ; Mover solo 2 unidades a la izquierda
+  4023 00001F32 EB30                            jmp .check_collision
+  4024                                      .move_left:
+  4025 00001F34 49FFC8                          dec r8
+  4026 00001F37 EB0F                            jmp .check_vertical
+  4027                                          
+  4028                                      .move_right:
+  4029 00001F39 49FFC0                          inc r8
+  4030 00001F3C EB0A                            jmp .check_vertical
+  4031                                          
+  4032                                      .move_up:
+  4033 00001F3E 49FFC9                          dec r9
+  4034 00001F41 EB21                            jmp .check_collision
+  4035                                          
+  4036                                      .move_down:
+  4037 00001F43 49FFC1                          inc r9
+  4038 00001F46 EB1C                            jmp .check_collision
+  4039                                          
+  4040                                      .check_vertical:
+  4041 00001F48 8A05(8A200000)                  mov al, [enemy_target]
+  4042 00001F4E 84C0                            test al, al
+  4043 00001F50 0F8569FFFFFF                    jnz .chase_paddle         ; Si persigue paleta, volver a su lógica
+  4044 00001F56 4C8B15(E7140000)                mov r10, [ball_y_pos]     ; Si no, seguir persiguiendo la bola
+  4045 00001F5D 4D39D1                          cmp r9, r10
+  4046 00001F60 7FDC                            jg .move_up
+  4047 00001F62 7CDF                            jl .move_down
+  4048                                          
+  4049                                      .check_collision:
+  4050                                          ; Verificar colisión con bordes
+  4051 00001F64 4983F801                        cmp r8, 1                       ; Borde izquierdo
+  4052 00001F68 7E7D                            jle .next_enemy
+  4053 00001F6A 4983F850                        cmp r8, column_cells
+  4054 00001F6E 7D77                            jge .next_enemy
+  4055 00001F70 4983F901                        cmp r9, 1                       ; Borde superior
+  4056 00001F74 7E71                            jle .next_enemy
+  4057 00001F76 4983F920                        cmp r9, row_cells
+  4058 00001F7A 7D6B                            jge .next_enemy
+  4059                                          
+  4060                                          ; Verificar colisión con bloques antes de moverse
+  4061 00001F7C 4150                            push r8
+  4062 00001F7E 4151                            push r9
+  4063 00001F80 4152                            push r10
+  4064                                          
+  4065                                          ; Calcular posición en el tablero para verificar
+  4066 00001F82 B850000000                      mov rax, column_cells
+  4067 00001F87 4883C002                        add rax, 2
+  4068 00001F8B 49F7E1                          mul r9
+  4069 00001F8E 4C01C0                          add rax, r8
+  4070 00001F91 4C8D90[400A0000]                lea r10, [board + rax]
+  4071                                          
+  4072                                          ; Verificar si hay un bloque en la nueva posición
+  4073 00001F98 418A02                          mov al, [r10]
+  4074 00001F9B 3C55                            cmp al, 'U'
+  4075 00001F9D 7442                            je .invalid_move
+  4076 00001F9F 3C4F                            cmp al, 'O'
+  4077 00001FA1 743E                            je .invalid_move
+  4078 00001FA3 3C44                            cmp al, 'D'
+  4079 00001FA5 743A                            je .invalid_move
+  4080 00001FA7 3C4C                            cmp al, 'L'
+  4081 00001FA9 7436                            je .invalid_move
+  4082 00001FAB 3C56                            cmp al, 'V'
+  4083 00001FAD 7432                            je .invalid_move
+  4084 00001FAF 3C38                            cmp al, '8'
+  4085 00001FB1 742E                            je .invalid_move
+  4086 00001FB3 3C58                            cmp al, 'X'
+  4087 00001FB5 742A                            je .invalid_move
+  4088 00001FB7 3C40                            cmp al, '@'                 ; Enemigo nivel 1 y 5
+  4089 00001FB9 7426                            je .invalid_move
+  4090 00001FBB 3C23                            cmp al, '#'                 ; Enemigo nivel 2
+  4091 00001FBD 7422                            je .invalid_move
+  4092 00001FBF 3C24                            cmp al, '$'                 ; Enemigo nivel 3
+  4093 00001FC1 741E                            je .invalid_move
+  4094 00001FC3 3C26                            cmp al, '&'                 ; Enemigo nivel 4
+  4095 00001FC5 741A                            je .invalid_move
+  4096                                          
+  4097 00001FC7 E825000000                      call check_enemy_at_position
+  4098 00001FCC 4883F801                        cmp rax, 1
+  4099 00001FD0 740F                            je .invalid_move
+  4100 00001FD2 415A                            pop r10
+  4101 00001FD4 4159                            pop r9
+  4102 00001FD6 4158                            pop r8
+  4103                                          
+  4104                                          ; Guardar nueva posición si es válida
+  4105 00001FD8 448806                          mov [rsi], r8b
+  4106 00001FDB 44884E01                        mov [rsi + 1], r9b
+  4107 00001FDF EB06                            jmp .next_enemy
+  4108                                          
+  4109                                      .invalid_move:
+  4110 00001FE1 415A                            pop r10
+  4111 00001FE3 4159                            pop r9
+  4112 00001FE5 4158                            pop r8
+  4113                                          
+  4114                                      .next_enemy:
+  4115 00001FE7 49FFC4                          inc r12
+  4116 00001FEA E969FDFFFF                      jmp .enemy_loop
+  4117                                          
+  4118                                      .end:
+  4119 00001FEF 5D                              pop rbp
+  4120 00001FF0 C3                              ret
+  4121                                  
+  4122                                  check_enemy_at_position:
+  4123 00001FF1 55                          push rbp
+  4124 00001FF2 4889E5                      mov rbp, rsp
+  4125                                      
+  4126                                      ; Parámetros esperados en r8 (X) y r9 (Y)
+  4127 00001FF5 B850000000                  mov rax, column_cells
+  4128 00001FFA 4883C002                    add rax, 2
+  4129 00001FFE 49F7E1                      mul r9
+  4130 00002001 4C01C0                      add rax, r8
+  4131 00002004 488DB8[400A0000]            lea rdi, [board + rax]
+  4132 0000200B 480FB607                    movzx rax, byte [rdi]
+  4133                                      
+  4134                                      ; Verificar todos los caracteres de enemigos
+  4135 0000200F 3C40                        cmp al, '@'
+  4136 00002011 7411                        je .enemy_found
+  4137 00002013 3C23                        cmp al, '#'
+  4138 00002015 740D                        je .enemy_found
+  4139 00002017 3C24                        cmp al, '$'
+  4140 00002019 7409                        je .enemy_found
+  4141 0000201B 3C26                        cmp al, '&'
+  4142 0000201D 7405                        je .enemy_found
+  4143                                      
+  4144 0000201F 4831C0                      xor rax, rax    ; No hay enemigo (retorna 0)
+  4145 00002022 EB05                        jmp .end
+  4146                                      
+  4147                                  .enemy_found:
+  4148 00002024 B801000000                  mov rax, 1      ; Hay enemigo (retorna 1)
+  4149                                      
+  4150                                  .end:
+  4151 00002029 5D                          pop rbp
+  4152 0000202A C3                          ret
+  4153                                  
+  4154                                  get_current_spawn_points:
+  4155 0000202B 55                          push rbp
+  4156 0000202C 4889E5                      mov rbp, rsp
+  4157                                      
+  4158 0000202F 480FB605(79150000)          movzx rax, byte [current_level]
+  4159 00002037 48FFC8                      dec rax                         ; Ajustar para índice base 0
+  4160 0000203A 488B04C5[BE200000]          mov rax, [spawn_points_table + rax * 8]
+  4161                                      
+  4162 00002042 5D                          pop rbp
+  4163 00002043 C3                          ret
+  4164                                  
+  4165                                  ; Función para verificar si debe aparecer un nuevo enemigo
+  4166                                  check_enemy_spawn:
+  4167 00002044 55                          push rbp
+  4168 00002045 4889E5                      mov rbp, rsp
+  4169                                      
+  4170                                      ; Obtener spawn points del nivel actual
+  4171 00002048 E8DEFFFFFF                  call get_current_spawn_points
+  4172 0000204D 4989C4                      mov r12, rax                    ; r12 = puntero a spawn points
+  4173                                      
+  4174                                      ; Obtener cantidad de bloques destruidos
+  4175 00002050 4C0FB62D(46200000)          movzx r13, byte [destroyed_blocks]
+  4176                                      
+  4177                                      ; Verificar cada punto de spawn
+  4178 00002058 4831C9                      xor rcx, rcx                    ; Índice del enemigo
+  4179                                      
+  4180                                      .check_loop:
+  4181 0000205B 4883F90A                        cmp rcx, 10                     ; Máximo 10 enemigos
+  4182 0000205F 7D4E                            jge .end
+  4183                                          
+  4184                                          ; Verificar si este spawn point ya fue usado
+  4185 00002061 80B9[E9200000]01                cmp byte [enemy_spawns_triggered + rcx], 1
+  4186 00002068 7440                            je .next_enemy
+  4187                                          
+  4188                                          ; Verificar si este enemigo ya está activo
+  4189 0000206A 4889C8                          mov rax, rcx
+  4190 0000206D 486BC003                        imul rax, 3                     ; Cada enemigo ocupa 3 bytes
+  4191 00002071 488DB0[60200000]                lea rsi, [enemies + rax]
+  4192 00002078 807E0201                        cmp byte [rsi + 2], 1          ; Verificar si está activo
+  4193 0000207C 742C                            je .next_enemy
+  4194                                          
+  4195                                          ; Verificar si debemos spawnear este enemigo
+  4196 0000207E 490FB6040C                      movzx rax, byte [r12 + rcx]    ; Obtener punto de spawn
+  4197 00002083 4939C5                          cmp r13, rax                   ; Comparar con bloques destruidos
+  4198 00002086 7522                            jne .next_enemy
+  4199                                          
+  4200                                          ; Marcar este spawn point como usado
+  4201 00002088 C681[E9200000]01                mov byte [enemy_spawns_triggered + rcx], 1
+  4202                                          
+  4203                                          ; Spawner nuevo enemigo
+  4204 0000208F B004                            mov al, 4
+  4205 00002091 00C8                            add al, cl       ; con 'rcx' como índice
+  4206 00002093 8806                            mov [rsi], al
+  4207 00002095 C6460101                        mov byte [rsi+1], 1
+  4208 00002099 C6460201                        mov byte [rsi+2], 1
+  4209                                  
+  4210                                          ; Inicializar comportamiento
+  4211 0000209D 4889C8                          mov rax, rcx
+  4212 000020A0 4883E001                        and rax, 1                     ; Alternar comportamiento basado en índice par/impar
+  4213 000020A4 8805(E8200000)                  mov [current_behavior], al      ; 0 = persigue bola, 1 = persigue paleta
+  4214                                          
+  4215                                      .next_enemy:
+  4216 000020AA 48FFC1                          inc rcx
+  4217 000020AD EBAC                            jmp .check_loop
+  4218                                          
+  4219                                      .end:
+  4220 000020AF 5D                              pop rbp
+  4221 000020B0 C3                              ret
+  4222                                  
+  4223                                  
+  4224                                  ; Función para dibujar enemigos
+  4225                                  print_enemies:
+  4226 000020B1 55                          push rbp
+  4227 000020B2 4889E5                      mov rbp, rsp
+  4228                                      
+  4229 000020B5 4D31E4                      xor r12, r12                    ; Índice del enemigo
+  4230                                      
+  4231                                      .print_loop:
+  4232 000020B8 4983FC0A                        cmp r12, 10                      ; Máximo 5 enemigos
+  4233 000020BC 7D4B                            jge .end
+  4234                                          
+  4235                                          ; Calcular offset del enemigo actual
+  4236 000020BE 4C89E0                          mov rax, r12
+  4237 000020C1 486BC003                        imul rax, 3                     ; Cada enemigo ocupa 3 bytes
+  4238 000020C5 488DB0[60200000]                lea rsi, [enemies + rax]
+  4239                                          
+  4240                                          ; Verificar si el enemigo está activo
+  4241 000020CC 807E0201                        cmp byte [rsi + 2], 1
+  4242 000020D0 7532                            jne .next_enemy
+  4243                                          
+  4244                                          ; Calcular posición en el tablero
+  4245 000020D2 4C0FB606                        movzx r8, byte [rsi]            ; X
+  4246 000020D6 4C0FB64E01                      movzx r9, byte [rsi + 1]        ; Y
+  4247                                          
+  4248                                          ; Calcular offset en el tablero
+  4249 000020DB B850000000                      mov rax, column_cells
+  4250 000020E0 4883C002                        add rax, 2                      ; Incluir caracteres de nueva línea
+  4251 000020E4 49F7E1                          mul r9
+  4252 000020E7 4C01C0                          add rax, r8
+  4253 000020EA 488DB8[400A0000]                lea rdi, [board + rax]
+  4254                                          
+  4255                                          ; Obtener carácter del enemigo según el nivel
+  4256 000020F1 480FB605(79150000)              movzx rax, byte [current_level]
+  4257 000020F9 48FFC8                          dec rax                         ; Ajustar para índice base 0
+  4258 000020FC 8A80[5B200000]                  mov al, [enemy_chars + rax]
   4259                                          
-  4260                                          ; Colisión vertical detectada
-  4261 000020FA E8A3000000                      call destroy_enemy
-  4262 000020FF 48F71D(F7140000)                neg qword [ball_direction_y]    ; Invertir dirección vertical
-  4263 00002106 B801000000                      mov rax, 1
-  4264 0000210B E990000000                      jmp .end
-  4265                                          
-  4266                                      .check_horizontal:
-  4267                                          ; Comprobar colisión horizontal (misma fila)
-  4268 00002110 4C8B15(DF140000)                mov r10, [ball_x_pos]
-  4269 00002117 4C8B1D(E7140000)                mov r11, [ball_y_pos]
-  4270 0000211E 4D39CB                          cmp r11, r9
-  4271 00002121 7522                            jne .check_paddle
-  4272 00002123 4D29C2                          sub r10, r8
-  4273 00002126 4983FA01                        cmp r10, 1
-  4274 0000212A 7F19                            jg .check_paddle
-  4275 0000212C 4983FAFF                        cmp r10, -1
-  4276 00002130 7C13                            jl .check_paddle
-  4277                                          
-  4278                                          ; Colisión horizontal detectada
-  4279 00002132 E86B000000                      call destroy_enemy
-  4280 00002137 48F71D(EF140000)                neg qword [ball_direction_x]    ; Invertir dirección horizontal
-  4281 0000213E B801000000                      mov rax, 1
-  4282 00002143 EB5B                            jmp .end
+  4260                                          ; Dibujar enemigo
+  4261 00002102 8807                            mov [rdi], al
+  4262                                          
+  4263                                      .next_enemy:
+  4264 00002104 49FFC4                          inc r12
+  4265 00002107 EBAF                            jmp .print_loop
+  4266                                          
+  4267                                      .end:
+  4268 00002109 5D                              pop rbp
+  4269 0000210A C3                              ret
+  4270                                  
+  4271                                  ; Función para verificar colisión con enemigos
+  4272                                  ; Función para verificar colisión con enemigos
+  4273                                  check_enemy_collision:
+  4274 0000210B 55                          push rbp
+  4275 0000210C 4889E5                      mov rbp, rsp
+  4276                                      
+  4277 0000210F 4D31E4                      xor r12, r12                    ; Índice del enemigo
+  4278 00002112 4831C0                      xor rax, rax                    ; Valor de retorno (0 = no colisión)
+  4279                                      
+  4280                                      .check_loop:
+  4281 00002115 4983FC05                        cmp r12, 5                      ; Máximo 5 enemigos
+  4282 00002119 0F8DE9000000                    jge .end
   4283                                          
-  4284                                      .check_paddle:
-  4285                                          ; Verificar colisión con la paleta
-  4286 00002145 4C8B15(BF140000)                mov r10, [pallet_position]
-  4287 0000214C 4981EA[400A0000]                sub r10, board
-  4288 00002153 4C89D0                          mov rax, r10
-  4289 00002156 41BB50000000                    mov r11, column_cells
-  4290 0000215C 4983C302                        add r11, 2
-  4291 00002160 4831D2                          xor rdx, rdx
-  4292 00002163 49F7F3                          div r11                     ; División para obtener la posición Y
-  4293 00002166 4989D3                          mov r11, rdx               ; X de la paleta en r11
-  4294                                          
-  4295 00002169 488B0D(C7140000)                mov rcx, [pallet_size]     ; Obtener el tamaño de la paleta
+  4284                                          ; Calcular offset del enemigo actual
+  4285 0000211F 4C89E1                          mov rcx, r12
+  4286 00002122 486BC903                        imul rcx, 3                     ; Cada enemigo ocupa 3 bytes
+  4287 00002126 488DB1[60200000]                lea rsi, [enemies + rcx]
+  4288                                          
+  4289                                          ; Verificar si el enemigo está activo
+  4290 0000212D 807E0201                        cmp byte [rsi + 2], 1
+  4291 00002131 0F85C9000000                    jne .next_enemy
+  4292                                          
+  4293                                          ; Verificar colisión con la bola
+  4294 00002137 4C0FB606                        movzx r8, byte [rsi]            ; X enemigo
+  4295 0000213B 4C0FB64E01                      movzx r9, byte [rsi + 1]        ; Y enemigo
   4296                                          
-  4297                                          ; Verificar si el enemigo está en la misma fila que la paleta
-  4298 00002170 41BD20000000                    mov r13, row_cells
-  4299 00002176 4983ED02                        sub r13, 2                 ; Y de la paleta
-  4300 0000217A 4D39E9                          cmp r9, r13               ; Comparar Y del enemigo con Y de la paleta
-  4301 0000217D 7519                            jne .next_enemy
-  4302                                          
-  4303                                          ; Verificar si el enemigo está dentro del rango X de la paleta
-  4304 0000217F 4D39D8                          cmp r8, r11               ; Comparar X del enemigo con X inicial de la paleta
-  4305 00002182 7C14                            jl .next_enemy
-  4306                                          
-  4307 00002184 4901CB                          add r11, rcx              ; Añadir el tamaño de la paleta
-  4308 00002187 4D39D8                          cmp r8, r11               ; Comparar X del enemigo con X final de la paleta
-  4309 0000218A 7F0C                            jg .next_enemy
-  4310                                          
-  4311                                          ; Si llegamos aquí, hay colisión con la paleta
-  4312 0000218C E811000000                      call destroy_enemy        ; Destruir el enemigo
-  4313 00002191 B801000000                      mov rax, 1                ; Indicar que hubo colisión
-  4314 00002196 EB08                            jmp .end
+  4297                                          ; Verificar si la bola está en el rango del enemigo (considerando el enemigo como un área)
+  4298 00002140 4C8B15(DF140000)                mov r10, [ball_x_pos]
+  4299 00002147 4C8B1D(E7140000)                mov r11, [ball_y_pos]
+  4300                                          
+  4301                                          ; Comprobar colisión vertical (misma columna)
+  4302 0000214E 4D39C2                          cmp r10, r8
+  4303 00002151 7525                            jne .check_horizontal
+  4304 00002153 4D29CB                          sub r11, r9
+  4305 00002156 4983FB01                        cmp r11, 1
+  4306 0000215A 7F1C                            jg .check_horizontal
+  4307 0000215C 4983FBFF                        cmp r11, -1
+  4308 00002160 7C16                            jl .check_horizontal
+  4309                                          
+  4310                                          ; Colisión vertical detectada
+  4311 00002162 E8A3000000                      call destroy_enemy
+  4312 00002167 48F71D(F7140000)                neg qword [ball_direction_y]    ; Invertir dirección vertical
+  4313 0000216E B801000000                      mov rax, 1
+  4314 00002173 E990000000                      jmp .end
   4315                                          
-  4316                                      .next_enemy:
-  4317 00002198 49FFC4                          inc r12
-  4318 0000219B E90DFFFFFF                      jmp .check_loop
-  4319                                          
-  4320                                      .end:
-  4321 000021A0 5D                              pop rbp
-  4322 000021A1 C3                              ret
-  4323                                  
-  4324                                  ; Función para destruir un enemigo
-  4325                                  destroy_enemy:
-  4326                                      ; Desactivar enemigo
-  4327 000021A2 C6460200                    mov byte [rsi + 2], 0   ; Marcar enemigo como inactivo
-  4328                                  
-  4329                                      ; Sumar puntos por destruir enemigo
-  4330 000021A6 488B05(7F200000)            mov rax, [enemy_points]
-  4331 000021AD 480105(3E200000)            add [current_score], rax
-  4332                                  
-  4333                                      ; No tocar bloques destruidos aquí
-  4334 000021B4 C3                          ret
-  4335                                  
-  4336                                  
-  4337                                  _start:
-  4338 000021B5 E871DFFFFF              	call canonical_off
-  4339 000021BA E857010000              	call start_screen
-  4340 000021BF E879F3FFFF                  call init_level
-  4341 000021C4 EB00                    	jmp .main_loop
-  4342                                  	
-  4343                                  
-  4344                                      .main_loop:
-  4345 000021C6 E8E7F7FFFF                      call print_labels
-  4346 000021CB E816F7FFFF                      call print_blocks
-  4347 000021D0 E880E3FFFF                      call move_letters
-  4348 000021D5 E866E6FFFF                      call update_lasers
-  4349 000021DA E8EBE2FFFF                      call print_letters
-  4350 000021DF E86AEAFFFF                      call print_pallet
-  4351                                          
-  4352                                          ; Mover bola principal solo si está activa
-  4353 000021E4 803D(00150000)01                cmp byte [ball_active], 1
-  4354 000021EB 7505                            jne .skip_ball1
-  4355 000021ED E873EBFFFF                          call move_ball
-  4356                                          .skip_ball1:
-  4357                                  
-  4358                                          ; Mover bola 2 si está activa
-  4359 000021F2 803D(22150000)01                cmp byte [ball2_active], 1
-  4360 000021F9 7505                            jne .skip_ball2
-  4361 000021FB E838EDFFFF                          call move_ball_2
-  4362                                          .skip_ball2:
-  4363                                  
-  4364                                          ; Mover bola 3 si está activa
-  4365 00002200 803D(44150000)01                cmp byte [ball3_active], 1
-  4366 00002207 7505                            jne .skip_ball3
-  4367 00002209 E8FDEEFFFF                          call move_ball_3
-  4368                                          .skip_ball3:
-  4369                                  
-  4370 0000220E E8E3E0FFFF                      call check_bottom_collision    ; Nueva función que maneja todas las bolas
-  4371 00002213 E8C5DFFFFF                      call print_lives
-  4372                                  
-  4373                                          ; Imprimir solo las bolas activas
-  4374 00002218 803D(00150000)01                cmp byte [ball_active], 1
-  4375 0000221F 7505                            jne .no_pb1
-  4376 00002221 E8B0E9FFFF                          call print_ball
-  4377                                          .no_pb1:
+  4316                                      .check_horizontal:
+  4317                                          ; Comprobar colisión horizontal (misma fila)
+  4318 00002178 4C8B15(DF140000)                mov r10, [ball_x_pos]
+  4319 0000217F 4C8B1D(E7140000)                mov r11, [ball_y_pos]
+  4320 00002186 4D39CB                          cmp r11, r9
+  4321 00002189 7522                            jne .check_paddle
+  4322 0000218B 4D29C2                          sub r10, r8
+  4323 0000218E 4983FA01                        cmp r10, 1
+  4324 00002192 7F19                            jg .check_paddle
+  4325 00002194 4983FAFF                        cmp r10, -1
+  4326 00002198 7C13                            jl .check_paddle
+  4327                                          
+  4328                                          ; Colisión horizontal detectada
+  4329 0000219A E86B000000                      call destroy_enemy
+  4330 0000219F 48F71D(EF140000)                neg qword [ball_direction_x]    ; Invertir dirección horizontal
+  4331 000021A6 B801000000                      mov rax, 1
+  4332 000021AB EB5B                            jmp .end
+  4333                                          
+  4334                                      .check_paddle:
+  4335                                          ; Verificar colisión con la paleta
+  4336 000021AD 4C8B15(BF140000)                mov r10, [pallet_position]
+  4337 000021B4 4981EA[400A0000]                sub r10, board
+  4338 000021BB 4C89D0                          mov rax, r10
+  4339 000021BE 41BB50000000                    mov r11, column_cells
+  4340 000021C4 4983C302                        add r11, 2
+  4341 000021C8 4831D2                          xor rdx, rdx
+  4342 000021CB 49F7F3                          div r11                     ; División para obtener la posición Y
+  4343 000021CE 4989D3                          mov r11, rdx               ; X de la paleta en r11
+  4344                                          
+  4345 000021D1 488B0D(C7140000)                mov rcx, [pallet_size]     ; Obtener el tamaño de la paleta
+  4346                                          
+  4347                                          ; Verificar si el enemigo está en la misma fila que la paleta
+  4348 000021D8 41BD20000000                    mov r13, row_cells
+  4349 000021DE 4983ED02                        sub r13, 2                 ; Y de la paleta
+  4350 000021E2 4D39E9                          cmp r9, r13               ; Comparar Y del enemigo con Y de la paleta
+  4351 000021E5 7519                            jne .next_enemy
+  4352                                          
+  4353                                          ; Verificar si el enemigo está dentro del rango X de la paleta
+  4354 000021E7 4D39D8                          cmp r8, r11               ; Comparar X del enemigo con X inicial de la paleta
+  4355 000021EA 7C14                            jl .next_enemy
+  4356                                          
+  4357 000021EC 4901CB                          add r11, rcx              ; Añadir el tamaño de la paleta
+  4358 000021EF 4D39D8                          cmp r8, r11               ; Comparar X del enemigo con X final de la paleta
+  4359 000021F2 7F0C                            jg .next_enemy
+  4360                                          
+  4361                                          ; Si llegamos aquí, hay colisión con la paleta
+  4362 000021F4 E811000000                      call destroy_enemy        ; Destruir el enemigo
+  4363 000021F9 B801000000                      mov rax, 1                ; Indicar que hubo colisión
+  4364 000021FE EB08                            jmp .end
+  4365                                          
+  4366                                      .next_enemy:
+  4367 00002200 49FFC4                          inc r12
+  4368 00002203 E90DFFFFFF                      jmp .check_loop
+  4369                                          
+  4370                                      .end:
+  4371 00002208 5D                              pop rbp
+  4372 00002209 C3                              ret
+  4373                                  
+  4374                                  ; Función para destruir un enemigo
+  4375                                  destroy_enemy:
+  4376                                      ; Desactivar enemigo
+  4377 0000220A C6460200                    mov byte [rsi + 2], 0   ; Marcar enemigo como inactivo
   4378                                  
-  4379 00002226 803D(22150000)01                cmp byte [ball2_active], 1
-  4380 0000222D 7505                            jne .no_pb2
-  4381 0000222F E8CAE9FFFF                          call print_ball_2
-  4382                                          .no_pb2:
-  4383                                  
-  4384 00002234 803D(44150000)01                cmp byte [ball3_active], 1
-  4385 0000223B 7505                            jne .no_pb3
-  4386 0000223D E8E4E9FFFF                          call print_ball_3
-  4387                                          .no_pb3:
-  4388                                  
-  4389 00002242 E8E7F4FFFF                      call check_level_complete
-  4390 00002247 E890FDFFFF                      call check_enemy_spawn
-  4391 0000224C E8DFFAFFFF                      call move_enemies
-  4392 00002251 E84DFEFFFF                      call check_enemy_collision
-  4393 00002256 E8EEFDFFFF                      call print_enemies
-  4394 0000225B E854E5FFFF                      call print_power_label
-  4395                                  		print board, board_size				
-    82 00002260 B801000000          <1>  mov eax, sys_write
-    83 00002265 BF01000000          <1>  mov edi, 1
-    84 0000226A 48BE-               <1>  mov rsi, %1
-    84 0000226C [400A000000000000]  <1>
-    85 00002274 BA400A0000          <1>  mov edx, %2
-    86 00002279 0F05                <1>  syscall
-  4396                                  		;setnonblocking	
-  4397                                  	.read_more:	
-  4398                                  	    getchar	
-    90 0000227B B800000000          <1>  mov rax, sys_read
-    91 00002280 BF00000000          <1>  mov rdi, STDIN_FILENO
-    92 00002285 48BE-               <1>  mov rsi, input_char
-    92 00002287 [0000000000000000]  <1>
-    93 0000228F BA01000000          <1>  mov rdx, 1
-    94 00002294 0F05                <1>  syscall
-  4399 00002296 4883F801                	    cmp rax, 1
-  4400 0000229A 7547                    	    jne .done
-  4401                                  	
-  4402 0000229C 8A05(00000000)          	    mov al, [input_char]
-  4403 000022A2 8805(08230000)          	    mov [last_key], al      ; Registrar la última tecla presionada
-  4404                                  	
-  4405 000022A8 3C61                    	    cmp al, 'a'
-  4406 000022AA 750E                    	    jne .not_left
-  4407 000022AC 48C7C7FFFFFFFF          	    mov rdi, left_direction
-  4408 000022B3 E8CBE9FFFF              	    call move_pallet
-  4409 000022B8 EB29                    	    jmp .done
-  4410                                  	
-  4411                                      .not_left:
-  4412 000022BA 3C64                    	    cmp al, 'd'
-  4413 000022BC 750C                    	    jne .not_right
-  4414 000022BE BF01000000              	    mov rdi, right_direction
-  4415 000022C3 E8BBE9FFFF              	    call move_pallet
-  4416 000022C8 EB19                    	    jmp .done
-  4417                                  	
-  4418                                      .not_right:
-  4419 000022CA 3C63                    	    cmp al, 'c'             ; Verificar si se presionó la tecla 'c'
-  4420 000022CC 740E                    	    je .release_ball        ; Si sí, liberar la bola
-  4421                                  	
-  4422 000022CE 3C78                            cmp al, 'x'             ; Verificar si se presionó la tecla 'c'
-  4423 000022D0 740A                    	    je .release_ball        ; Si sí, liberar la bola
-  4424                                  	
-  4425                                  
-  4426 000022D2 3C71                    	    cmp al, 'q' 
-  4427 000022D4 0F84AF000000            	    je exit
-  4428 000022DA EB9F                    	    jmp .read_more
-  4429                                  	
-  4430                                      .release_ball:
-  4431 000022DC E8FDEFFFFF              	    call process_catch_release
-  4432 000022E1 EB00                    	    jmp .done
-  4433                                  	
-  4434                                      .done:
-  4435                                  	    sleeptime
-    98 000022E3 B823000000          <1>  mov eax, sys_nanosleep
-    99 000022E8 48BF-               <1>  mov rdi, timespec
-    99 000022EA [0000000000000000]  <1>
-   100 000022F2 31F6                <1>  xor esi, esi
-   101 000022F4 0F05                <1>  syscall
-  4436                                  	    print clear, clear_length
-    82 000022F6 B801000000          <1>  mov eax, sys_write
-    83 000022FB BF01000000          <1>  mov edi, 1
-    84 00002300 48BE-               <1>  mov rsi, %1
-    84 00002302 [1000000000000000]  <1>
-    85 0000230A BA07000000          <1>  mov edx, %2
-    86 0000230F 0F05                <1>  syscall
-  4437 00002311 E9B0FEFFFF              	    jmp .main_loop
+  4379                                      ; Sumar puntos por destruir enemigo
+  4380 0000220E 488B05(7F200000)            mov rax, [enemy_points]
+  4381 00002215 480105(3E200000)            add [current_score], rax
+  4382                                  
+  4383                                      ; No tocar bloques destruidos aquí
+  4384 0000221C C3                          ret
+  4385                                  
+  4386                                  
+  4387                                  _start:
+  4388 0000221D E809DFFFFF              	call canonical_off
+  4389 00002222 E857010000              	call start_screen
+  4390 00002227 E811F3FFFF                  call init_level
+  4391 0000222C EB00                    	jmp .main_loop
+  4392                                  	
+  4393                                  
+  4394                                      .main_loop:
+  4395 0000222E E87FF7FFFF                      call print_labels
+  4396 00002233 E8AEF6FFFF                      call print_blocks
+  4397 00002238 E818E3FFFF                      call move_letters
+  4398 0000223D E8FEE5FFFF                      call update_lasers
+  4399 00002242 E883E2FFFF                      call print_letters
+  4400 00002247 E802EAFFFF                      call print_pallet
+  4401                                          
+  4402                                          ; Mover bola principal solo si está activa
+  4403 0000224C 803D(00150000)01                cmp byte [ball_active], 1
+  4404 00002253 7505                            jne .skip_ball1
+  4405 00002255 E80BEBFFFF                          call move_ball
+  4406                                          .skip_ball1:
+  4407                                  
+  4408                                          ; Mover bola 2 si está activa
+  4409 0000225A 803D(22150000)01                cmp byte [ball2_active], 1
+  4410 00002261 7505                            jne .skip_ball2
+  4411 00002263 E8D0ECFFFF                          call move_ball_2
+  4412                                          .skip_ball2:
+  4413                                  
+  4414                                          ; Mover bola 3 si está activa
+  4415 00002268 803D(44150000)01                cmp byte [ball3_active], 1
+  4416 0000226F 7505                            jne .skip_ball3
+  4417 00002271 E895EEFFFF                          call move_ball_3
+  4418                                          .skip_ball3:
+  4419                                  
+  4420 00002276 E87BE0FFFF                      call check_bottom_collision    ; Nueva función que maneja todas las bolas
+  4421 0000227B E85DDFFFFF                      call print_lives
+  4422                                  
+  4423                                          ; Imprimir solo las bolas activas
+  4424 00002280 803D(00150000)01                cmp byte [ball_active], 1
+  4425 00002287 7505                            jne .no_pb1
+  4426 00002289 E848E9FFFF                          call print_ball
+  4427                                          .no_pb1:
+  4428                                  
+  4429 0000228E 803D(22150000)01                cmp byte [ball2_active], 1
+  4430 00002295 7505                            jne .no_pb2
+  4431 00002297 E862E9FFFF                          call print_ball_2
+  4432                                          .no_pb2:
+  4433                                  
+  4434 0000229C 803D(44150000)01                cmp byte [ball3_active], 1
+  4435 000022A3 7505                            jne .no_pb3
+  4436 000022A5 E87CE9FFFF                          call print_ball_3
+  4437                                          .no_pb3:
   4438                                  
-  4439                                  
-  4440                                  
-  4441                                  
-  4442                                  start_screen:
-  4443                                      print clear, clear_length    ; Limpiamos la pantalla primero
-    82 00002316 B801000000          <1>  mov eax, sys_write
-    83 0000231B BF01000000          <1>  mov edi, 1
-    84 00002320 48BE-               <1>  mov rsi, %1
-    84 00002322 [1000000000000000]  <1>
-    85 0000232A BA07000000          <1>  mov edx, %2
-    86 0000232F 0F05                <1>  syscall
-  4444                                      print msg1, msg1_length
-    82 00002331 B801000000          <1>  mov eax, sys_write
-    83 00002336 BF01000000          <1>  mov edi, 1
-    84 0000233B 48BE-               <1>  mov rsi, %1
-    84 0000233D [1700000000000000]  <1>
-    85 00002345 BA14010000          <1>  mov edx, %2
-    86 0000234A 0F05                <1>  syscall
-  4445                                      
-  4446                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
-  4447                                          getchar                 ; Esperamos una tecla
-    90 0000234C B800000000          <1>  mov rax, sys_read
-    91 00002351 BF00000000          <1>  mov rdi, STDIN_FILENO
-    92 00002356 48BE-               <1>  mov rsi, input_char
-    92 00002358 [0000000000000000]  <1>
-    93 00002360 BA01000000          <1>  mov rdx, 1
-    94 00002365 0F05                <1>  syscall
-  4448 00002367 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
-  4449 0000236B 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
-  4450                                          
-  4451                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
-    82 0000236D B801000000          <1>  mov eax, sys_write
-    83 00002372 BF01000000          <1>  mov edi, 1
-    84 00002377 48BE-               <1>  mov rsi, %1
-    84 00002379 [1000000000000000]  <1>
-    85 00002381 BA07000000          <1>  mov edx, %2
-    86 00002386 0F05                <1>  syscall
-  4452 00002388 C3                          ret
-  4453                                  
-  4454                                  exit: 
-  4455 00002389 E8DFDDFFFF              	call canonical_on
-  4456 0000238E B83C000000              	mov    rax, 60
-  4457 00002393 BF00000000                  mov    rdi, 0
-  4458 00002398 0F05                        syscall
-  4459                                  
+  4439 000022AA E87FF4FFFF                      call check_level_complete
+  4440 000022AF E890FDFFFF                      call check_enemy_spawn
+  4441 000022B4 E877FAFFFF                      call move_enemies
+  4442 000022B9 E84DFEFFFF                      call check_enemy_collision
+  4443 000022BE E8EEFDFFFF                      call print_enemies
+  4444 000022C3 E8ECE4FFFF                      call print_power_label
+  4445                                  		print board, board_size				
+    82 000022C8 B801000000          <1>  mov eax, sys_write
+    83 000022CD BF01000000          <1>  mov edi, 1
+    84 000022D2 48BE-               <1>  mov rsi, %1
+    84 000022D4 [400A000000000000]  <1>
+    85 000022DC BA400A0000          <1>  mov edx, %2
+    86 000022E1 0F05                <1>  syscall
+  4446                                  		;setnonblocking	
+  4447                                  	.read_more:	
+  4448                                  	    getchar	
+    90 000022E3 B800000000          <1>  mov rax, sys_read
+    91 000022E8 BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 000022ED 48BE-               <1>  mov rsi, input_char
+    92 000022EF [0000000000000000]  <1>
+    93 000022F7 BA01000000          <1>  mov rdx, 1
+    94 000022FC 0F05                <1>  syscall
+  4449 000022FE 4883F801                	    cmp rax, 1
+  4450 00002302 7547                    	    jne .done
+  4451                                  	
+  4452 00002304 8A05(00000000)          	    mov al, [input_char]
+  4453 0000230A 8805(08230000)          	    mov [last_key], al      ; Registrar la última tecla presionada
+  4454                                  	
+  4455 00002310 3C61                    	    cmp al, 'a'
+  4456 00002312 750E                    	    jne .not_left
+  4457 00002314 48C7C7FFFFFFFF          	    mov rdi, left_direction
+  4458 0000231B E863E9FFFF              	    call move_pallet
+  4459 00002320 EB29                    	    jmp .done
+  4460                                  	
+  4461                                      .not_left:
+  4462 00002322 3C64                    	    cmp al, 'd'
+  4463 00002324 750C                    	    jne .not_right
+  4464 00002326 BF01000000              	    mov rdi, right_direction
+  4465 0000232B E853E9FFFF              	    call move_pallet
+  4466 00002330 EB19                    	    jmp .done
+  4467                                  	
+  4468                                      .not_right:
+  4469 00002332 3C63                    	    cmp al, 'c'             ; Verificar si se presionó la tecla 'c'
+  4470 00002334 740E                    	    je .release_ball        ; Si sí, liberar la bola
+  4471                                  	
+  4472 00002336 3C78                            cmp al, 'x'             ; Verificar si se presionó la tecla 'c'
+  4473 00002338 740A                    	    je .release_ball        ; Si sí, liberar la bola
+  4474                                  	
+  4475                                  
+  4476 0000233A 3C71                    	    cmp al, 'q' 
+  4477 0000233C 0F84AF000000            	    je exit
+  4478 00002342 EB9F                    	    jmp .read_more
+  4479                                  	
+  4480                                      .release_ball:
+  4481 00002344 E895EFFFFF              	    call process_catch_release
+  4482 00002349 EB00                    	    jmp .done
+  4483                                  	
+  4484                                      .done:
+  4485                                  	    sleeptime
+    98 0000234B B823000000          <1>  mov eax, sys_nanosleep
+    99 00002350 48BF-               <1>  mov rdi, timespec
+    99 00002352 [0000000000000000]  <1>
+   100 0000235A 31F6                <1>  xor esi, esi
+   101 0000235C 0F05                <1>  syscall
+  4486                                  	    print clear, clear_length
+    82 0000235E B801000000          <1>  mov eax, sys_write
+    83 00002363 BF01000000          <1>  mov edi, 1
+    84 00002368 48BE-               <1>  mov rsi, %1
+    84 0000236A [1000000000000000]  <1>
+    85 00002372 BA07000000          <1>  mov edx, %2
+    86 00002377 0F05                <1>  syscall
+  4487 00002379 E9B0FEFFFF              	    jmp .main_loop
+  4488                                  
+  4489                                  
+  4490                                  
+  4491                                  
+  4492                                  start_screen:
+  4493                                      print clear, clear_length    ; Limpiamos la pantalla primero
+    82 0000237E B801000000          <1>  mov eax, sys_write
+    83 00002383 BF01000000          <1>  mov edi, 1
+    84 00002388 48BE-               <1>  mov rsi, %1
+    84 0000238A [1000000000000000]  <1>
+    85 00002392 BA07000000          <1>  mov edx, %2
+    86 00002397 0F05                <1>  syscall
+  4494                                      print msg1, msg1_length
+    82 00002399 B801000000          <1>  mov eax, sys_write
+    83 0000239E BF01000000          <1>  mov edi, 1
+    84 000023A3 48BE-               <1>  mov rsi, %1
+    84 000023A5 [1700000000000000]  <1>
+    85 000023AD BA14010000          <1>  mov edx, %2
+    86 000023B2 0F05                <1>  syscall
+  4495                                      
+  4496                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
+  4497                                          getchar                 ; Esperamos una tecla
+    90 000023B4 B800000000          <1>  mov rax, sys_read
+    91 000023B9 BF00000000          <1>  mov rdi, STDIN_FILENO
+    92 000023BE 48BE-               <1>  mov rsi, input_char
+    92 000023C0 [0000000000000000]  <1>
+    93 000023C8 BA01000000          <1>  mov rdx, 1
+    94 000023CD 0F05                <1>  syscall
+  4498 000023CF 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
+  4499 000023D3 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
+  4500                                          
+  4501                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
+    82 000023D5 B801000000          <1>  mov eax, sys_write
+    83 000023DA BF01000000          <1>  mov edi, 1
+    84 000023DF 48BE-               <1>  mov rsi, %1
+    84 000023E1 [1000000000000000]  <1>
+    85 000023E9 BA07000000          <1>  mov edx, %2
+    86 000023EE 0F05                <1>  syscall
+  4502 000023F0 C3                          ret
+  4503                                  
+  4504                                  exit: 
+  4505 000023F1 E877DDFFFF              	call canonical_on
+  4506 000023F6 B83C000000              	mov    rax, 60
+  4507 000023FB BF00000000                  mov    rdi, 0
+  4508 00002400 0F05                        syscall
+  4509                                  

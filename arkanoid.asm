@@ -3899,12 +3899,62 @@ move_enemies:
         
         ; Perseguir bola (comportamiento original)
     .chase_ball:
+        ; Primero intentar con la bola principal
+        cmp byte [ball_active], 1
+        je .use_ball1
+        
+        ; Si no está activa, probar con ball2
+        cmp byte [ball2_active], 1
+        je .use_ball2
+        
+        ; Si no está activa, probar con ball3
+        cmp byte [ball3_active], 1
+        je .use_ball3
+        
+        ; Si no hay bolas activas, perseguir la paleta
+        jmp .chase_paddle
+
+    .use_ball1:
         mov r10, [ball_x_pos]
+        jmp .compare_positions
+
+    .use_ball2:
+        mov r10, [ball2_x_pos]
+        jmp .compare_positions
+
+    .use_ball3:
+        mov r10, [ball3_x_pos]
+        jmp .compare_positions
+
+    .compare_positions:
+        ; Comparar X
         cmp r8, r10
         jg .move_left
         jl .move_right
         
+        ; Si llegamos aquí, las X son iguales
+        ; Ahora comparar Y según qué bola estemos siguiendo
+        cmp byte [ball_active], 1
+        je .check_ball1_y
+        cmp byte [ball2_active], 1
+        je .check_ball2_y
+        cmp byte [ball3_active], 1
+        je .check_ball3_y
+        jmp .check_collision
+
+    .check_ball1_y:
         mov r10, [ball_y_pos]
+        jmp .compare_y
+
+    .check_ball2_y:
+        mov r10, [ball2_y_pos]
+        jmp .compare_y
+
+    .check_ball3_y:
+        mov r10, [ball3_y_pos]
+        jmp .compare_y
+
+    .compare_y:
         cmp r9, r10
         jg .move_up
         jl .move_down
@@ -4154,7 +4204,7 @@ check_enemy_spawn:
         mov al, 4
         add al, cl       ; con 'rcx' como índice
         mov [rsi], al
-        mov byte [rsi+1], 2
+        mov byte [rsi+1], 1
         mov byte [rsi+2], 1
 
         ; Inicializar comportamiento
