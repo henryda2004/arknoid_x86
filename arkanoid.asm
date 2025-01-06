@@ -296,7 +296,7 @@ section .data
     block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
-    current_level db 5
+    current_level db 1
     blocks_remaining db 0
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
@@ -2112,7 +2112,7 @@ print_ball_3:
 print_pallet:
     ; Primero borrar la paleta anterior completa (usando el tamaño máximo posible)
     mov r8, [pallet_position]
-    mov rcx, [extended_pallet_size]
+    mov rcx, [pallet_size]
     .clear_pallet:
         mov byte [r8], char_space
         inc r8
@@ -2160,7 +2160,7 @@ move_pallet:
             mov r8, [pallet_position]
             mov r9, [pallet_size]
             add r8, r9         ; Moverse al final de la paleta
-            mov al, [r8+2]       ; Cargar el carácter en esa posición
+            mov al, [r8]       ; Cargar el carácter en esa posición
             cmp al, 'X'        ; Comparar si es una X
             je .end            ; Si es X, no mover
             
