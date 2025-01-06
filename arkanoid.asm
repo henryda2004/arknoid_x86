@@ -2871,9 +2871,38 @@ init_empty_board:
     pop rsi
     ret
 
+clear_enemies_from_board:
+    push rbp
+    mov rbp, rsp
+
+    mov rcx, board_size   ; 32 filas * (80 chars + 2 newlines) ...
+    lea rsi, [board]
+.clear_loop:
+    cmp byte [rsi], '@'
+    je .make_space
+    cmp byte [rsi], '#'
+    je .make_space
+    cmp byte [rsi], '$'
+    je .make_space
+    cmp byte [rsi], '&'
+    je .make_space
+
+    jmp .next
+
+.make_space:
+    mov byte [rsi], ' '
+.next:
+    inc rsi
+    loop .clear_loop
+
+    pop rbp
+    ret
+
+
 
 init_level:
-
+    call clear_enemies_from_board
+    call init_enemies
     mov byte [ball2_active], 0
     mov byte [ball3_active], 0
     mov byte [laser_power_active], 0
