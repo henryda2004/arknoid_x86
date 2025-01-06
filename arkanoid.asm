@@ -23,7 +23,7 @@ array_length:	equ row_cells * column_cells + row_cells ; cells are mapped to byt
 ;This is regarding the sleep time
 timespec:
     tv_sec  dq 0
-    tv_nsec dq 200000000
+    tv_nsec dq 20000000
 
 
 ;This is for cleaning up the screen
@@ -296,7 +296,7 @@ section .data
     block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
-    current_level db 2
+    current_level db 5
     blocks_remaining db 0
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
@@ -627,7 +627,7 @@ section .data
 
         db 43, 4, 1, 1, ' '   
         db 49, 4, 2, 1, ' '   
-        db 55, 4, 3, 1, ' '   
+        db 55, 4, 3, 1, 'D'   
         db 61, 4, 4, 1, ' '  
         db 67, 4, 2, 1, ' ' 
 
@@ -730,7 +730,7 @@ section .data
         db 7, 13, 2, 1, ' '   
         db 13, 13, 1, 1, ' '   
         db 19, 13, 5, 2, ' '   
-        db 25, 13, 3, 1, ' '  
+        db 25, 13, 3, 1, 'C'  
         db 31, 13, 4, 1, ' '
 
         db 43, 13, 2, 1, ' '    
@@ -757,8 +757,8 @@ section .data
         db 25, 15, 2, 1, ' '  
         db 31, 15, 1, 1, ' '
 
-        db 43, 15, 2, 1, ' '    
-        db 49, 15, 3, 1, ' '   
+        db 43, 15, 2, 1, 'E'    
+        db 49, 15, 3, 1, 'L'   
         db 55, 15, 5, 2, ' '   
         db 61, 15, 2, 1, ' '   
         db 67, 15, 1, 1, ' '
@@ -792,14 +792,14 @@ section .data
     ; Nivel 5
     level5_blocks:
 
-        db 19, 3, 2, 1, ' '   
+        db 19, 3, 2, 1, 'E'   
         db 55, 3, 2, 1, ' '   
 
         db 19, 4, 2, 1, ' '   
-        db 55, 4, 2, 1, ' ' 
+        db 55, 4, 2, 1, 'L' 
 
         db 25, 5, 2, 1, ' '   
-        db 49, 5, 2, 1, ' '   
+        db 49, 5, 2, 1, 'S'   
 
         db 25, 6, 2, 1, ' '   
         db 49, 6, 2, 1, ' '   
@@ -822,11 +822,11 @@ section .data
 
         db 13, 9, 5, 2, ' '   
         db 19, 9, 5, 2, ' '   
-        db 25, 9, 4, 1, ' '  
+        db 25, 9, 4, 1, 'C'  
         db 31, 9, 5, 2, ' '
         db 37, 9, 5, 2, ' '
         db 43, 9, 5, 2, ' '    
-        db 49, 9, 4, 1, ' '    
+        db 49, 9, 4, 1, 'D'    
         db 55, 9, 5, 2, ' '   
         db 61, 9, 5, 2, ' '  
 
@@ -929,7 +929,7 @@ section .data
     
     enemy_points dq 50              ; Puntos por destruir un enemigo
     enemy_move_counter db 0         ; Contador para controlar velocidad de movimiento
-    enemy_move_delay db 2           ; Mover enemigos cada N ciclos
+    enemy_move_delay db 9           ; Mover enemigos cada N ciclos
     enemy_move_total db 0      ; Contador total de movimientos
     enemy_target db 0          ; 0 = persigue bola, 1 = persigue paleta
     MOVEMENT_THRESHOLD db 20   ; Número de movimientos antes de cambiar objetivo
@@ -938,8 +938,8 @@ section .data
     level1_spawn_points: db 70, 71, 72, 73, 74, 76, 120, 140, 160, 180    ; 10 enemigos, cada 2 bloques
     level2_spawn_points: db 0, 30, 50, 70, 85, 110, 130, 150, 170, 190    ; 10 enemigos, cada 2 bloques
     level3_spawn_points: db 0, 0, 0, 50, 55, 60, 100, 100, 100, 100   ; 10 enemigos, cada 3 bloques
-    level4_spawn_points: db 1, 4, 7, 10, 13, 16, 19, 22, 25, 28  ; 10 enemigos, cada 3 bloques
-    level5_spawn_points: db 0, 5, 10, 15, 20, 25, 30, 35, 40, 45 ; 10 enemigos, cada 5 bloques
+    level4_spawn_points: db 0, 4, 15, 30, 40, 50, 70, 90, 100, 120  ; 10 enemigos, cada 3 bloques
+    level5_spawn_points: db 0, 0, 10, 20, 30, 35, 40, 50, 60, 80 ; 10 enemigos, cada 5 bloques
         ; Arreglo de punteros a los spawn points de cada nivel
     spawn_points_table:
         dq level1_spawn_points
@@ -986,7 +986,7 @@ section .data
     last_letter_msg_len equ $ - last_letter_msg
     current_power_processed db 0 ; 0 = no procesado, 1 = ya procesado
     max_lives db 7              ; Máximo número de vidas permitidas
-    ball_speed dq 1             ; Velocidad normal de la bola
+    ball_speed dq 7             ; Velocidad normal de la bola
     slow_ball_speed dq 2        ; Velocidad lenta (se usará como divisor)
     speed_counter dq 0          ; Contador para ralentizar el movimiento
    
@@ -1393,7 +1393,7 @@ move_letters:
 
     ; Verificar si debemos mover la letra en este frame
     inc byte [letter_move_counter]    ; Incrementar contador
-    cmp byte [letter_move_counter], 4 ; Ajusta este número para cambiar velocidad
+    cmp byte [letter_move_counter], 9 ; Ajusta este número para cambiar velocidad
     jl .skip_all                         ; Si no es momento de mover, terminar
     mov byte [letter_move_counter], 0 ; Resetear contador
 
@@ -1479,7 +1479,7 @@ move_letters:
             ; Si no es ningún power-up, restaurar tamaño normal
             mov rax, [default_pallet_size]
             mov [pallet_size], rax
-            mov qword [ball_speed], 1    ; Restaurar velocidad normal
+            mov qword [ball_speed], 7    ; Restaurar velocidad normal
             mov byte [catch_power_active], 0
             mov byte [laser_power_active], 0
             jmp .finish_capture
@@ -1487,7 +1487,7 @@ move_letters:
             .extend_pallet:
                 mov byte [laser_power_active], 0
                 mov byte [catch_power_active], 0
-                mov qword [ball_speed], 1    ; Restaurar velocidad normal
+                mov qword [ball_speed], 7    ; Restaurar velocidad normal
                 mov rax, [extended_pallet_size]
                 mov [pallet_size], rax
                 jmp .finish_capture
@@ -1497,7 +1497,7 @@ move_letters:
                 mov byte [catch_power_active], 0
                 mov rax, [default_pallet_size]
                 mov [pallet_size], rax
-                mov qword [ball_speed], 1 
+                mov qword [ball_speed], 7 
                 ; Verificar si ya procesamos este power-up
                 cmp byte [current_power_processed], 0
                 jne .finish_capture
@@ -1521,14 +1521,14 @@ move_letters:
                 mov byte [catch_power_active], 0                
                 mov rax, [default_pallet_size]
                 mov [pallet_size], rax
-                mov qword [ball_speed], 2    ; Activar velocidad lenta
+                mov qword [ball_speed], 10    ; Activar velocidad lenta
                 jmp .finish_capture
 
             .activate_catch:
                 mov byte [laser_power_active], 0
                 mov rax, [default_pallet_size]
                 mov [pallet_size], rax
-                mov qword [ball_speed], 1
+                mov qword [ball_speed], 7
                 mov byte [catch_power_active], 1
                 jmp .finish_capture
 
@@ -1536,7 +1536,7 @@ move_letters:
                 mov byte [catch_power_active], 0
                 mov rax, [default_pallet_size]
                 mov [pallet_size], rax
-                mov qword [ball_speed], 1
+                mov qword [ball_speed], 7
                 mov byte [laser_power_active], 1    ; Activar el poder láser
                 jmp .finish_capture
 
@@ -1545,7 +1545,7 @@ move_letters:
                 mov byte [catch_power_active], 0
                 mov rax, [default_pallet_size]
                 mov [pallet_size], rax
-                mov qword [ball_speed], 1 
+                mov qword [ball_speed], 7 
                 call activate_split_power
                 jmp .finish_capture
 
@@ -2912,7 +2912,7 @@ init_level:
     call clear_lasers
     mov rax, [default_pallet_size]
     mov [pallet_size], rax
-    mov qword [ball_speed], 1    ; Restaurar velocidad normal
+    mov qword [ball_speed], 7    ; Restaurar velocidad normal
 
     ; 1) Copiamos board_template en board para que quede "virgen"
         ; Reiniciar letras activas

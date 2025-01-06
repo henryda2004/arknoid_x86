@@ -23,7 +23,7 @@
     23                                  ;This is regarding the sleep time
     24                                  timespec:
     25 00000000 0000000000000000            tv_sec  dq 0
-    26 00000008 00C2EB0B00000000            tv_nsec dq 200000000
+    26 00000008 002D310100000000            tv_nsec dq 20000000
     27                                  
     28                                  
     29                                  ;This is for cleaning up the screen
@@ -448,7 +448,7 @@
    296                                      block_length: equ 6        ; Longitud de cada bloque
    297                                  
    298                                      ; Estructura para el nivel actual
-   299 00001579 02                          current_level db 2
+   299 00001579 05                          current_level db 5
    300 0000157A 00                          blocks_remaining db 0
    301                                  
    302                                      ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
@@ -779,7 +779,7 @@
    627                                  
    628 00001AE9 2B04010120                      db 43, 4, 1, 1, ' '   
    629 00001AEE 3104020120                      db 49, 4, 2, 1, ' '   
-   630 00001AF3 3704030120                      db 55, 4, 3, 1, ' '   
+   630 00001AF3 3704030144                      db 55, 4, 3, 1, 'D'   
    631 00001AF8 3D04040120                      db 61, 4, 4, 1, ' '  
    632 00001AFD 4304020120                      db 67, 4, 2, 1, ' ' 
    633                                  
@@ -882,7 +882,7 @@
    730 00001C92 070D020120                      db 7, 13, 2, 1, ' '   
    731 00001C97 0D0D010120                      db 13, 13, 1, 1, ' '   
    732 00001C9C 130D050220                      db 19, 13, 5, 2, ' '   
-   733 00001CA1 190D030120                      db 25, 13, 3, 1, ' '  
+   733 00001CA1 190D030143                      db 25, 13, 3, 1, 'C'  
    734 00001CA6 1F0D040120                      db 31, 13, 4, 1, ' '
    735                                  
    736 00001CAB 2B0D020120                      db 43, 13, 2, 1, ' '    
@@ -909,8 +909,8 @@
    757 00001D05 190F020120                      db 25, 15, 2, 1, ' '  
    758 00001D0A 1F0F010120                      db 31, 15, 1, 1, ' '
    759                                  
-   760 00001D0F 2B0F020120                      db 43, 15, 2, 1, ' '    
-   761 00001D14 310F030120                      db 49, 15, 3, 1, ' '   
+   760 00001D0F 2B0F020145                      db 43, 15, 2, 1, 'E'    
+   761 00001D14 310F03014C                      db 49, 15, 3, 1, 'L'   
    762 00001D19 370F050220                      db 55, 15, 5, 2, ' '   
    763 00001D1E 3D0F020120                      db 61, 15, 2, 1, ' '   
    764 00001D23 430F010120                      db 67, 15, 1, 1, ' '
@@ -944,14 +944,14 @@
    792                                      ; Nivel 5
    793                                      level5_blocks:
    794                                  
-   795 00001D8C 1303020120                      db 19, 3, 2, 1, ' '   
+   795 00001D8C 1303020145                      db 19, 3, 2, 1, 'E'   
    796 00001D91 3703020120                      db 55, 3, 2, 1, ' '   
    797                                  
    798 00001D96 1304020120                      db 19, 4, 2, 1, ' '   
-   799 00001D9B 3704020120                      db 55, 4, 2, 1, ' ' 
+   799 00001D9B 370402014C                      db 55, 4, 2, 1, 'L' 
    800                                  
    801 00001DA0 1905020120                      db 25, 5, 2, 1, ' '   
-   802 00001DA5 3105020120                      db 49, 5, 2, 1, ' '   
+   802 00001DA5 3105020153                      db 49, 5, 2, 1, 'S'   
    803                                  
    804 00001DAA 1906020120                      db 25, 6, 2, 1, ' '   
    805 00001DAF 3106020120                      db 49, 6, 2, 1, ' '   
@@ -974,11 +974,11 @@
    822                                  
    823 00001DFA 0D09050220                      db 13, 9, 5, 2, ' '   
    824 00001DFF 1309050220                      db 19, 9, 5, 2, ' '   
-   825 00001E04 1909040120                      db 25, 9, 4, 1, ' '  
+   825 00001E04 1909040143                      db 25, 9, 4, 1, 'C'  
    826 00001E09 1F09050220                      db 31, 9, 5, 2, ' '
    827 00001E0E 2509050220                      db 37, 9, 5, 2, ' '
    828 00001E13 2B09050220                      db 43, 9, 5, 2, ' '    
-   829 00001E18 3109040120                      db 49, 9, 4, 1, ' '    
+   829 00001E18 3109040144                      db 49, 9, 4, 1, 'D'    
    830 00001E1D 3709050220                      db 55, 9, 5, 2, ' '   
    831 00001E22 3D09050220                      db 61, 9, 5, 2, ' '  
    832                                  
@@ -1081,7 +1081,7 @@
    929                                      
    930 0000207F 3200000000000000            enemy_points dq 50              ; Puntos por destruir un enemigo
    931 00002087 00                          enemy_move_counter db 0         ; Contador para controlar velocidad de movimiento
-   932 00002088 02                          enemy_move_delay db 2           ; Mover enemigos cada N ciclos
+   932 00002088 09                          enemy_move_delay db 9           ; Mover enemigos cada N ciclos
    933 00002089 00                          enemy_move_total db 0      ; Contador total de movimientos
    934 0000208A 00                          enemy_target db 0          ; 0 = persigue bola, 1 = persigue paleta
    935 0000208B 14                          MOVEMENT_THRESHOLD db 20   ; Número de movimientos antes de cambiar objetivo
@@ -1093,10 +1093,10 @@
    939 0000209F BE                 
    940 000020A0 00000032373C646464-         level3_spawn_points: db 0, 0, 0, 50, 55, 60, 100, 100, 100, 100   ; 10 enemigos, cada 3 bloques
    940 000020A9 64                 
-   941 000020AA 0104070A0D10131619-         level4_spawn_points: db 1, 4, 7, 10, 13, 16, 19, 22, 25, 28  ; 10 enemigos, cada 3 bloques
-   941 000020B3 1C                 
-   942 000020B4 00050A0F14191E2328-         level5_spawn_points: db 0, 5, 10, 15, 20, 25, 30, 35, 40, 45 ; 10 enemigos, cada 5 bloques
-   942 000020BD 2D                 
+   941 000020AA 00040F1E2832465A64-         level4_spawn_points: db 0, 4, 15, 30, 40, 50, 70, 90, 100, 120  ; 10 enemigos, cada 3 bloques
+   941 000020B3 78                 
+   942 000020B4 00000A141E2328323C-         level5_spawn_points: db 0, 0, 10, 20, 30, 35, 40, 50, 60, 80 ; 10 enemigos, cada 5 bloques
+   942 000020BD 50                 
    943                                          ; Arreglo de punteros a los spawn points de cada nivel
    944                                      spawn_points_table:
    945 000020BE [8C20000000000000]              dq level1_spawn_points
@@ -1149,7 +1149,7 @@
    986                                      last_letter_msg_len equ $ - last_letter_msg
    987 000022E1 00                          current_power_processed db 0 ; 0 = no procesado, 1 = ya procesado
    988 000022E2 07                          max_lives db 7              ; Máximo número de vidas permitidas
-   989 000022E3 0100000000000000            ball_speed dq 1             ; Velocidad normal de la bola
+   989 000022E3 0700000000000000            ball_speed dq 7             ; Velocidad normal de la bola
    990 000022EB 0200000000000000            slow_ball_speed dq 2        ; Velocidad lenta (se usará como divisor)
    991 000022F3 0000000000000000            speed_counter dq 0          ; Contador para ralentizar el movimiento
    992                                     
@@ -1592,7 +1592,7 @@
   1393                                  
   1394                                      ; Verificar si debemos mover la letra en este frame
   1395 0000054C FE05(5E240000)              inc byte [letter_move_counter]    ; Incrementar contador
-  1396 00000552 803D(5E240000)04            cmp byte [letter_move_counter], 4 ; Ajusta este número para cambiar velocidad
+  1396 00000552 803D(5E240000)09            cmp byte [letter_move_counter], 9 ; Ajusta este número para cambiar velocidad
   1397 00000559 0F8C20020000                jl .skip_all                         ; Si no es momento de mover, terminar
   1398 0000055F C605(5E240000)00            mov byte [letter_move_counter], 0 ; Resetear contador
   1399                                  
@@ -1678,7 +1678,7 @@
   1479                                              ; Si no es ningún power-up, restaurar tamaño normal
   1480 00000629 488B05(CF140000)                    mov rax, [default_pallet_size]
   1481 00000630 488905(C7140000)                    mov [pallet_size], rax
-  1482 00000637 48C705(E3220000)01-                 mov qword [ball_speed], 1    ; Restaurar velocidad normal
+  1482 00000637 48C705(E3220000)07-                 mov qword [ball_speed], 7    ; Restaurar velocidad normal
   1482 0000063F 000000             
   1483 00000642 C605(FC220000)00                    mov byte [catch_power_active], 0
   1484 00000649 C605(09230000)00                    mov byte [laser_power_active], 0
@@ -1687,7 +1687,7 @@
   1487                                              .extend_pallet:
   1488 00000655 C605(09230000)00                        mov byte [laser_power_active], 0
   1489 0000065C C605(FC220000)00                        mov byte [catch_power_active], 0
-  1490 00000663 48C705(E3220000)01-                     mov qword [ball_speed], 1    ; Restaurar velocidad normal
+  1490 00000663 48C705(E3220000)07-                     mov qword [ball_speed], 7    ; Restaurar velocidad normal
   1490 0000066B 000000             
   1491 0000066E 488B05(D7140000)                        mov rax, [extended_pallet_size]
   1492 00000675 488905(C7140000)                        mov [pallet_size], rax
@@ -1698,7 +1698,7 @@
   1497 00000688 C605(FC220000)00                        mov byte [catch_power_active], 0
   1498 0000068F 488B05(CF140000)                        mov rax, [default_pallet_size]
   1499 00000696 488905(C7140000)                        mov [pallet_size], rax
-  1500 0000069D 48C705(E3220000)01-                     mov qword [ball_speed], 1 
+  1500 0000069D 48C705(E3220000)07-                     mov qword [ball_speed], 7 
   1500 000006A5 000000             
   1501                                                  ; Verificar si ya procesamos este power-up
   1502 000006A8 803D(E1220000)00                        cmp byte [current_power_processed], 0
@@ -1723,7 +1723,7 @@
   1521 000006CC C605(FC220000)00                        mov byte [catch_power_active], 0                
   1522 000006D3 488B05(CF140000)                        mov rax, [default_pallet_size]
   1523 000006DA 488905(C7140000)                        mov [pallet_size], rax
-  1524 000006E1 48C705(E3220000)02-                     mov qword [ball_speed], 2    ; Activar velocidad lenta
+  1524 000006E1 48C705(E3220000)0A-                     mov qword [ball_speed], 10    ; Activar velocidad lenta
   1524 000006E9 000000             
   1525 000006EC E980000000                              jmp .finish_capture
   1526                                  
@@ -1731,7 +1731,7 @@
   1528 000006F1 C605(09230000)00                        mov byte [laser_power_active], 0
   1529 000006F8 488B05(CF140000)                        mov rax, [default_pallet_size]
   1530 000006FF 488905(C7140000)                        mov [pallet_size], rax
-  1531 00000706 48C705(E3220000)01-                     mov qword [ball_speed], 1
+  1531 00000706 48C705(E3220000)07-                     mov qword [ball_speed], 7
   1531 0000070E 000000             
   1532 00000711 C605(FC220000)01                        mov byte [catch_power_active], 1
   1533 00000718 EB57                                    jmp .finish_capture
@@ -1740,7 +1740,7 @@
   1536 0000071A C605(FC220000)00                        mov byte [catch_power_active], 0
   1537 00000721 488B05(CF140000)                        mov rax, [default_pallet_size]
   1538 00000728 488905(C7140000)                        mov [pallet_size], rax
-  1539 0000072F 48C705(E3220000)01-                     mov qword [ball_speed], 1
+  1539 0000072F 48C705(E3220000)07-                     mov qword [ball_speed], 7
   1539 00000737 000000             
   1540 0000073A C605(09230000)01                        mov byte [laser_power_active], 1    ; Activar el poder láser
   1541 00000741 EB2E                                    jmp .finish_capture
@@ -1750,7 +1750,7 @@
   1545 0000074A C605(FC220000)00                        mov byte [catch_power_active], 0
   1546 00000751 488B05(CF140000)                        mov rax, [default_pallet_size]
   1547 00000758 488905(C7140000)                        mov [pallet_size], rax
-  1548 0000075F 48C705(E3220000)01-                     mov qword [ball_speed], 1 
+  1548 0000075F 48C705(E3220000)07-                     mov qword [ball_speed], 7 
   1548 00000767 000000             
   1549 0000076A E8DF000000                              call activate_split_power
   1550 0000076F EB00                                    jmp .finish_capture
@@ -3157,7 +3157,7 @@
   2912 000014A3 E831F3FFFF                  call clear_lasers
   2913 000014A8 488B05(CF140000)            mov rax, [default_pallet_size]
   2914 000014AF 488905(C7140000)            mov [pallet_size], rax
-  2915 000014B6 48C705(E3220000)01-         mov qword [ball_speed], 1    ; Restaurar velocidad normal
+  2915 000014B6 48C705(E3220000)07-         mov qword [ball_speed], 7    ; Restaurar velocidad normal
   2915 000014BE 000000             
   2916                                  
   2917                                      ; 1) Copiamos board_template en board para que quede "virgen"
