@@ -296,7 +296,7 @@ section .data
     block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
-    current_level db 1
+    current_level db 3
     blocks_remaining db 0
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
@@ -501,33 +501,33 @@ section .data
     ; Nivel 3
     level3_blocks:
 
-        db 1, 3, 1, 1, ' '   
-        db 7, 3, 2, 1, ' '    
-        db 13, 3, 1, 1, ' '   
-        db 19, 3, 2, 1, ' '   
-        db 25, 3, 1, 1, ' '   
-        db 31, 3, 2, 1, ' '   
-        db 37, 3, 1, 1, ' '   
-        db 43, 3, 2, 1, ' '   
-        db 49, 3, 1, 1, ' '   
-        db 55, 3, 2, 1, ' '   
-        db 61, 3, 1, 1, ' '  
-        db 67, 3, 2, 1, ' '   
-        db 73, 3, 1, 1, ' ' 
+        db 1, 2, 1, 1, ' '   
+        db 7, 2, 2, 1, ' '    
+        db 13, 2, 1, 1, ' '   
+        db 19, 2, 2, 1, ' '   
+        db 25, 2, 1, 1, ' '   
+        db 31, 2, 2, 1, ' '   
+        db 37, 2, 1, 1, ' '   
+        db 43, 2, 2, 1, ' '   
+        db 49, 2, 1, 1, ' '   
+        db 55, 2, 2, 1, ' '   
+        db 61, 2, 1, 1, ' '  
+        db 67, 2, 2, 1, ' '   
+        db 73, 2, 1, 1, ' ' 
 
-        db 1, 5, 4, 1, ' '   
-        db 7, 5, 4, 1, ' '    
-        db 13, 5, 4, 1, ' '   
-        db 19, 5, 6, 99, ' '   
-        db 25, 5, 6, 99, ' '   
-        db 31, 5, 6, 99, ' '   
-        db 37, 5, 6, 99, ' '   
-        db 43, 5, 6, 99, ' '   
-        db 49, 5, 6, 99, ' '   
-        db 55, 5, 6, 99, ' '   
-        db 61, 5, 6, 99, ' '  
-        db 67, 5, 6, 99, ' '   
-        db 73, 5, 6, 99, ' ' 
+        db 1, 6, 4, 1, ' '   
+        db 7, 6, 4, 1, ' '    
+        db 13, 6, 4, 1, ' '   
+        db 19, 6, 6, 99, ' '   
+        db 25, 6, 6, 99, ' '   
+        db 31, 6, 6, 99, ' '   
+        db 37, 6, 6, 99, ' '   
+        db 43, 6, 6, 99, ' '   
+        db 49, 6, 6, 99, ' '   
+        db 55, 6, 6, 99, ' '   
+        db 61, 6, 6, 99, ' '  
+        db 67, 6, 6, 99, ' '   
+        db 73, 6, 6, 99, ' ' 
 
         db 1, 8, 4, 1, ' '   
         db 7, 8, 3, 1, ' '    
@@ -1687,39 +1687,82 @@ update_lasers:
 activate_split_power:
     push rbp
     mov rbp, rsp
+    push rax
+    push rbx
+    push rcx
+    push rdx
     
-    ; Verificar si la bola2 y bola3 ya están activas
+    ; Si ambas bolas extra ya están activas, salimos
+    mov cl, byte [ball2_active]
+    and cl, byte [ball3_active]
+    cmp cl, 1
+    je .end
+    
+.find_active_ball:
+    ; Guardar posición de la bola activa
+    xor rax, rax    ; Limpiar rax
+    xor rbx, rbx    ; Limpiar rbx
+    
+    ; Revisar ball1
+    cmp byte [ball_active], 1
+    je .use_ball1
+    
+    ; Revisar ball2
     cmp byte [ball2_active], 1
-    jne .enable_balls
-    cmp byte [ball3_active], 1
-    jne .enable_balls
+    je .use_ball2
     
-    ; Si ambas ya están activas, no hacemos nada.
-    jmp .end
+    ; Revisar ball3
+    cmp byte [ball3_active], 1
+    je .use_ball3
+    
+    jmp .end        ; Si no hay bolas activas, salimos
 
-.enable_balls:
-    ; Copiamos la posición de la bola principal
-    mov rax, [ball_x_pos]
-    mov [ball2_x_pos], rax
-    mov [ball3_x_pos], rax
+.use_ball1:
+    mov rax, qword [ball_x_pos]
+    mov rbx, qword [ball_y_pos]
+    jmp .create_missing_balls
 
-    mov rax, [ball_y_pos]
-    mov [ball2_y_pos], rax
-    mov [ball3_y_pos], rax
+.use_ball2:
+    mov rax, qword [ball2_x_pos]
+    mov rbx, qword [ball2_y_pos]
+    jmp .create_missing_balls
 
-    ; Activamos bola2 y bola3 con direcciones diferentes
-    ; Por ejemplo: una va diagonal izq-arriba, otra diagonal der-arriba
+.use_ball3:
+    mov rax, qword [ball3_x_pos]
+    mov rbx, qword [ball3_y_pos]
+    jmp .create_missing_balls
+
+.create_missing_balls:
+    ; Intentar crear ball2 si no está activa
+    cmp byte [ball2_active], 1
+    je .create_ball3    ; Si ball2 ya está activa, intentar crear ball3
+    
+    ; Crear ball2
+    mov qword [ball2_x_pos], rax
+    mov qword [ball2_y_pos], rbx
     mov qword [ball2_direction_x], -1
     mov qword [ball2_direction_y], -1
     mov byte [ball2_moving], 1
     mov byte [ball2_active], 1
-
+    
+.create_ball3:
+    ; Intentar crear ball3 si no está activa
+    cmp byte [ball3_active], 1
+    je .end
+    
+    ; Crear ball3
+    mov qword [ball3_x_pos], rax
+    mov qword [ball3_y_pos], rbx
     mov qword [ball3_direction_x], 1
     mov qword [ball3_direction_y], -1
     mov byte [ball3_moving], 1
     mov byte [ball3_active], 1
 
 .end:
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
     pop rbp
     ret
 
