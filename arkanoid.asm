@@ -303,89 +303,89 @@ section .data
     ; Formato: x_pos, y_pos, tipo_bloque, durabilidad_actual
     level1_blocks:
         ; Tercera fila (tipo 3)
-        db 1, 6, 5, 2, ' '   
-        db 7, 6, 5, 2, ' '    
-        db 13, 6, 5, 2, ' '   
-        db 19, 6, 5, 2, ' '   
-        db 25, 6, 5, 2, ' '   
-        db 31, 6, 5, 2, ' '   
-        db 37, 6, 5, 2, ' '   
-        db 43, 6, 5, 2, ' '   
-        db 49, 6, 5, 2, ' '   
-        db 55, 6, 5, 2, ' '   
-        db 61, 6, 5, 2, ' '  
-        db 67, 6, 5, 2, ' '   
-        db 73, 6, 5, 2, ' '   
+        db 1, 5, 5, 2, ' '   
+        db 7, 5, 5, 2, ' '    
+        db 13, 5, 5, 2, ' '   
+        db 19, 5, 5, 2, ' '   
+        db 25, 5, 5, 2, ' '   
+        db 31, 5, 5, 2, ' '   
+        db 37, 5, 5, 2, ' '   
+        db 43, 5, 5, 2, ' '   
+        db 49, 5, 5, 2, ' '   
+        db 55, 5, 5, 2, ' '   
+        db 61, 5, 5, 2, ' '  
+        db 67, 5, 5, 2, ' '   
+        db 73, 5, 5, 2, ' '   
 
-        db 1, 7, 4, 1, 'E'   
-        db 7, 7, 2, 1, 'S'    
-        db 13, 7, 4, 1, 'S'   
-        db 19, 7, 2, 1, 'S'   
-        db 25, 7, 4, 1, ' '   
-        db 31, 7, 2, 1, ' '   
-        db 37, 7, 4, 1, ' '   
-        db 43, 7, 2, 1, 'C'   
-        db 49, 7, 4, 1, ' '   
-        db 55, 7, 2, 1, ' '   
-        db 61, 7, 4, 1, ' '  
-        db 67, 7, 2, 1, ' '   
-        db 73, 7, 4, 1, ' ' 
+        db 1, 6, 4, 1, 'E'   
+        db 7, 6, 2, 1, 'S'    
+        db 13, 6, 4, 1, 'S'   
+        db 19, 6, 2, 1, 'S'   
+        db 25, 6, 4, 1, ' '   
+        db 31, 6, 2, 1, ' '   
+        db 37, 6, 4, 1, ' '   
+        db 43, 6, 2, 1, 'C'   
+        db 49, 6, 4, 1, ' '   
+        db 55, 6, 2, 1, ' '   
+        db 61, 6, 4, 1, ' '  
+        db 67, 6, 2, 1, ' '   
+        db 73, 6, 4, 1, ' ' 
 
-        db 1, 8, 1, 1, ' '   
-        db 7, 8, 3, 1, ' '    
-        db 13, 8, 1, 1, ' '   
-        db 19, 8, 3, 1, ' '   
-        db 25, 8, 1, 1, ' '   
-        db 31, 8, 3, 1, ' '   
-        db 37, 8, 1, 1, ' '   
-        db 43, 8, 3, 1, ' '   
-        db 49, 8, 1, 1, ' '   
-        db 55, 8, 3, 1, ' '   
-        db 61, 8, 1, 1, ' '  
-        db 67, 8, 3, 1, ' '   
-        db 73, 8, 1, 1, ' ' 
+        db 1, 7, 1, 1, ' '   
+        db 7, 7, 3, 1, ' '    
+        db 13, 7, 1, 1, ' '   
+        db 19, 7, 3, 1, ' '   
+        db 25, 7, 1, 1, ' '   
+        db 31, 7, 3, 1, ' '   
+        db 37, 7, 1, 1, ' '   
+        db 43, 7, 3, 1, ' '   
+        db 49, 7, 1, 1, ' '   
+        db 55, 7, 3, 1, ' '   
+        db 61, 7, 1, 1, ' '  
+        db 67, 7, 3, 1, ' '   
+        db 73, 7, 1, 1, ' ' 
 
-        db 1, 9, 4, 1, ' '   
-        db 7, 9, 2, 1, ' '    
-        db 13, 9, 4, 1, 'P'   
-        db 19, 9, 2, 1, ' '   
-        db 25, 9, 4, 1, ' '   
-        db 31, 9, 2, 1, ' '   
-        db 37, 9, 4, 1, 'E'   
-        db 43, 9, 2, 1, 'C'   
-        db 49, 9, 4, 1, ' '   
-        db 55, 9, 2, 1, ' '   
-        db 61, 9, 4, 1, ' '  
-        db 67, 9, 2, 1, ' '   
-        db 73, 9, 4, 1, ' ' 
+        db 1, 8, 4, 1, ' '   
+        db 7, 8, 2, 1, ' '    
+        db 13, 8, 4, 1, 'P'   
+        db 19, 8, 2, 1, ' '   
+        db 25, 8, 4, 1, ' '   
+        db 31, 8, 2, 1, ' '   
+        db 37, 8, 4, 1, 'E'   
+        db 43, 8, 2, 1, 'C'   
+        db 49, 8, 4, 1, ' '   
+        db 55, 8, 2, 1, ' '   
+        db 61, 8, 4, 1, ' '  
+        db 67, 8, 2, 1, ' '   
+        db 73, 8, 4, 1, ' ' 
 
-        db 1, 10, 1, 1, ' '   
-        db 7, 10, 3, 1, ' '    
-        db 13, 10, 1, 1, ' '   
-        db 19, 10, 3, 1, ' '   
-        db 25, 10, 1, 1, ' '   
-        db 31, 10, 3, 1, ' '   
-        db 37, 10, 1, 1, ' '   
-        db 43, 10, 3, 1, ' '   
-        db 49, 10, 1, 1, ' '   
-        db 55, 10, 3, 1, ' '   
-        db 61, 10, 1, 1, ' '  
-        db 67, 10, 3, 1, ' '   
-        db 73, 10, 1, 1, ' ' 
+        db 1, 9, 1, 1, ' '   
+        db 7, 9, 3, 1, ' '    
+        db 13, 9, 1, 1, ' '   
+        db 19, 9, 3, 1, ' '   
+        db 25, 9, 1, 1, ' '   
+        db 31, 9, 3, 1, ' '   
+        db 37, 9, 1, 1, ' '   
+        db 43, 9, 3, 1, ' '     
+        db 49, 9, 1, 1, ' '   
+        db 55, 9, 3, 1, ' '   
+        db 61, 9, 1, 1, ' '  
+        db 67, 9, 3, 1, ' '   
+        db 73, 9, 1, 1, ' ' 
 
-        db 1, 11, 4, 1, 'E'   
-        db 7, 11, 2, 1, ' '    
-        db 13, 11, 4, 1, ' '   
-        db 19, 11, 2, 1, ' '   
-        db 25, 11, 4, 1, ' '   
-        db 31, 11, 2, 1, ' '   
-        db 37, 11, 4, 1, 'C'   
-        db 43, 11, 2, 1, ' '   
-        db 49, 11, 4, 1, ' '   
-        db 55, 11, 2, 1, 'L'   
-        db 61, 11, 4, 1, ' '  
-        db 67, 11, 2, 1, ' '   
-        db 73, 11, 4, 1, ' ' 
+        db 1, 10, 4, 1, 'E'   
+        db 7, 10, 2, 1, ' '    
+        db 13, 10, 4, 1, ' '   
+        db 19, 10, 2, 1, ' '   
+        db 25, 10, 4, 1, ' '   
+        db 31, 10, 2, 1, ' '   
+        db 37, 10, 4, 1, 'C'   
+        db 43, 10, 2, 1, ' '   
+        db 49, 10, 4, 1, ' '   
+        db 55, 10, 2, 1, 'L'   
+        db 61, 10, 4, 1, ' '  
+        db 67, 10, 2, 1, ' '   
+        db 73, 10, 4, 1, ' ' 
 
     level1_blocks_count equ 78   ; Cantidad total de bloques
 
@@ -1032,6 +1032,8 @@ section .data
     enemy_last_y:       times 10 db 0
     enemy_stuck_count:  times 10 db 0
     letter_move_counter db 0
+    initial_ball_offset_x equ 2    ; Offset desde el centro de la paleta
+    initial_ball_offset_y equ -1   ; Offset vertical desde la paleta
 
 section .text
 
@@ -1391,7 +1393,7 @@ move_letters:
 
     ; Verificar si debemos mover la letra en este frame
     inc byte [letter_move_counter]    ; Incrementar contador
-    cmp byte [letter_move_counter], 3 ; Ajusta este número para cambiar velocidad
+    cmp byte [letter_move_counter], 4 ; Ajusta este número para cambiar velocidad
     jl .skip_all                         ; Si no es momento de mover, terminar
     mov byte [letter_move_counter], 0 ; Resetear contador
 
@@ -2872,6 +2874,7 @@ init_empty_board:
     ret
 
 clear_enemies_from_board:
+
     push rbp
     mov rbp, rsp
 
@@ -2932,6 +2935,8 @@ init_level:
     sub rax, [pallet_position]         ; Restar la posición de la paleta
     add rax, board                     ; Ajustar por el offset del tablero
     mov [ball_catch_offset], rax       ; Guardar el offset
+
+
 
     ; Reiniciar contador de letras activas
     xor rax, rax
@@ -3055,21 +3060,26 @@ check_level_complete:
     ; Incrementar el nivel
     inc byte [current_level]
     
-    ; Verificar si hemos completado todos los niveles (asumiendo 2 niveles por ahora)
+    ; Verificar si hemos completado todos los niveles
     cmp byte [current_level], 6
     je game_win
+    
+    ; Primero establecer las posiciones seguras
+    mov qword [pallet_position], board + 38 + 29 * (column_cells + 2)
+    mov qword [ball_x_pos], 40
+    mov qword [ball_y_pos], 28
+    mov byte [ball_moving], 0
+    
+    ; Asegurar que la bola esté en un estado seguro
+    mov byte [catch_power_active], 1
+    mov byte [ball_caught], 1
+    mov byte [initial_catch_active], 1
     
     ; Reinicializar el juego para el siguiente nivel
     call init_level
     
-    ; Reinicializar la posición de la bola y la paleta
-    mov qword [ball_x_pos], 40
-    mov qword [ball_y_pos], 28
-    mov byte [ball_moving], 0
-    mov qword [pallet_position], board + 38 + 29 * (column_cells + 2)
-    
-    .not_complete:
-        ret
+.not_complete:
+    ret
 
     ; Nueva función para manejar la victoria del juego
 game_win:
