@@ -1090,12 +1090,14 @@
    938                                      
    939 0000207F 3200000000000000            enemy_points dq 50              ; Puntos por destruir un enemigo
    940 00002087 00                          enemy_move_counter db 0         ; Contador para controlar velocidad de movimiento
-   941 00002088 09                          enemy_move_delay db 9           ; Mover enemigos cada N ciclos
+   941 00002088 0A                          enemy_move_delay db 10           ; Mover enemigos cada N ciclos
    942 00002089 00                          enemy_move_total db 0      ; Contador total de movimientos
    943 0000208A 00                          enemy_target db 0          ; 0 = persigue bola, 1 = persigue paleta
    944 0000208B 14                          MOVEMENT_THRESHOLD db 20   ; Número de movimientos antes de cambiar objetivo
    945                                   ;Formato: número de bloques destruidos necesario para que aparezca cada enemigo
-   946 0000208C 464748494A4C788CA0-         level1_spawn_points: db 70, 71, 72, 73, 74, 76, 120, 140, 160, 180    ; 10 enemigos
+   946 0000208C 323C464BE4F8788CA0-         level1_spawn_points: db 50, 60, 70, 75, 740, 760, 120, 140, 160, 180    ; 10 enemigos
+   946          ******************       warning: byte data exceeds bounds [-w+number-overflow]
+   946          ******************       warning: byte data exceeds bounds [-w+number-overflow]
    946 00002095 B4                 
    947 00002096 001E3246556E8296AA-         level2_spawn_points: db 0, 30, 50, 70, 85, 110, 130, 150, 170, 190    ; 10 enemigos
    947 0000209F BE                 

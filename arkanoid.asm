@@ -938,7 +938,7 @@ section .data
     
     enemy_points dq 50              ; Puntos por destruir un enemigo
     enemy_move_counter db 0         ; Contador para controlar velocidad de movimiento
-    enemy_move_delay db 9           ; Mover enemigos cada N ciclos
+    enemy_move_delay db 10           ; Mover enemigos cada N ciclos
     enemy_move_total db 0      ; Contador total de movimientos
     enemy_target db 0          ; 0 = persigue bola, 1 = persigue paleta
     MOVEMENT_THRESHOLD db 20   ; Número de movimientos antes de cambiar objetivo
