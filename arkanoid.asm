@@ -943,7 +943,7 @@ section .data
     enemy_target db 0          ; 0 = persigue bola, 1 = persigue paleta
     MOVEMENT_THRESHOLD db 20   ; Número de movimientos antes de cambiar objetivo
  ;Formato: número de bloques destruidos necesario para que aparezca cada enemigo
-    level1_spawn_points: db 70, 71, 72, 73, 74, 76, 120, 140, 160, 180    ; 10 enemigos
+    level1_spawn_points: db 50, 60, 70, 75, 740, 760, 120, 140, 160, 180    ; 10 enemigos
     level2_spawn_points: db 0, 30, 50, 70, 85, 110, 130, 150, 170, 190    ; 10 enemigos
     level3_spawn_points: db 0, 0, 0, 50, 55, 60, 100, 100, 100, 100   ; 10 enemigos
     level4_spawn_points: db 0, 4, 15, 30, 40, 50, 70, 90, 100, 120  ; 10 enemigos
@@ -1164,10 +1164,7 @@ check_bottom_collision:   ; Función para verificar colisión con el borde infer
     push rbp    ; Guardar el puntero de la base
     mov rbp, rsp    ; Establecer el puntero de la base
     
-    ; Verificar si el nivel está completo (no quedan bloques)
-    cmp byte [blocks_remaining], 0  ; Verificar si quedan bloques
-    je .balls_remain            ; Si no quedan bloques, no perder vidas
-    
+
     ; Verificar bola principal
     cmp byte [ball_active], 1   ; Verificar si la bola principal está activa
     jne .check_ball2        ; Si no está activa, verificar bola 2
