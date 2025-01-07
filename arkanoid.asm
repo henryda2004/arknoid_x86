@@ -1,15 +1,26 @@
-bits 64
-default rel
+bits 64;codigo destinado a arcquitectura de 64 bits
+default rel;configura el uso de direcciones relativas, que son mas flecibles
 
 
-; Here comes the defines
-sys_read: equ 0	
+;RAX: Registro acumulador. Se utiliza generalmente para operaciones aritméticas y como valor de retorno de funciones.
+;RBX: Registro base. Generalmente preservado entre llamadas a funciones.
+;RCX: Contador. Usado en operaciones de repetición y bucles.
+;RDX: Registro de datos. Se usa en operaciones aritméticas complejas y como argumento adicional en llamadas a funciones.
+;RDI y RSI: Usados para pasar parámetros en las llamadas a funciones. RDI es el primer argumento, RSI el segundo.
+;RBP: Registro base del marco de pila. Usado para rastrear la base del stack frame en funciones.
+;RSP: Puntero de pila. Rastrea el tope de la pila.
+;R8-R15: Registros adicionales introducidos en x86-64 para proporcionar más flexibilidad.
+
+
+
+; definiciones de llamadas al sistema operativo
+sys_read: equ 0	;equ es como define y estos numeros se basan en la tabla se syscalls de x86
 sys_write:	equ 1
 sys_nanosleep:	equ 35
 sys_time:	equ 201
 sys_fcntl:	equ 72
 
-
+;configurcaion de archivo descriptor
 STDIN_FILENO: equ 0
 
 F_SETFL:	equ 0x0004
@@ -20,26 +31,26 @@ row_cells:	equ 32	; set to any (reasonable) value you wish
 column_cells: 	equ 80 ; set to any (reasonable) value you wish
 array_length:	equ row_cells * column_cells + row_cells ; cells are mapped to bytes in the array and a new line char ends each row
 
-;This is regarding the sleep time
+;intervalos de tiempo utilizados
 timespec:
     tv_sec  dq 0
     tv_nsec dq 20000000
 
 
 ;This is for cleaning up the screen
-clear:		db 27, "[2J", 27, "[H"
+clear:		db 27, "[2J", 27, "[H";27 es el codigo de escape, [2J limpia la pantalla y [H mueve el cursor al inicio
 clear_length:	equ $-clear
 	
 	
 
 ; Start Message
-msg1: db "        TECNOLOGICO DE COSTA RICA        ", 0xA, 0xD
+msg1: db "        TECNOLOGICO DE COSTA RICA        ", 0xA, 0xD;salto de linea y retorno de carro
 msg2: db "        ARQUITECTURA DE COMPUTADORAS I        ", 0xA, 0xD
 msg3: db "        ESTUDIANTE: HENRY NUNEZ PEREZ        ", 0xA, 0xD
 msg4: db "        PROFESOR: ERNESTO RIVERA ALVARADO        ", 0xA, 0xD
 msg5: db "        ARKANOID RETRO        ", 0xA, 0xD
 msg6: db "        PRESIONE CUALQUIER TECLA PARA INICIAR        ", 0xA, 0xD
-msg1_length: equ $-msg1
+msg1_length: equ $-msg1;calcula la longitud del mensaje
 msg2_length: equ $-msg2
 msg3_length: equ $-msg3
 msg4_length: equ $-msg4
@@ -50,7 +61,7 @@ msg6_length: equ $-msg6
 
 
 
-%macro setnonblocking 0
+%macro setnonblocking 0;este macro se encarga de configurar el archivo descriptor para que no bloquee la entrada, se usa para que el programa no termine, ya que si no se presiona ninguna tecla el programa termina
 	mov rax, sys_fcntl
     mov rdi, STDIN_FILENO
     mov rsi, F_SETFL
@@ -58,7 +69,7 @@ msg6_length: equ $-msg6
     syscall
 %endmacro
 
-%macro unsetnonblocking 0
+%macro unsetnonblocking 0;este macro se encarga de configurar el archivo descriptor para que bloquee la entrada, se usa para que el programa no termine, ya que si no se presiona ninguna tecla el programa termina
 	mov rax, sys_fcntl
     mov rdi, STDIN_FILENO
     mov rsi, F_SETFL
@@ -66,19 +77,19 @@ msg6_length: equ $-msg6
     syscall
 %endmacro
 
-%macro full_line 0
+%macro full_line 0;este macro se encarga de dibujar una linea completa en la pantalla, se usa para dibujar el tablero
     times column_cells db "X"
     db 0x0a, 0xD
 %endmacro
 
-%macro hollow_line 0
+%macro hollow_line 0;este macro se encarga de dibujar una linea hueca en la pantalla, se usa para dibujar el tablero
     db "X"
     times column_cells-2 db " "
     db "X", 0x0a, 0xD
 %endmacro
 
 
-%macro print 2
+%macro print 2;este se usa para imprimir en pantalla, se encarga de escribir en pantalla
 	mov eax, sys_write
 	mov edi, 1 	; stdout
 	mov rsi, %1
@@ -86,7 +97,7 @@ msg6_length: equ $-msg6
 	syscall
 %endmacro
 
-%macro getchar 0
+%macro getchar 0;este se usa para leer una tecla presionada, se encarga de leer una tecla presionada
 	mov     rax, sys_read
     mov     rdi, STDIN_FILENO
     mov     rsi, input_char
@@ -94,7 +105,7 @@ msg6_length: equ $-msg6
     syscall         ;read text input from keyboard
 %endmacro
 
-%macro sleeptime 0
+%macro sleeptime 0;este se usa para dormir el programa por un tiempo determinado, se encarga de dormir el programa por un tiempo determinado
 	mov eax, sys_nanosleep
 	mov rdi, timespec
 	xor esi, esi		; ignore remaining time in case of call interruption
@@ -103,42 +114,41 @@ msg6_length: equ $-msg6
 
 
 
-global _start
+global _start;se declara la etiqueta global _start, que es el punto de entrada del programa
 
-section .bss
+section .bss;seccion bss, se usa para declarar variables no inicializadas
 
-input_char: resb 1
+input_char: resb 1;reserva un byte para almacenar la tecla presionada
 
-section .data
+section .data;seccion data, se usa para declarar variables inicializadas
 
 	; Guardamos la plantilla del tablero (32 filas)
-    board_template:
+    board_template:;se declara la plantilla del tablero, se hace asi porque se necesita dibujar el tablero en pantalla
         full_line
         %rep 30
         hollow_line
         %endrep
         full_line
-    board_template_size: equ $ - board_template
+    board_template_size: equ $ - board_template;esto calcula el tamaño de la plantilla del tablero
 
     ; Espacio real que se usará en la ejecución
-    board: times board_template_size db 0
+    board: times board_template_size db 0;times sirve para repetir un valor, en este caso se repite el tamaño de la plantilla del tablero
     board_size: equ board_template_size
 
 	; Added for the terminal issue
-	termios:        times 36 db 0
-	stdin:          equ 0
-	ICANON:         equ 1<<1
-	ECHO:           equ 1<<3
-	VTIME: 			equ 5
-	VMIN:			equ 6
-	CC_C:			equ 18
+	termios:        times 36 db 0;termios es una estructura que se usa para configurar el terminal, se inicializa en 0
+	stdin:          equ 0;stdin es el archivo descriptor del terminal, se inicializa en 0
+	ICANON:         equ 1<<1;ICANON es una bandera que se usa para configurar el terminal, se inicializa en 1<<1
+	ECHO:           equ 1<<3;ECHO es una bandera que se usa para configurar el terminal, se inicializa en 1<<3
+	VTIME: 			equ 5;VTIME es una bandera que se usa para configurar el terminal, se inicializa en 5
+	VMIN:			equ 6;VMIN es una bandera que se usa para configurar el terminal, se inicializa en 6
+	CC_C:			equ 18;CC_C es una bandera que se usa para configurar el terminal, se inicializa en 18
 
 section .text
-;;;;;;;;;;;;;;;;;;;;for the working of the terminal;;;;;;;;;;;;;;;;;
-canonical_off:
+canonical_off:;esta funcion se encarga de apagar el modo canonico del terminal, el modo canonico es el modo por defecto del terminal y ocupa ser borrado porque no se necesita
         call read_stdin_termios
 
-        ; clear canonical bit in local mode flags
+        ; aqui abajo que pasa es que se apaga el bit de canonical en los flags de modo local, eso significa que se apaga el modo canonico
         push rax
         mov eax, ICANON
         not eax
@@ -150,10 +160,10 @@ canonical_off:
         call write_stdin_termios
         ret
 
-echo_off:
+echo_off:;esta funcion se encarga de apagar el eco del terminal, el eco es el que muestra en pantalla lo que se escribe, se apga porque no se necesita
         call read_stdin_termios
 
-        ; clear echo bit in local mode flags
+        ; abajo lo que pasa esque se apaga el bit de echo en los flags de modo local, eso significa que se apaga el eco
         push rax
         mov eax, ECHO
         not eax
@@ -163,17 +173,17 @@ echo_off:
         call write_stdin_termios
         ret
 
-canonical_on:
+canonical_on:;esta funcion se encarga de encender el modo canonico del terminal, el modo canonico es el modo por defecto del terminal y ocupa ser encendido porque se necesita
         call read_stdin_termios
 
-        ; set canonical bit in local mode flags
+        ; esto lo que hace es que prende el bit de canonical en los flags de modo local, eso significa que se prende el modo canonico
         or dword [termios+12], ICANON
 		mov byte[termios+CC_C+VTIME], 0
 		mov byte[termios+CC_C+VMIN], 1
         call write_stdin_termios
         ret
 
-echo_on:
+echo_on:;esta funcion se encarga de encender el eco del terminal, el eco es el que muestra en pantalla lo que se escribe, se enciende porque se necesita
         call read_stdin_termios
 
         ; set echo bit in local mode flags
@@ -182,7 +192,7 @@ echo_on:
         call write_stdin_termios
         ret
 
-read_stdin_termios:
+read_stdin_termios:;esta funcion se encarga de leer la configuracion del terminal, lo hace mediante una llamada al sistema
         push rax
         push rbx
         push rcx
@@ -200,7 +210,7 @@ read_stdin_termios:
         pop rax
         ret
 
-write_stdin_termios:
+write_stdin_termios:;esta funcion se encarga de escribir la configuracion del terminal, lo hace mediante una llamada al sistema
         push rax
         push rbx
         push rcx
@@ -218,13 +228,12 @@ write_stdin_termios:
         pop rax
         ret
 
-;;;;;;;;;;;;;;;;;;;;end for the working of the terminal;;;;;;;;;;;;
 
-char_equal: equ 61
-char_space: equ 32
-char_O: equ 79
-left_direction: equ -1
-right_direction: equ 1
+char_equal: equ 61;se inicializa el caracter "="
+char_space: equ 32;se inicializa el caracter " "
+char_O: equ 79;se inicializa el caracter "O"
+left_direction: equ -1;se inicializa la direccion izquierda
+right_direction: equ 1;se inicializa la direccion derecha
 
 
 section .data
@@ -934,12 +943,11 @@ section .data
     enemy_target db 0          ; 0 = persigue bola, 1 = persigue paleta
     MOVEMENT_THRESHOLD db 20   ; Número de movimientos antes de cambiar objetivo
  ;Formato: número de bloques destruidos necesario para que aparezca cada enemigo
-    ; Añade esto en la sección .dataa
-    level1_spawn_points: db 70, 71, 72, 73, 74, 76, 120, 140, 160, 180    ; 10 enemigos, cada 2 bloques
-    level2_spawn_points: db 0, 30, 50, 70, 85, 110, 130, 150, 170, 190    ; 10 enemigos, cada 2 bloques
-    level3_spawn_points: db 0, 0, 0, 50, 55, 60, 100, 100, 100, 100   ; 10 enemigos, cada 3 bloques
-    level4_spawn_points: db 0, 4, 15, 30, 40, 50, 70, 90, 100, 120  ; 10 enemigos, cada 3 bloques
-    level5_spawn_points: db 0, 0, 10, 20, 30, 35, 40, 50, 60, 80 ; 10 enemigos, cada 5 bloques
+    level1_spawn_points: db 70, 71, 72, 73, 74, 76, 120, 140, 160, 180    ; 10 enemigos
+    level2_spawn_points: db 0, 30, 50, 70, 85, 110, 130, 150, 170, 190    ; 10 enemigos
+    level3_spawn_points: db 0, 0, 0, 50, 55, 60, 100, 100, 100, 100   ; 10 enemigos
+    level4_spawn_points: db 0, 4, 15, 30, 40, 50, 70, 90, 100, 120  ; 10 enemigos
+    level5_spawn_points: db 0, 0, 10, 20, 30, 35, 40, 50, 60, 80 ; 10 enemigos
         ; Arreglo de punteros a los spawn points de cada nivel
     spawn_points_table:
         dq level1_spawn_points
@@ -1038,35 +1046,35 @@ section .data
 section .text
 
 
-print_lives:
-    push rbp
-    mov rbp, rsp
+print_lives:; Función para imprimir las vidas en la parte inferior
+    push rbp; Guardar el puntero de la base
+    mov rbp, rsp; Establecer el puntero de la base
     
     xor r12, r12                    ; Índice de la vida actual
     
-    .print_loop:
-        cmp r12, lives_count
-        jge .end
+    .print_loop:; Bucle para imprimir todas las vidas
+        cmp r12, lives_count; Verificar si se han impreso todas las vidas
+        jge .end; Si se han impreso todas las vidas, terminar
         
         ; Calcular offset de la vida actual
-        mov rax, r12
+        mov rax, r12    ; Calcular offset en el arreglo de vidas
         imul rax, 3                     ; Cada vida ocupa 3 bytes (x, y, estado)
-        lea rsi, [lives_data + rax]
+        lea rsi, [lives_data + rax]    ; Cargar dirección de la vida actual
         
         ; Calcular posición en el tablero
         movzx r8, byte [rsi]            ; X
         movzx r9, byte [rsi + 1]        ; Y
         
         ; Calcular offset en el tablero
-        mov rax, column_cells
+        mov rax, column_cells        ; Ancho del tablero
         add rax, 2                      ; Incluir caracteres de nueva línea
-        mul r9
-        add rax, r8
-        lea rdi, [board + rax]
+        mul r9                        ; Multiplicar por Y
+        add rax, r8                    ; Sumar X
+        lea rdi, [board + rax]      ; Cargar dirección en el tablero
         
         ; Verificar estado de la vida y dibujar el carácter correspondiente
-        cmp byte [rsi + 2], 1
-        je .draw_active
+        cmp byte [rsi + 2], 1     ; Verificar si la vida está activa
+        je .draw_active           ; Si está activa, dibujar el carácter de vida 
         
         ; Si está inactiva, dibujar espacio
         mov byte [rdi], ' '
@@ -1086,134 +1094,133 @@ print_lives:
         ret
 
 ; Función para desactivar una vida
-; Función modificada para perder una vida
-; Modificar lose_life para reiniciar solo la bola principal
+
 lose_life:
-    push rbp
-    mov rbp, rsp
+    push rbp    ; Guardar el puntero de la base
+    mov rbp, rsp    ; Establecer el puntero de la base
     
     ; Verificar si aún quedan vidas
-    cmp byte [current_lives], 0
-    je .game_lost
+    cmp byte [current_lives], 0   ; Verificar si quedan vidas
+    je .game_lost             ; Si no quedan vidas, perder el juego
     
     ; Encontrar la última vida activa
-    mov rcx, lives_count
-    dec rcx
+    mov rcx, lives_count    ; Cantidad total de vidas
+    dec rcx               ; Índice de la última vida
     
-    .find_active_life:
-        mov rax, rcx
-        imul rax, 3
-        lea rsi, [lives_data + rax]
-        cmp byte [rsi + 2], 1
-        je .deactivate_life
-        dec rcx
-        jns .find_active_life
-        jmp .game_lost
+    .find_active_life:  ; Bucle para encontrar la última vida activa
+        mov rax, rcx    ; Calcular offset en el arreglo de vidas
+        imul rax, 3    ; Cada vida ocupa 3 bytes (x, y, estado)
+        lea rsi, [lives_data + rax]   ; Cargar dirección de la vida actual
+        cmp byte [rsi + 2], 1   ; Verificar si la vida está activa
+        je .deactivate_life   ; Si está activa, desactivarla
+        dec rcx   ; Si no está activa, probar con la siguiente vida
+        jns .find_active_life   ; Si aún quedan vidas, continuar buscando
+        jmp .game_lost  ; Si no quedan vidas, perder el juego
         
-    .deactivate_life:
+    .deactivate_life:   ; Desactivar la vida encontrada
         ; Borrar vida visualmente y en datos
-        movzx r8, byte [rsi]
-        movzx r9, byte [rsi + 1]
-        mov rax, column_cells
-        add rax, 2
-        mul r9
-        add rax, r8
-        lea rdi, [board + rax]
-        mov byte [rdi], ' '
-        mov byte [rsi + 2], 0
-        dec byte [current_lives]
+        movzx r8, byte [rsi]    ; X
+        movzx r9, byte [rsi + 1]    ; Y
+        mov rax, column_cells   ; Ancho del tablero
+        add rax, 2  ; Incluir caracteres de nueva línea
+        mul r9  ; Multiplicar por Y
+        add rax, r8 ; Sumar X
+        lea rdi, [board + rax]  ; Cargar dirección en el tablero
+        mov byte [rdi], ' ' ; Borrar visual
+        mov byte [rsi + 2], 0   ; Desactivar vida
+        dec byte [current_lives]    ; Decrementar contador de vidas
         
         ; Borrar paleta anterior
-        mov r8, [pallet_position]
-        mov rcx, [pallet_size]
-        .erase_pallet_loop:
-            mov byte [r8], ' '
-            inc r8
-            dec rcx
-            jnz .erase_pallet_loop
+        mov r8, [pallet_position]   ; Posición de la paleta
+        mov rcx, [pallet_size]  ; Tamaño de la paleta
+        .erase_pallet_loop: ; Bucle para borrar la paleta
+            mov byte [r8], ' '  ; Borrar visualmente
+            inc r8  ; Siguiente byte
+            dec rcx ; Decrementar contador
+            jnz .erase_pallet_loop  ; Si no se ha borrado toda la paleta, continuar
         
         ; Reiniciar solo la bola principal
-        mov qword [ball_x_pos], 40
-        mov qword [ball_y_pos], 28
-        mov byte [ball_moving], 0
+        mov qword [ball_x_pos], 40      ; Posición inicial de la bola
+        mov qword [ball_y_pos], 28    ; Posición inicial de la bola
+        mov byte [ball_moving], 0   ; Detener la bola
         mov byte [ball_active], 1       ; Activar bola principal
         mov qword [pallet_position], board + 38 + 29 * (column_cells + 2)
         
         ; Asegurarse que las otras bolas están desactivadas
-        mov byte [ball2_active], 0
-        mov byte [ball3_active], 0
+        mov byte [ball2_active], 0  ; Desactivar bola 2
+        mov byte [ball3_active], 0      ; Desactivar bola 3
         
-        jmp .end
+        jmp .end    ; Salir
         
     .game_lost:
-        call game_lost
-        jmp .end
+        call game_lost  ; Perder el juego
+        jmp .end    ; Salir
         
     .end:
-        pop rbp
-        ret
+        pop rbp   ; Restaurar el puntero de la base
+        ret  ; Retornar
 ; Función modificada para verificar colisión con el borde inferior
-check_bottom_collision:
-    push rbp
-    mov rbp, rsp
+check_bottom_collision:   ; Función para verificar colisión con el borde inferior
+    push rbp    ; Guardar el puntero de la base
+    mov rbp, rsp    ; Establecer el puntero de la base
     
     ; Verificar si el nivel está completo (no quedan bloques)
-    cmp byte [blocks_remaining], 0
+    cmp byte [blocks_remaining], 0  ; Verificar si quedan bloques
     je .balls_remain            ; Si no quedan bloques, no perder vidas
     
     ; Verificar bola principal
-    cmp byte [ball_active], 1
-    jne .check_ball2
-    mov rax, [ball_y_pos]
-    cmp rax, row_cells - 2
-    jne .check_ball2
+    cmp byte [ball_active], 1   ; Verificar si la bola principal está activa
+    jne .check_ball2        ; Si no está activa, verificar bola 2
+    mov rax, [ball_y_pos]   ; Obtener posición Y de la bola principal
+    cmp rax, row_cells - 2      ; Verificar si ha llegado al borde inferior
+    jne .check_ball2    ; Si no ha llegado al borde, verificar bola 2
     
     ; Borrar visualmente la bola principal
-    mov r8, [ball_x_pos]
-    mov r9, [ball_y_pos]
-    add r8, board
-    mov rcx, r9
-    mov rax, column_cells + 2
-    imul rcx
-    add r8, rax
+    mov r8, [ball_x_pos]    ; Obtener posición X de la bola principal
+    mov r9, [ball_y_pos]    ; Obtener posición Y de la bola principal
+    add r8, board        ; Calcular dirección en el tablero
+    mov rcx, r9        ; Calcular offset en el tablero
+    mov rax, column_cells + 2   ; Ancho del tablero
+    imul rcx    ; Multiplicar por Y
+    add r8, rax   ; Sumar X
     mov byte [r8], char_space    ; Borrar la bola del tablero
     
-    mov byte [ball_active], 0
-    mov byte [ball_moving], 0
+    mov byte [ball_active], 0   ; Desactivar bola principal
+    mov byte [ball_moving], 0   ; Detener la bola principal
 
-.check_ball2:
-    cmp byte [ball2_active], 1
-    jne .check_ball3
-    mov rax, [ball2_y_pos]
-    cmp rax, row_cells - 2
-    jne .check_ball3
-    mov byte [ball2_active], 0
-    mov byte [ball2_moving], 0
+.check_ball2:   ; Verificar bola 2
+    cmp byte [ball2_active], 1  ; Verificar si la bola 2 está activa
+    jne .check_ball3    ; Si no está activa, verificar bola 3
+    mov rax, [ball2_y_pos]  ; Obtener
+    cmp rax, row_cells - 2  ; Verificar si ha llegado al borde inferior
+    jne .check_ball3    ; Si no ha llegado al borde, verificar bola 3
+    mov byte [ball2_active], 0      ; Desactivar bola 2
+    mov byte [ball2_moving], 0    ; Detener bola 2
 
-.check_ball3:
-    cmp byte [ball3_active], 1
-    jne .check_active_balls
-    mov rax, [ball3_y_pos]
-    cmp rax, row_cells - 2
-    jne .check_active_balls
-    mov byte [ball3_active], 0
-    mov byte [ball3_moving], 0
+.check_ball3:   ; Verificar bola 3
+    cmp byte [ball3_active], 1  ; Verificar si la bola 3 está activa
+    jne .check_active_balls   ; Si no está activa, verificar bolas activas
+    mov rax, [ball3_y_pos]  ; Obtener posición Y de la bola 3
+    cmp rax, row_cells - 2  ; Verificar si ha llegado al borde inferior
+    jne .check_active_balls  ; Si no ha llegado al borde, verificar bolas activas
+    mov byte [ball3_active], 0  ; Desactivar bola 3
+    mov byte [ball3_moving], 0  ; Detener bola 3
 
-.check_active_balls:
+.check_active_balls:        
     ; Verificar si quedan bolas activas
-    xor rcx, rcx
+    xor rcx, rcx    ; Contar bolas activas
     
     ; Contar bolas activas
-    mov al, byte [ball_active]
-    add rcx, rax
-    mov al, byte [ball2_active]
-    add rcx, rax
-    mov al, byte [ball3_active]
-    add rcx, rax
+    mov al, byte [ball_active]  ; Verificar si la bola principal está activa
+    add rcx, rax    ; Sumar al contador
+    mov al, byte [ball2_active] ; Verificar si la bola 2 está activa
+    add rcx, rax    ; Sumar al contador
+    mov al, byte [ball3_active] ; Verificar si la bola 3 está activa
+    add rcx, rax    ; Sumar al contador
     
     ; Si no hay bolas activas y quedan bloques, perder vida
-    test rcx, rcx
-    jnz .balls_remain
+    test rcx, rcx   ; Verificar si hay bolas activas
+    jnz .balls_remain   ; Si hay bolas activas, salir
     
     cmp byte [blocks_remaining], 0  ; Verificar si quedan bloques
     je .balls_remain               ; Si no quedan bloques, no perder vida
@@ -1221,9 +1228,9 @@ check_bottom_collision:
     call lose_life
     mov byte [ball_active], 1      ; Reactivar bola principal
     
-.balls_remain:
-    pop rbp
-    ret
+.balls_remain:  ; Si quedan bolas, continuar
+    pop rbp     ; Restaurar el puntero de la base
+    ret    ; Retornar
 
 ; Nueva función para game over
 game_lost:
@@ -1231,20 +1238,20 @@ game_lost:
     print clear, clear_length
     
     ; Mostrar mensaje de derrota
-    section .data
+    section .data   
         lost_msg: db "¡Has perdido!", 0xA, 0xD
         lost_msg_len: equ $ - lost_msg
     section .text
     
     ; Imprimir mensaje de derrota
-    print lost_msg, lost_msg_len
-    print score_msg, score_msg_len
+    print lost_msg, lost_msg_len    ; Imprimir mensaje
+    print score_msg, score_msg_len  ; Imprimir puntaje
     
     ; Mostrar puntaje final
-    mov rax, [current_score]
-    mov rdi, number_buffer
-    call number_to_string
-    print number_buffer, 20
+    mov rax, [current_score]    ; Cargar puntaje
+    mov rdi, number_buffer  ; Buffer para convertir a string
+    call number_to_string   ; Convertir a string
+    print number_buffer, 20 ; Imprimir puntaje
     
     ; Esperar un momento antes de salir
     mov qword [timespec + 0], 2    ; 2 segundos
@@ -1259,29 +1266,29 @@ game_lost:
 ;   al - letra a registrar
 ;   r8b - posición x
 ;   r9b - posición y
-register_letter:
-    push rbp
-    mov rbp, rsp
-    push rbx
-    push rcx
+register_letter:        
+    push rbp    ; Guardar el puntero de la base
+    mov rbp, rsp    ; Establecer el puntero de la base
+    push rbx    ; Guardar registros
+    push rcx    ; Guardar registros
     
-    cmp al, ' '
-    je .end
+    cmp al, ' '   ; Verificar si es un espacio
+    je .end      ; Si es un espacio, salir
 
     ; Encontrar un espacio libre en el mapa
-    xor rcx, rcx
-    movzx rdx, byte [letters_count]
+    xor rcx, rcx    ; Índice de la letra actual
+    movzx rdx, byte [letters_count] ; Cantidad de letras registradas
     
     .find_slot:
         cmp rcx, 100              ; Máximo de letras
         jge .end                  ; Si no hay espacio, salir
         
-        lea rbx, [letters_map + rcx * 4]
+        lea rbx, [letters_map + rcx * 4]    ; Obtener puntero a la letra actual
         cmp byte [rbx + 3], 0    ; Verificar si el slot está inactivo
         je .found_slot
         
-        inc rcx
-        jmp .find_slot
+        inc rcx   ; Probar con la siguiente letra
+        jmp .find_slot  ; Continuar buscando
         
     .found_slot:
         ; Guardar la información de la letra
@@ -1300,16 +1307,16 @@ register_letter:
 
 ; Función para imprimir todas las letras registradas
 print_letters:
-    push rbp
-    mov rbp, rsp
-    push rbx
-    push rcx
+    push rbp        ; Guardar el puntero de la base
+    mov rbp, rsp    ; Establecer el puntero de la base
+    push rbx    ; Guardar registros
+    push rcx    ; Guardar registros
     
-    xor rcx, rcx
+    xor rcx, rcx    ; Índice de la letra actual
     
     .print_loop:
         cmp rcx, 100              ; Máximo de letras
-        jge .end
+        jge .end              ; Si no hay más letras, salir
         
         ; Obtener puntero a la letra actual
         lea rbx, [letters_map + rcx * 4]
@@ -1327,21 +1334,21 @@ print_letters:
         add rax, 2                ; Incluir caracteres de nueva línea
         mul r9
         add rax, r8
-        lea rdi, [board + rax]
+        lea rdi, [board + rax]  ; Dirección en el tablero
         
         ; Imprimir la letra
-        mov al, [rbx + 2]
-        mov [rdi], al
+        mov al, [rbx + 2]   ; Obtener la letra
+        mov [rdi], al    ; Imprimir la letra
         
     .next_letter:
-        inc rcx
-        jmp .print_loop
+        inc rcx   ; Siguiente letra
+        jmp .print_loop ; Continuar imprimiendo
         
     .end:
-        pop rcx
-        pop rbx
-        pop rbp
-        ret
+        pop rcx   ; Restaurar registros
+        pop rbx  ; Restaurar registros
+        pop rbp ; Restaurar el puntero de la base
+        ret   ; Retornar
 
 ; Función para borrar una letra específica
 ; Entrada:
@@ -1350,37 +1357,37 @@ print_letters:
 remove_letter:
     push rbp
     mov rbp, rsp
-    push rbx
-    push rcx
+    push rbx    ; Guardar registros
+    push rcx    ; Guardar registros
     
-    xor rcx, rcx
+    xor rcx, rcx    ; Índice de la letra actual
     
-    .find_loop:
+    .find_loop:     
         cmp rcx, 100              ; Máximo de letras
         jge .end
         
-        lea rbx, [letters_map + rcx * 4]
+        lea rbx, [letters_map + rcx * 4]    ; Obtener puntero a la letra actual
         
         ; Verificar si está activa y coincide la posición
         cmp byte [rbx + 3], 0
-        je .next_letter
+        je .next_letter   ; Si no está activa, probar con la siguiente letra
         
-        mov al, [rbx]
-        cmp al, r8b
-        jne .next_letter
+        mov al, [rbx]   ; x
+        cmp al, r8b    ; Verificar si coincide la posición x
+        jne .next_letter    ; Si no coincide, probar con la siguiente letra
         
-        mov al, [rbx + 1]
-        cmp al, r9b
-        jne .next_letter
+        mov al, [rbx + 1]   ; y
+        cmp al, r9b   ; Verificar si coincide la posición y
+        jne .next_letter    ; Si no coincide, probar con la siguiente letra
         
-        ; Encontrada la letra, desactivarla
-        mov byte [rbx + 3], 0
-        dec byte [letters_count]
+        ; Encontrada la letra, desactivarla 
+        mov byte [rbx + 3], 0   ; Desactivar letra
+        dec byte [letters_count]        ; Decrementar contador de letras
         jmp .end
         
     .next_letter:
-        inc rcx
-        jmp .find_loop
+        inc rcx  ; Siguiente letra
+        jmp .find_loop  ; Continuar buscando
         
     .end:
         pop rcx
@@ -1389,17 +1396,17 @@ remove_letter:
         ret
 ; Función para mover las letras hacia abajo
 move_letters:
-    push rbp
-    mov rbp, rsp
-    push rbx
-    push rdi
-    push rsi
-    push r8
-    push r9
-    push r10
-    push r11
+    push rbp    ; Guardar el puntero de la base
+    mov rbp, rsp    ; Establecer el puntero de la base
+    push rbx    ; Guardar registros
+    push rdi    ; Guardar registros
+    push rsi    ; Guardar registros
+    push r8    ; Guardar registros
+    push r9   ; Guardar registros
+    push r10    ; Guardar registros
+    push r11    ; Guardar registros
 
-    xor rcx, rcx
+    xor rcx, rcx    ; Índice de la letra actual
 
     ; Verificar si debemos mover la letra en este frame
     inc byte [letter_move_counter]    ; Incrementar contador
@@ -1408,50 +1415,50 @@ move_letters:
     mov byte [letter_move_counter], 0 ; Resetear contador
 
     .move_loop:
-        cmp rcx, 100
-        jge .print_last_letter
+        cmp rcx, 100          ; Máximo de letras, se hace esta verificacion porque se pueden borrar letras
+        jge .print_last_letter  ; Si no hay más letras, imprimir la última letra
         
-        lea rbx, [letters_map + rcx * 4]
-        cmp byte [rbx + 3], 0
-        je .next_letter
+        lea rbx, [letters_map + rcx * 4]    ; Obtener puntero a la letra actual
+        cmp byte [rbx + 3], 0   ; Verificar si está activa
+        je .next_letter       ; Si no está activa, probar con la siguiente letra
 
-        movzx r8, byte [rbx]
-        movzx r9, byte [rbx + 1]
+        movzx r8, byte [rbx]    ; x
+        movzx r9, byte [rbx + 1]    ; y
 
-        mov rax, column_cells
-        add rax, 2
-        mul r9
-        add rax, r8
-        lea rdi, [board + rax]
-        mov byte [rdi], ' '
+        mov rax, column_cells   ; Ancho del tablero
+        add rax, 2  ; Incluir caracteres de nueva línea
+        mul r9  ; Multiplicar por Y
+        add rax, r8 ; Sumar X
+        lea rdi, [board + rax]  ; Cargar dirección en el tablero
+        mov byte [rdi], ' ' ; Borrar visualmente la letra
 
-        inc byte [rbx + 1]
-        movzx r9, byte [rbx + 1]
+        inc byte [rbx + 1]  ; Mover la letra hacia abajo
+        movzx r9, byte [rbx + 1]    ; y
 
-        cmp r9, row_cells - 1
-        jl .check_pallet_collision
+        cmp r9, row_cells - 1   ; Verificar si ha llegado al borde inferior
+        jl .check_pallet_collision  ; Si no ha llegado al borde, verificar colisión con la paleta
 
-        mov byte [rbx + 3], 0
-        jmp .next_letter
+        mov byte [rbx + 3], 0   ; Desactivar letra
+        jmp .next_letter    ; Probar con la siguiente letra
 
-        .check_pallet_collision:
-            mov rax, column_cells
-            add rax, 2
-            mul r9
-            add rax, r8
-            lea rdi, [board + rax]
+        .check_pallet_collision:    ; Verificar colisión con la paleta
+            mov rax, column_cells   ; Ancho del tablero
+            add rax, 2  ; Incluir caracteres de nueva línea
+            mul r9  ; Multiplicar por Y
+            add rax, r8 ; Sumar X
+            lea rdi, [board + rax]      ; Cargar dirección en el tablero
 
-            mov al, [rdi]
-            cmp al, ' '
-            je .next_letter
-            cmp al, char_equal
-            je .capture_letter
+            mov al, [rdi]   ; Obtener el carácter actual
+            cmp al, ' '  ; Verificar si es un espacio
+            je .next_letter ; Si es un espacio, probar con la siguiente letra
+            cmp al, char_equal  ; Verificar si es la paleta
+            je .capture_letter  ; Si es la paleta, capturar la letra
 
-            mov al, [rbx + 2]
-            mov [rdi], al
-            jmp .next_letter
+            mov al, [rbx + 2]   ; Obtener la letra
+            mov [rdi], al   ; Imprimir la letra
+            jmp .next_letter    ; Probar con la siguiente letra
 
-        .capture_letter:
+        .capture_letter:    ; Capturar la letra
             ; Obtener la nueva letra
             mov al, [rbx + 2]
             
@@ -1572,8 +1579,8 @@ move_letters:
 
 
     .skip_all:                        ; Nueva etiqueta para saltar todo cuando no movemos
-        pop r11
-        pop r10
+        pop r11                       ; Restaurar registros
+        pop r10                      ; Restaurar registros
         pop r9
         pop r8
         pop rsi
@@ -1593,7 +1600,7 @@ move_letters:
         pop rbp
         ret
 
-print_power_label:
+print_power_label:  ; Función para imprimir el mensaje de poder actual
     push rbp
     mov  rbp, rsp
     
