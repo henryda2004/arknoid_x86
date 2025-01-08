@@ -305,7 +305,7 @@ section .data
     block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
-    current_level db 1
+    current_level db 5
     blocks_remaining db 0
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
@@ -1043,6 +1043,15 @@ section .data
     initial_ball_offset_x equ 2    ; Offset desde el centro de la paleta
     initial_ball_offset_y equ -1   ; Offset vertical desde la paleta
 
+    game_over_msg db '¡Has perdido!', 10, 'Puntaje final: '
+    game_over_len equ $ - game_over_msg
+    newline db 10
+    newline_len equ 1
+
+    game_win_msg db '¡Felicidades, ganaste!', 10, 'Puntaje final: '
+    game_win_len equ $ - game_win_msg
+
+
 section .text
 
 
@@ -1231,33 +1240,67 @@ check_bottom_collision:   ; Función para verificar colisión con el borde infer
 
 ; Nueva función para game over
 game_lost:
-    ; Limpiar la pantalla
-    print clear, clear_length
+    push rbp
+    mov rbp, rsp
     
-    ; Mostrar mensaje de derrota
-    section .data   
-        lost_msg: db "¡Has perdido!", 0xA, 0xD
-        lost_msg_len: equ $ - lost_msg
-    section .text
+    ; Limpiar pantalla
+    mov rsi, clear
+    mov rdx, clear_length
+    mov eax, sys_write
+    mov edi, 1
+    syscall
     
-    ; Imprimir mensaje de derrota
-    print lost_msg, lost_msg_len    ; Imprimir mensaje
-    print score_msg, score_msg_len  ; Imprimir puntaje
+    ; Imprimir mensaje de Game Over
+    mov rsi, game_over_msg
+    mov rdx, game_over_len
+    mov eax, sys_write
+    mov edi, 1
+    syscall
     
-    ; Mostrar puntaje final
-    mov rax, [current_score]    ; Cargar puntaje
-    mov rdi, number_buffer  ; Buffer para convertir a string
-    call number_to_string   ; Convertir a string
-    print number_buffer, 20 ; Imprimir puntaje
+    ; Convertir score a string
+    mov rax, [current_score]
+    mov rdi, number_buffer
+    call number_to_string
     
-    ; Esperar un momento antes de salir
-    mov qword [timespec + 0], 2    ; 2 segundos
-    mov qword [timespec + 8], 0    ; 0 nanosegundos
-    sleeptime
+    ; Calcular longitud del número convertido
+    mov rcx, 0
+    mov rdi, number_buffer
+.count_loop:
+    cmp byte [rdi + rcx], 0
+    je .print_score
+    inc rcx
+    jmp .count_loop
+
+.print_score:
+    ; Imprimir el score
+    mov rsi, number_buffer
+    mov rdx, rcx
+    mov eax, sys_write
+    mov edi, 1
+    syscall
     
+    ; Imprimir nueva línea
+    mov rsi, newline
+    mov rdx, newline_len
+    mov eax, sys_write
+    mov edi, 1
+    syscall
+    
+.wait_q:
+    ; Esperar por la tecla 'q'
+    mov rax, sys_read
+    mov rdi, STDIN_FILENO
+    mov rsi, input_char
+    mov rdx, 1
+    syscall
+    
+    cmp byte [input_char], 'q'
+    jne .wait_q
+
     jmp exit
-
-
+    
+    pop rbp
+    ret
 ; Función para registrar una nueva letra en el mapa
 ; Entrada:
 ;   al - letra a registrar
@@ -3174,33 +3217,67 @@ check_level_complete:   ; Verificar si el nivel está completo
 
     ; Nueva función para manejar la victoria del juego
 game_win:
-    ; Limpiar la pantalla primero
-    print clear, clear_length
+    push rbp
+    mov rbp, rsp
     
-    ; Mensaje de victoria
-    mov rax, [current_score]    ; Obtener el puntaje final
-    mov rdi, number_buffer      ; Convertir a string
+    ; Limpiar pantalla
+    mov rsi, clear
+    mov rdx, clear_length
+    mov eax, sys_write
+    mov edi, 1
+    syscall
+    
+    ; Imprimir mensaje de Game Over
+    mov rsi, game_win_msg
+    mov rdx, game_win_len
+    mov eax, sys_write
+    mov edi, 1
+    syscall
+    
+    ; Convertir score a string
+    mov rax, [current_score]
+    mov rdi, number_buffer
     call number_to_string
     
-    ; Definir mensaje de victoria
-    section .data
-        win_msg: db "¡Felicidades! ¡Has ganado!", 0xA, 0xD
-        win_msg_len: equ $ - win_msg
-        score_msg: db "Puntaje final: "
-        score_msg_len: equ $ - score_msg
-    section .text
+    ; Calcular longitud del número convertido
+    mov rcx, 0
+    mov rdi, number_buffer
+.count_loop:
+    cmp byte [rdi + rcx], 0
+    je .print_score
+    inc rcx
+    jmp .count_loop
+
+.print_score:
+    ; Imprimir el score
+    mov rsi, number_buffer
+    mov rdx, rcx
+    mov eax, sys_write
+    mov edi, 1
+    syscall
     
-    ; Imprimir mensajes
-    print win_msg, win_msg_len
-    print score_msg, score_msg_len
-    print number_buffer, 20
+    ; Imprimir nueva línea
+    mov rsi, newline
+    mov rdx, newline_len
+    mov eax, sys_write
+    mov edi, 1
+    syscall
     
-    ; Esperar un momento antes de salir
-    mov qword [timespec + 0], 2    ; 2 segundos
-    mov qword [timespec + 8], 0    ; 0 nanosegundos
-    sleeptime
+.wait_q:
+    ; Esperar por la tecla 'q'
+    mov rax, sys_read
+    mov rdi, STDIN_FILENO
+    mov rsi, input_char
+    mov rdx, 1
+    syscall
     
+    cmp byte [input_char], 'q'
+    jne .wait_q
+
     jmp exit
+    
+    pop rbp
+    ret
 
 ; unción para obtener el puntero a los bloques del nivel actual
 get_current_level_blocks:
