@@ -391,7 +391,7 @@ section .data
         db 37, 10, 4, 1, 'C'   
         db 43, 10, 2, 1, ' '   
         db 49, 10, 4, 1, ' '   
-        db 55, 10, 2, 1, 'L'   
+        db 55, 10, 2, 1, 'D'   
         db 61, 10, 4, 1, ' '  
         db 67, 10, 2, 1, ' '   
         db 73, 10, 4, 1, ' ' 
@@ -1200,17 +1200,35 @@ check_bottom_collision:   ; Función para verificar colisión con el borde infer
     mov rax, [ball2_y_pos]  ; Obtener
     cmp rax, row_cells - 2  ; Verificar si ha llegado al borde inferior
     jne .check_ball3    ; Si no ha llegado al borde, verificar bola 3
-    mov byte [ball2_active], 0      ; Desactivar bola 2
-    mov byte [ball2_moving], 0    ; Detener bola 2
-
+    ; Borrar visualmente la bola 2
+    mov r8, [ball2_x_pos]    
+    mov r9, [ball2_y_pos]    
+    add r8, board        
+    mov rcx, r9        
+    mov rax, column_cells + 2   
+    imul rcx    
+    add r8, rax   
+    mov byte [r8], char_space    ; Borrar la bola del tablero
+    
+    mov byte [ball2_active], 0      
+    mov byte [ball2_moving], 0    
 .check_ball3:   ; Verificar bola 3
     cmp byte [ball3_active], 1  ; Verificar si la bola 3 está activa
     jne .check_active_balls   ; Si no está activa, verificar bolas activas
     mov rax, [ball3_y_pos]  ; Obtener posición Y de la bola 3
     cmp rax, row_cells - 2  ; Verificar si ha llegado al borde inferior
     jne .check_active_balls  ; Si no ha llegado al borde, verificar bolas activas
-    mov byte [ball3_active], 0  ; Desactivar bola 3
-    mov byte [ball3_moving], 0  ; Detener bola 3
+    mov r8, [ball3_x_pos]    
+    mov r9, [ball3_y_pos]    
+    add r8, board        
+    mov rcx, r9        
+    mov rax, column_cells + 2   
+    imul rcx    
+    add r8, rax   
+    mov byte [r8], char_space    ; Borrar la bola del tablero
+    
+    mov byte [ball3_active], 0  
+    mov byte [ball3_moving], 0  
 
 .check_active_balls:        
     ; Verificar si quedan bolas activas
