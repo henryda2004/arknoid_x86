@@ -305,7 +305,7 @@ section .data
     block_length: equ 6        ; Longitud de cada bloque
 
     ; Estructura para el nivel actual
-    current_level db 5
+    current_level db 1
     blocks_remaining db 0
 
     ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
@@ -4462,6 +4462,8 @@ _start:
     .main_loop:     ; Bucle principal
         call print_labels   ; Imprimir etiquetas
         call print_blocks   ; Imprimir bloques
+        call check_bottom_collision    ; Nueva función que maneja todas las bolas
+        call print_lives
         call move_letters   ; Mover letras
         call update_lasers          ; Actualizar láseres
         call print_letters  ; Imprimir letras
@@ -4485,8 +4487,7 @@ _start:
             call move_ball_3
         .skip_ball3:
 
-        call check_bottom_collision    ; Nueva función que maneja todas las bolas
-        call print_lives
+
 
         ; Imprimir solo las bolas activas
         cmp byte [ball_active], 1

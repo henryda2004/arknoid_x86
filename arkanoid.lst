@@ -457,7 +457,7 @@
    305                                      block_length: equ 6        ; Longitud de cada bloque
    306                                  
    307                                      ; Estructura para el nivel actual
-   308 00001579 05                          current_level db 5
+   308 00001579 01                          current_level db 1
    309 0000157A 00                          blocks_remaining db 0
    310                                  
    311                                      ; Definición del nivel 1 (ejemplo con múltiples bloques)destroyed_blocks
@@ -4723,163 +4723,164 @@
   4462                                      .main_loop:     ; Bucle principal
   4463 00002253 E87FF7FFFF                      call print_labels   ; Imprimir etiquetas
   4464 00002258 E8AEF6FFFF                      call print_blocks   ; Imprimir bloques
-  4465 0000225D E8FFE2FFFF                      call move_letters   ; Mover letras
-  4466 00002262 E8E5E5FFFF                      call update_lasers          ; Actualizar láseres
-  4467 00002267 E86AE2FFFF                      call print_letters  ; Imprimir letras
-  4468 0000226C E8E9E9FFFF                      call print_pallet   ; Imprimir paleta
-  4469                                          
-  4470                                          ; Mover bola principal solo si está activa
-  4471 00002271 803D(00150000)01                cmp byte [ball_active], 1
-  4472 00002278 7505                            jne .skip_ball1
-  4473 0000227A E8F2EAFFFF                          call move_ball
-  4474                                          .skip_ball1:
-  4475                                  
-  4476                                          ; Mover bola 2 si está activa
-  4477 0000227F 803D(22150000)01                cmp byte [ball2_active], 1
-  4478 00002286 7505                            jne .skip_ball2
-  4479 00002288 E8B7ECFFFF                          call move_ball_2
-  4480                                          .skip_ball2:
-  4481                                  
-  4482                                          ; Mover bola 3 si está activa
-  4483 0000228D 803D(44150000)01                cmp byte [ball3_active], 1
-  4484 00002294 7505                            jne .skip_ball3
-  4485 00002296 E87CEEFFFF                          call move_ball_3
-  4486                                          .skip_ball3:
-  4487                                  
-  4488 0000229B E856E0FFFF                      call check_bottom_collision    ; Nueva función que maneja todas las bolas
-  4489 000022A0 E838DFFFFF                      call print_lives
+  4465 0000225D E894E0FFFF                      call check_bottom_collision    ; Nueva función que maneja todas las bolas
+  4466 00002262 E876DFFFFF                      call print_lives
+  4467 00002267 E8F5E2FFFF                      call move_letters   ; Mover letras
+  4468 0000226C E8DBE5FFFF                      call update_lasers          ; Actualizar láseres
+  4469 00002271 E860E2FFFF                      call print_letters  ; Imprimir letras
+  4470 00002276 E8DFE9FFFF                      call print_pallet   ; Imprimir paleta
+  4471                                          
+  4472                                          ; Mover bola principal solo si está activa
+  4473 0000227B 803D(00150000)01                cmp byte [ball_active], 1
+  4474 00002282 7505                            jne .skip_ball1
+  4475 00002284 E8E8EAFFFF                          call move_ball
+  4476                                          .skip_ball1:
+  4477                                  
+  4478                                          ; Mover bola 2 si está activa
+  4479 00002289 803D(22150000)01                cmp byte [ball2_active], 1
+  4480 00002290 7505                            jne .skip_ball2
+  4481 00002292 E8ADECFFFF                          call move_ball_2
+  4482                                          .skip_ball2:
+  4483                                  
+  4484                                          ; Mover bola 3 si está activa
+  4485 00002297 803D(44150000)01                cmp byte [ball3_active], 1
+  4486 0000229E 7505                            jne .skip_ball3
+  4487 000022A0 E872EEFFFF                          call move_ball_3
+  4488                                          .skip_ball3:
+  4489                                  
   4490                                  
-  4491                                          ; Imprimir solo las bolas activas
-  4492 000022A5 803D(00150000)01                cmp byte [ball_active], 1
-  4493 000022AC 7505                            jne .no_pb1
-  4494 000022AE E82FE9FFFF                          call print_ball
-  4495                                          .no_pb1:
-  4496                                  
-  4497 000022B3 803D(22150000)01                cmp byte [ball2_active], 1
-  4498 000022BA 7505                            jne .no_pb2
-  4499 000022BC E849E9FFFF                          call print_ball_2
-  4500                                          .no_pb2:
-  4501                                  
-  4502 000022C1 803D(44150000)01                cmp byte [ball3_active], 1
-  4503 000022C8 7505                            jne .no_pb3
-  4504 000022CA E863E9FFFF                          call print_ball_3
-  4505                                          .no_pb3:
-  4506                                  
-  4507 000022CF E866F4FFFF                      call check_level_complete
-  4508 000022D4 E890FDFFFF                      call check_enemy_spawn
-  4509 000022D9 E877FAFFFF                      call move_enemies
-  4510 000022DE E84DFEFFFF                      call check_enemy_collision
-  4511 000022E3 E8EEFDFFFF                      call print_enemies
-  4512 000022E8 E8D3E4FFFF                      call print_power_label
-  4513                                  		print board, board_size				
+  4491                                  
+  4492                                          ; Imprimir solo las bolas activas
+  4493 000022A5 803D(00150000)01                cmp byte [ball_active], 1
+  4494 000022AC 7505                            jne .no_pb1
+  4495 000022AE E82FE9FFFF                          call print_ball
+  4496                                          .no_pb1:
+  4497                                  
+  4498 000022B3 803D(22150000)01                cmp byte [ball2_active], 1
+  4499 000022BA 7505                            jne .no_pb2
+  4500 000022BC E849E9FFFF                          call print_ball_2
+  4501                                          .no_pb2:
+  4502                                  
+  4503 000022C1 803D(44150000)01                cmp byte [ball3_active], 1
+  4504 000022C8 7505                            jne .no_pb3
+  4505 000022CA E863E9FFFF                          call print_ball_3
+  4506                                          .no_pb3:
+  4507                                  
+  4508 000022CF E866F4FFFF                      call check_level_complete
+  4509 000022D4 E890FDFFFF                      call check_enemy_spawn
+  4510 000022D9 E877FAFFFF                      call move_enemies
+  4511 000022DE E84DFEFFFF                      call check_enemy_collision
+  4512 000022E3 E8EEFDFFFF                      call print_enemies
+  4513 000022E8 E8D3E4FFFF                      call print_power_label
+  4514                                  		print board, board_size				
     93 000022ED B801000000          <1>  mov eax, sys_write
     94 000022F2 BF01000000          <1>  mov edi, 1
     95 000022F7 48BE-               <1>  mov rsi, %1
     95 000022F9 [400A000000000000]  <1>
     96 00002301 BA400A0000          <1>  mov edx, %2
     97 00002306 0F05                <1>  syscall
-  4514                                  		;setnonblocking	
-  4515                                  	.read_more:	    
-  4516                                  	    getchar	    ; Leer una tecla
+  4515                                  		;setnonblocking	
+  4516                                  	.read_more:	    
+  4517                                  	    getchar	    ; Leer una tecla
    101 00002308 B800000000          <1>  mov rax, sys_read
    102 0000230D BF00000000          <1>  mov rdi, STDIN_FILENO
    103 00002312 48BE-               <1>  mov rsi, input_char
    103 00002314 [0000000000000000]  <1>
    104 0000231C BA01000000          <1>  mov rdx, 1
    105 00002321 0F05                <1>  syscall
-  4517 00002323 4883F801                	    cmp rax, 1  ; Verificar si se presionó una tecla
-  4518 00002327 7547                    	    jne .done   ; Si no se presionó ninguna tecla, terminar
-  4519                                  	
-  4520 00002329 8A05(00000000)          	    mov al, [input_char]
-  4521 0000232F 8805(08230000)          	    mov [last_key], al      ; Registrar la última tecla presionada
-  4522                                  	
-  4523 00002335 3C61                    	    cmp al, 'a'            ; Verificar si se presionó la tecla 'a'
-  4524 00002337 750E                    	    jne .not_left       ; Si no se presionó, verificar si se presionó 'd'
-  4525 00002339 48C7C7FFFFFFFF          	    mov rdi, left_direction    ; Si sí, mover la paleta a la izquierda
-  4526 00002340 E84AE9FFFF              	    call move_pallet    ; Mover la paleta
-  4527 00002345 EB29                    	    jmp .done        ; Terminar
-  4528                                  	
-  4529                                      .not_left:  
-  4530 00002347 3C64                    	    cmp al, 'd'           ; Verificar si se presionó la tecla 'd'
-  4531 00002349 750C                    	    jne .not_right    ; Si no se presionó, verificar si se presionó 'c'
-  4532 0000234B BF01000000              	    mov rdi, right_direction    ; Si sí, mover la paleta a la derecha
-  4533 00002350 E83AE9FFFF              	    call move_pallet    ; Mover la paleta
-  4534 00002355 EB19                    	    jmp .done     ; Terminar
-  4535                                  	
-  4536                                      .not_right:
-  4537 00002357 3C63                    	    cmp al, 'c'             ; Verificar si se presionó la tecla 'c'
-  4538 00002359 740E                    	    je .release_ball        ; Si sí, liberar la bola
-  4539                                  	
-  4540 0000235B 3C78                            cmp al, 'x'             ; Verificar si se presionó la tecla 'c'
-  4541 0000235D 740A                    	    je .release_ball        ; Si sí, liberar la bola
-  4542                                  	
-  4543                                  
-  4544 0000235F 3C71                    	    cmp al, 'q' 
-  4545 00002361 0F84AF000000            	    je exit
-  4546 00002367 EB9F                    	    jmp .read_more
-  4547                                  	
-  4548                                      .release_ball:
-  4549 00002369 E87CEFFFFF              	    call process_catch_release
-  4550 0000236E EB00                    	    jmp .done
-  4551                                  	
-  4552                                      .done:
-  4553                                  	    sleeptime
+  4518 00002323 4883F801                	    cmp rax, 1  ; Verificar si se presionó una tecla
+  4519 00002327 7547                    	    jne .done   ; Si no se presionó ninguna tecla, terminar
+  4520                                  	
+  4521 00002329 8A05(00000000)          	    mov al, [input_char]
+  4522 0000232F 8805(08230000)          	    mov [last_key], al      ; Registrar la última tecla presionada
+  4523                                  	
+  4524 00002335 3C61                    	    cmp al, 'a'            ; Verificar si se presionó la tecla 'a'
+  4525 00002337 750E                    	    jne .not_left       ; Si no se presionó, verificar si se presionó 'd'
+  4526 00002339 48C7C7FFFFFFFF          	    mov rdi, left_direction    ; Si sí, mover la paleta a la izquierda
+  4527 00002340 E84AE9FFFF              	    call move_pallet    ; Mover la paleta
+  4528 00002345 EB29                    	    jmp .done        ; Terminar
+  4529                                  	
+  4530                                      .not_left:  
+  4531 00002347 3C64                    	    cmp al, 'd'           ; Verificar si se presionó la tecla 'd'
+  4532 00002349 750C                    	    jne .not_right    ; Si no se presionó, verificar si se presionó 'c'
+  4533 0000234B BF01000000              	    mov rdi, right_direction    ; Si sí, mover la paleta a la derecha
+  4534 00002350 E83AE9FFFF              	    call move_pallet    ; Mover la paleta
+  4535 00002355 EB19                    	    jmp .done     ; Terminar
+  4536                                  	
+  4537                                      .not_right:
+  4538 00002357 3C63                    	    cmp al, 'c'             ; Verificar si se presionó la tecla 'c'
+  4539 00002359 740E                    	    je .release_ball        ; Si sí, liberar la bola
+  4540                                  	
+  4541 0000235B 3C78                            cmp al, 'x'             ; Verificar si se presionó la tecla 'c'
+  4542 0000235D 740A                    	    je .release_ball        ; Si sí, liberar la bola
+  4543                                  	
+  4544                                  
+  4545 0000235F 3C71                    	    cmp al, 'q' 
+  4546 00002361 0F84AF000000            	    je exit
+  4547 00002367 EB9F                    	    jmp .read_more
+  4548                                  	
+  4549                                      .release_ball:
+  4550 00002369 E87CEFFFFF              	    call process_catch_release
+  4551 0000236E EB00                    	    jmp .done
+  4552                                  	
+  4553                                      .done:
+  4554                                  	    sleeptime
    109 00002370 B823000000          <1>  mov eax, sys_nanosleep
    110 00002375 48BF-               <1>  mov rdi, timespec
    110 00002377 [0000000000000000]  <1>
    111 0000237F 31F6                <1>  xor esi, esi
    112 00002381 0F05                <1>  syscall
-  4554                                  	    print clear, clear_length
+  4555                                  	    print clear, clear_length
     93 00002383 B801000000          <1>  mov eax, sys_write
     94 00002388 BF01000000          <1>  mov edi, 1
     95 0000238D 48BE-               <1>  mov rsi, %1
     95 0000238F [1000000000000000]  <1>
     96 00002397 BA07000000          <1>  mov edx, %2
     97 0000239C 0F05                <1>  syscall
-  4555 0000239E E9B0FEFFFF              	    jmp .main_loop
-  4556                                  
+  4556 0000239E E9B0FEFFFF              	    jmp .main_loop
   4557                                  
   4558                                  
   4559                                  
-  4560                                  start_screen:
-  4561                                      print clear, clear_length    ; Limpiamos la pantalla primero
+  4560                                  
+  4561                                  start_screen:
+  4562                                      print clear, clear_length    ; Limpiamos la pantalla primero
     93 000023A3 B801000000          <1>  mov eax, sys_write
     94 000023A8 BF01000000          <1>  mov edi, 1
     95 000023AD 48BE-               <1>  mov rsi, %1
     95 000023AF [1000000000000000]  <1>
     96 000023B7 BA07000000          <1>  mov edx, %2
     97 000023BC 0F05                <1>  syscall
-  4562                                      print msg1, msg1_length
+  4563                                      print msg1, msg1_length
     93 000023BE B801000000          <1>  mov eax, sys_write
     94 000023C3 BF01000000          <1>  mov edi, 1
     95 000023C8 48BE-               <1>  mov rsi, %1
     95 000023CA [1700000000000000]  <1>
     96 000023D2 BA14010000          <1>  mov edx, %2
     97 000023D7 0F05                <1>  syscall
-  4563                                      
-  4564                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
-  4565                                          getchar                 ; Esperamos una tecla
+  4564                                      
+  4565                                      .wait_for_key:              ; Agregamos una etiqueta para esperar la tecla
+  4566                                          getchar                 ; Esperamos una tecla
    101 000023D9 B800000000          <1>  mov rax, sys_read
    102 000023DE BF00000000          <1>  mov rdi, STDIN_FILENO
    103 000023E3 48BE-               <1>  mov rsi, input_char
    103 000023E5 [0000000000000000]  <1>
    104 000023ED BA01000000          <1>  mov rdx, 1
    105 000023F2 0F05                <1>  syscall
-  4566 000023F4 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
-  4567 000023F8 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
-  4568                                          
-  4569                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
+  4567 000023F4 4883F801                        cmp rax, 1             ; Verificamos si se leyó un carácter
+  4568 000023F8 75DF                            jne .wait_for_key      ; Si no se leyó, seguimos esperando
+  4569                                          
+  4570                                      print clear, clear_length   ; Limpiamos la pantalla antes de salir
     93 000023FA B801000000          <1>  mov eax, sys_write
     94 000023FF BF01000000          <1>  mov edi, 1
     95 00002404 48BE-               <1>  mov rsi, %1
     95 00002406 [1000000000000000]  <1>
     96 0000240E BA07000000          <1>  mov edx, %2
     97 00002413 0F05                <1>  syscall
-  4570 00002415 C3                          ret
-  4571                                  
-  4572                                  exit: 
-  4573 00002416 E852DDFFFF              	call canonical_on
-  4574 0000241B B83C000000              	mov    rax, 60
-  4575 00002420 BF00000000                  mov    rdi, 0
-  4576 00002425 0F05                        syscall
-  4577                                  
+  4571 00002415 C3                          ret
+  4572                                  
+  4573                                  exit: 
+  4574 00002416 E852DDFFFF              	call canonical_on
+  4575 0000241B B83C000000              	mov    rax, 60
+  4576 00002420 BF00000000                  mov    rdi, 0
+  4577 00002425 0F05                        syscall
+  4578                                  
